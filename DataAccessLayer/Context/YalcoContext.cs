@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using DataAccessLayer;
 using Microsoft.EntityFrameworkCore;
 
-namespace DataAccessLayer.Concrete;
+namespace DataAccessLayer.Context;
 
 public partial class YalcoContext : DbContext
 {
@@ -69,7 +68,8 @@ public partial class YalcoContext : DbContext
     public virtual DbSet<Uyruk> Uyruklar { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseSqlServer("server=DESKTOP-I3A8MJ6\\SQLEXPRESS;database=YalcoDB;Integrated Security=true;TrustServerCertificate=True;");
+        => optionsBuilder.UseSqlServer("server=DESKTOP-I3A8MJ6\\SQLEXPRESS;database=YalcomaniaDB;Integrated Security=true;TrustServerCertificate=True;");
+    //Burada "DB_CONNECTION_STRING" environment variable kullanabilirim.
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
