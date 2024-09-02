@@ -53,8 +53,6 @@ namespace YalcomaniaToursMkfMtr.Controllers
             return View(model);
         }
 
-        public IActionResult OperationCreateTour()
-
         public IActionResult OperationIndex()
         {
             return View();
