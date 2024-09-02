@@ -11,7 +11,7 @@ namespace DataAccessLayer.Seeds
         public static List<Calisan> GetCalisanSeeds()
         {
             return new List<Calisan>
-                {
+            {
                     new Calisan
                     {
                         CalisanAdi = "Adi 1",
@@ -29,8 +29,44 @@ namespace DataAccessLayer.Seeds
                         CalisanMail = "2",
                         SilindiMi = false,
                         CalisanSoyadi = "Soyadi 2"
+                    },
+                    new Calisan
+                    {
+                        CalisanAdi = "Adi 3",
+                        CalisanSifre = "3",
+                        CalisanTelNo = "1234567890",
+                        CalisanMail = "3",
+                        SilindiMi = false,
+                        CalisanSoyadi = "Soyadi 3"
+                    },
+                    new Calisan
+                    {
+                        CalisanAdi = "Adi 4",
+                        CalisanSifre = "4",
+                        CalisanTelNo = "9876543210",
+                        CalisanMail = "4",
+                        SilindiMi = false,
+                        CalisanSoyadi = "Soyadi 4"
+                    },
+                    new Calisan
+                    {
+                        CalisanAdi = "Adi 5",
+                        CalisanSifre = "5",
+                        CalisanTelNo = "1234567890",
+                        CalisanMail = "5",
+                        SilindiMi = false,
+                        CalisanSoyadi = "Soyadi 5"
+                    },
+                    new Calisan
+                    {
+                        CalisanAdi = "Default Admin",
+                        CalisanSifre = "admin",
+                        CalisanTelNo = "0000000000",
+                        CalisanMail = "admin",
+                        SilindiMi = false,
+                        CalisanSoyadi = "Hesap"
                     }
-                };
+            };
         }
     }
 }

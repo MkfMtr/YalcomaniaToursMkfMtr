@@ -1,10 +1,17 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using DataAccessLayer.Context;
+using Microsoft.AspNetCore.Mvc;
 using YalcomaniaToursMkfMtr.Models;
 
 namespace YalcomaniaToursMkfMtr.Controllers
 {
     public class AccountController : Controller
     {
+        private readonly YalcoContext _dbContext;
+
+        public AccountController(YalcoContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
 
         // User Login
         [HttpGet]
@@ -15,48 +22,69 @@ namespace YalcomaniaToursMkfMtr.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Login(LoginViewModel model)
+        public IActionResult Login(LoginViewModel model, string callingView)
         {
             if (ModelState.IsValid)
             {
-                if(model.UserMail == "1" && model.Password == "1")
+                var user = _dbContext.Calisanlar.FirstOrDefault(c => c.CalisanMail == model.UserMail && c.CalisanSifre == model.Password);
+
+                if (user != null)
                 {
-                    // Perform user login logic
-                    // Redirect to user dashboard
-                    return RedirectToAction("TicketIndex", "Home");
+                    var gorevCalisan = _dbContext.GorevlerCalisanlar.FirstOrDefault(gc => gc.CalisanId == user.Id);
+                    if (gorevCalisan != null)
+                    {
+                        var gorev = _dbContext.Gorevler.FirstOrDefault(c => c.Id == gorevCalisan.GorevId);
+                        if (gorev != null && callingView == "Login")
+                        {
+                            switch (gorev.GorevAdi)
+                            {
+                                case "BiletSatis":
+                                    return RedirectToAction("TicketIndex", "Home");
+                                case "OperasyonYonetim":
+                                    return RedirectToAction("OperationIndex", "Home");
+                                case "VeriGiris":
+                                    return RedirectToAction("DataInputIndex", "Home");
+                                case "Muhasebe":
+                                    return RedirectToAction("AccountingIndex", "Home");
+                                default:
+                                    break;
+                            }
+                        }
+                        else if (gorev != null && gorev.GorevAdi == "Admin" && callingView == "AdminLogin")
+                        {
+                            return RedirectToAction("AdminIndex", "Admin");
+                        }
+                        else
+                        {
+                            ModelState.AddModelError(string.Empty, "Invalid role.");
+                        }
+                    }
+                    else
+                    {
+                        ModelState.AddModelError(string.Empty, "You do not have a role.");
+                    }
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                    ModelState.AddModelError(string.Empty, "Invalid user.");
                 }
-                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
             }
-            return View(model);
+            ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+            return View(callingView, model);
         }
-
+        
         // Admin Login
-        public ActionResult AdminLogin()
+        [HttpGet]
+        public IActionResult AdminLogin()
         {
             return View();
         }
 
         [HttpPost]
-        public ActionResult AdminLogin(LoginViewModel model)
+        [ValidateAntiForgeryToken]
+        public IActionResult AdminLogin(LoginViewModel model, string callingView)
         {
-            if (ModelState.IsValid)
-            {
-                if (model.UserMail == "1" && model.Password == "1")
-                {
-                    // Perform user login logic
-                    // Redirect to user dashboard
-                    return RedirectToAction("AdminIndex", "Admin");
-                }
-                else
-                {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-                }
-            }
-            return View(model);
+            return Login(model, callingView);
         }
     }
 }

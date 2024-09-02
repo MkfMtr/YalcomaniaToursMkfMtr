@@ -18,6 +18,21 @@ namespace YalcomaniaToursMkfMtr.Controllers
             return View();
         }
 
+        public IActionResult operationIndex()
+        {
+            return View();
+        }
+
+        public IActionResult DataInputIndex()
+        {
+            return View();
+        }
+
+        public IActionResult AccountingIndex()
+        {
+            return View();
+        }
+
         public IActionResult Privacy()
         {
             return View();

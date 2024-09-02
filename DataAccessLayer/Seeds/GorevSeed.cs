@@ -12,8 +12,11 @@ namespace DataAccessLayer.Seeds
         {
             return new List<Gorev>
             {
-                    new Gorev {GorevAdi = "admin", Aciklama = null, SilindiMi = false },
-                    new Gorev {GorevAdi = "user", Aciklama = null, SilindiMi = false }
+                    new Gorev {GorevAdi = "Admin", Aciklama = "Sistem Yöneticisi", SilindiMi = false },
+                    new Gorev {GorevAdi = "BiletSatis", Aciklama = "Bilet Satış Elemanı", SilindiMi = false },
+                    new Gorev {GorevAdi = "OperasyonYonetim", Aciklama = "Operasyon Yönetim Elemanı", SilindiMi = false },
+                    new Gorev {GorevAdi = "VeriGiris", Aciklama = "Veri Giriş Elemanı", SilindiMi = false },
+                    new Gorev {GorevAdi = "Muhasebe", Aciklama = "Muhasebeci", SilindiMi = false }
             };
         }
     }

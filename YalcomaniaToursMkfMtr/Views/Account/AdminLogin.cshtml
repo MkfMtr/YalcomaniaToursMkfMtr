@@ -7,6 +7,7 @@
 
 <form asp-action="AdminLogin" method="post">
     @Html.AntiForgeryToken()
+    <input type="hidden" name="callingView" value="AdminLogin" />
     <div class="form-group">
         <label asp-for="UserMail" class="control-label"></label>
         <input asp-for="UserMail" class="form-control" />
