@@ -24,100 +24,111 @@ using (var scope = app.Services.CreateScope())
     // Check if the tables are empty and if so, seed them.
     if (!dbContext.Gorevler.Any())
     {
-        dbContext.Gorevler.AddRange(GorevSeed.GetSeeds());
+        await dbContext.Gorevler.AddRangeAsync(GorevSeed.GetSeeds());
+        await dbContext.SaveChangesAsync();
     }
 
     if (!dbContext.Calisanlar.Any())
     {
-        dbContext.Calisanlar.AddRange(CalisanSeed.GetSeeds());
+        await dbContext.Calisanlar.AddRangeAsync(CalisanSeed.GetSeeds());
+        await dbContext.SaveChangesAsync();
     }
 
     if (!dbContext.GorevlerCalisanlar.Any())
     {
-        dbContext.GorevlerCalisanlar.AddRange(GorevCalisanSeed.GetSeeds());
+        await dbContext.GorevlerCalisanlar.AddRangeAsync(GorevCalisanSeed.GetSeeds());
+        await dbContext.SaveChangesAsync();
     }
 
     if (!dbContext.ParaBirimleri.Any())
     {
-        dbContext.ParaBirimleri.AddRange(ParaBirimiSeed.GetSeeds());
+        await dbContext.ParaBirimleri.AddRangeAsync(ParaBirimiSeed.GetSeeds());
+        await dbContext.SaveChangesAsync();
     }
 
     if (!dbContext.Subeler.Any())
     {
-        dbContext.Subeler.AddRange(SubeSeed.GetSeeds());
+        await dbContext.Subeler.AddRangeAsync(SubeSeed.GetSeeds());
+        await dbContext.SaveChangesAsync();
     }
 
     if (!dbContext.Bolgeler.Any())
     {
-        dbContext.Bolgeler.AddRange(BolgeSeed.GetSeeds());
+        await dbContext.Bolgeler.AddRangeAsync(BolgeSeed.GetSeeds());
+        await dbContext.SaveChangesAsync();
     }
 
     if (!dbContext.BolgelerSubeler.Any())
     {
-        dbContext.BolgelerSubeler.AddRange(BolgeSubeSeed.GetSeeds());
-    }
-
-    if (!dbContext.ParaBirimleri.Any())
-    {
-        dbContext.ParaBirimleri.AddRange(ParaBirimiSeed.GetSeeds());
+        await dbContext.BolgelerSubeler.AddRangeAsync(BolgeSubeSeed.GetSeeds());
+        await dbContext.SaveChangesAsync();
     }
 
     if (!dbContext.Sirketler.Any())
     {
-        dbContext.Sirketler.AddRange(SirketSeed.GetSeeds());
+        await dbContext.Sirketler.AddRangeAsync(SirketSeed.GetSeeds());
+        await dbContext.SaveChangesAsync();
     }
 
     if (!dbContext.SubelerCalisanlar.Any())
     {
-        dbContext.SubelerCalisanlar.AddRange(SubeCalisanSeed.GetSeeds());
+        await dbContext.SubelerCalisanlar.AddRangeAsync(SubeCalisanSeed.GetSeeds());
+        await dbContext.SaveChangesAsync();
     }
 
     if (!dbContext.Oteller.Any())
     {
-        dbContext.Oteller.AddRange(OtelSeed.GetSeeds());
+        await dbContext.Oteller.AddRangeAsync(OtelSeed.GetSeeds());
+        await dbContext.SaveChangesAsync();
     }
 
     if (!dbContext.BolgelerOteller.Any())
     {
-        dbContext.BolgelerOteller.AddRange(BolgeOtelSeed.GetSeeds());
-    }
-
-    if (!dbContext.Uyruklar.Any())
-    {
-        dbContext.Uyruklar.AddRange(UyrukSeed.GetSeeds());
+        await dbContext.BolgelerOteller.AddRangeAsync(BolgeOtelSeed.GetSeeds());
+        await dbContext.SaveChangesAsync();
     }
 
     if (!dbContext.AracTipleri.Any())
     {
-        dbContext.AracTipleri.AddRange(AracTipiSeed.GetSeeds());
+        await dbContext.AracTipleri.AddRangeAsync(AracTipiSeed.GetSeeds());
+        await dbContext.SaveChangesAsync();
+    }
+
+    if (!dbContext.Uyruklar.Any())
+    {
+        await dbContext.Uyruklar.AddRangeAsync(UyrukSeed.GetSeeds());
+        await dbContext.SaveChangesAsync();
     }
 
     if (!dbContext.Araclar.Any())
     {
-        dbContext.Araclar.AddRange(AracSeed.GetSeeds());
+        await dbContext.Araclar.AddRangeAsync(AracSeed.GetSeeds());
+        await dbContext.SaveChangesAsync();
     }
 
     if (!dbContext.TurTipleri.Any())
     {
-        dbContext.TurTipleri.AddRange(TurTipiSeed.GetSeeds());
-    }
-    
-    if (!dbContext.SirketTurTipleri.Any())
-    {
-        dbContext.SirketTurTipleri.AddRange(SirketTurTipiSeed.GetSeeds());
-    }
-    
-    if (!dbContext.GelirGiderKategoriler.Any())
-    {
-        dbContext.GelirGiderKategoriler.AddRange(GelirGiderKategoriSeed.GetSeeds());
-    }
-    
-    if (!dbContext.PasAnlasmalar.Any()) 
-    {
-        dbContext.PasAnlasmalar.AddRange(PasAnlasmaSeed.GetSeeds());
+        await dbContext.TurTipleri.AddRangeAsync(TurTipiSeed.GetSeeds());
+        await dbContext.SaveChangesAsync();
     }
 
-    dbContext.SaveChanges();
+    if (!dbContext.SirketTurTipleri.Any())
+    {
+        await dbContext.SirketTurTipleri.AddRangeAsync(SirketTurTipiSeed.GetSeeds());
+        await dbContext.SaveChangesAsync();
+    }
+
+    if (!dbContext.GelirGiderKategoriler.Any())
+    {
+        await dbContext.GelirGiderKategoriler.AddRangeAsync(GelirGiderKategoriSeed.GetSeeds());
+        await dbContext.SaveChangesAsync();
+    }
+
+    if (!dbContext.PasAnlasmalar.Any())
+    {
+        await dbContext.PasAnlasmalar.AddRangeAsync(PasAnlasmaSeed.GetSeeds());
+        await dbContext.SaveChangesAsync();
+    }
     #endregion
 }
 

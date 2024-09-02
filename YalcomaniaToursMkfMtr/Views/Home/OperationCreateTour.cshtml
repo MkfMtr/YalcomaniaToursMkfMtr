@@ -1,0 +1,231 @@
+﻿@model OperationCreateTourModel
+@{
+    ViewData["Title"] = "Operasyon Tur Düzenleme";
+}
+
+<div id="addtourdiv">
+    <div>
+        <p>Tarih</p>
+        <input type="date" id="Tarih" name="Tarih" placeholder="Tarih" />
+    </div>
+    <div>
+        <p>Saat</p>
+        <input type="time" id="Saat" name="Saat" placeholder="Saat" />
+    </div>
+    <div>
+        <p>Tur Tipi</p>
+        <select id="TurTipiId" name="TurTipiId">
+            <option value="">Seçenek seçin</option>
+            @foreach (var tur in Model.TurTipiList)
+            {
+                <option value="@tur.Id">@tur.TurTipiAdi</option>
+            }
+        </select>
+    </div>
+    <div>
+        <p>Fiyat</p>
+        <input type="number" id="Fiyat" name="Fiyat" placeholder="Fiyat" />
+    </div>
+    
+    <div>
+        <p>Arac 1</p>
+        <select id="AracId1" name="AracId1">
+            <option value="">Seçenek seçin</option>
+            @foreach (var arac in Model.AracList.Where(a => a.AracTipiId == 1))
+            {
+                var aracTipi = Model.AracTipiList.FirstOrDefault(a => a.Id == arac.AracTipiId);
+                <option value="@arac.Id">@($"{aracTipi.AracTipiAdi}, {arac.PlakaVeyaIsim}")</option>
+            }
+        </select>
+    </div>
+    <div>
+        <p>Arac 2</p>
+        <select id="AracId2" name="AracId2">
+            <option value="">Seçenek seçin</option>
+            @foreach (var arac in Model.AracList.Where(a => a.AracTipiId == 1))
+            {
+                var aracTipi = Model.AracTipiList.FirstOrDefault(a => a.Id == arac.AracTipiId);
+                <option value="@arac.Id">@($"{aracTipi.AracTipiAdi}, {arac.PlakaVeyaIsim}")</option>
+            }
+        </select>
+    </div>
+    <div>
+        <p>Arac 3</p>
+        <select id="AracId3" name="AracId3">
+            <option value="">Seçenek seçin</option>
+            @foreach (var arac in Model.AracList.Where(a => a.AracTipiId == 1))
+            {
+                var aracTipi = Model.AracTipiList.FirstOrDefault(a => a.Id == arac.AracTipiId);
+                <option value="@arac.Id">@($"{aracTipi.AracTipiAdi}, {arac.PlakaVeyaIsim}")</option>
+            }
+        </select>
+    </div>
+    <div>
+        <p>Arac 4</p>
+        <select id="AracId4" name="AracId4">
+            <option value="">Seçenek seçin</option>
+            @foreach (var arac in Model.AracList.Where(a => a.AracTipiId == 1))
+            {
+                var aracTipi = Model.AracTipiList.FirstOrDefault(a => a.Id == arac.AracTipiId);
+                <option value="@arac.Id">@($"{aracTipi.AracTipiAdi}, {arac.PlakaVeyaIsim}")</option>
+            }
+        </select>
+    </div>
+    
+    <div>
+        <p>Servis 1</p>
+        <select id="ServisId1" name="ServisId1">
+            <option value="">Seçenek seçin</option>
+            @foreach (var arac in Model.AracList.Where(a => a.AracTipiId == 2))
+            {
+                var aracTipi = Model.AracTipiList.FirstOrDefault(a => a.Id == arac.AracTipiId);
+                <option value="@arac.Id">@($"{aracTipi.AracTipiAdi}, {arac.PlakaVeyaIsim}")</option>
+            }
+        </select>
+    </div>
+    <div>
+        <p>Servis 2</p>
+        <select id="ServisId2" name="ServisId2">
+            <option value="">Seçenek seçin</option>
+            @foreach (var arac in Model.AracList.Where(a => a.AracTipiId == 2))
+            {
+                var aracTipi = Model.AracTipiList.FirstOrDefault(a => a.Id == arac.AracTipiId);
+                <option value="@arac.Id">@($"{aracTipi.AracTipiAdi}, {arac.PlakaVeyaIsim}")</option>
+            }
+        </select>
+    </div>
+    <div>
+        <p>Servis 3</p>
+        <select id="ServisId3" name="ServisId3">
+            <option value="">Seçenek seçin</option>
+            @foreach (var arac in Model.AracList.Where(a => a.AracTipiId == 2))
+            {
+                var aracTipi = Model.AracTipiList.FirstOrDefault(a => a.Id == arac.AracTipiId);
+                <option value="@arac.Id">@($"{aracTipi.AracTipiAdi}, {arac.PlakaVeyaIsim}")</option>
+            }
+        </select>
+    </div>
+    
+    <div>
+        <input type="checkbox" id="showRentBus" name="showRentBus" onchange="toggleRentBus()" />
+        <label for="showRentBus">Rent Bus</label>
+    </div>
+    
+    <div id="rentbus" style="display: none;">
+        <div>
+            <p>Sirket</p>
+            <select id="Sirket" name="Sirket">
+                <option value="">Seçenek seçin</option>
+                @foreach (var sirket in Model.SirketList.Where(s => !Model.SirketTurTipiList.Any(st => st.SirketId == s.Id)))
+                {
+                    <option value="@sirket.Id">@sirket.SirketAdi</option>
+                }
+            </select>
+        </div>
+        <div>
+            <p>AracSayisi</p>
+            <input type="number" id="AracSayisi" name="AracSayisi" placeholder="AracSayisi" />
+        </div>
+        <div>
+            <p>VerecekParaBirimi</p>
+            <select id="VerecekParaBirimi" name="VerecekParaBirimi">
+                <option value="">Seçenek seçin</option>
+                @foreach (var paraBirimi in Model.ParaBirimiList)
+                {
+                    <option value="@paraBirimi.Iso4217">@paraBirimi.Iso4217</option>
+                }
+            </select>
+        </div>
+        <div>
+            <p>ToplamVerecek</p>
+            <input type="number" id="ToplamVerecek" name="ToplamVerecek" placeholder="ToplamVerecek" step="0.01" />
+        </div>
+        <div>
+            <p>OdenenVerecek</p>
+            <input type="number" id="OdenenVerecek" name="OdenenVerecek" placeholder="OdenenVerecek" step="0.01" />
+        </div>
+        <div>
+            <p>OdendiMi</p>
+            <input type="checkbox" id="OdendiMi" name="OdendiMi" />
+        </div>
+    </div>
+
+    <button type="button" onclick="createTour()">Tur Oluştur</button>
+</div>
+
+<script>
+    function toggleRentBus() {
+        var rentBusDiv = document.getElementById("rentbus");
+        var showRentBusCheckbox = document.getElementById("showRentBus");
+        if (showRentBusCheckbox.checked) {
+            rentBusDiv.style.display = "block";
+        } else {
+            rentBusDiv.style.display = "none";
+        }
+    }
+
+    function createTour() {
+        var tarih = document.getElementById("Tarih").value;
+        var saat = document.getElementById("Saat").value;
+        var turTipiId = document.getElementById("TurTipiId").value;
+        var fiyat = document.getElementById("Fiyat").value;
+        var aracId1 = document.getElementById("AracId1").value;
+        var aracId2 = document.getElementById("AracId2").value;
+        var aracId3 = document.getElementById("AracId3").value;
+        var aracId4 = document.getElementById("AracId4").value;
+        var servisId1 = document.getElementById("ServisId1").value;
+        var servisId2 = document.getElementById("ServisId2").value;
+        var servisId3 = document.getElementById("ServisId3").value;
+
+        var rentBusDiv = document.getElementById("rentbus");
+        var showRentBusCheckbox = document.getElementById("showRentBus");
+        var sirket = "";
+        var aracSayisi = "";
+        var verecekParaBirimi = "";
+        var toplamVerecek = "";
+        var odenenVerecek = "";
+        var odendiMi = "";
+
+        if (showRentBusCheckbox.checked) {
+            sirket = document.getElementById("Sirket").value;
+            aracSayisi = document.getElementById("AracSayisi").value;
+            verecekParaBirimi = document.getElementById("VerecekParaBirimi").value;
+            toplamVerecek = document.getElementById("ToplamVerecek").value;
+            odenenVerecek = document.getElementById("OdenenVerecek").value;
+            odendiMi = document.getElementById("OdendiMi").checked;
+        }
+
+        // Check if certain values are null
+        if (tarih && saat && turTipiId && fiyat && aracId1) {
+            // Add your logic here to handle the values
+
+            // Example: Add the values to a list
+            var tourValues = [];
+            tourValues.push(tarih);
+            tourValues.push(saat);
+            tourValues.push(turTipiId);
+            tourValues.push(fiyat);
+            tourValues.push(aracId1);
+            tourValues.push(aracId2);
+            tourValues.push(aracId3);
+            tourValues.push(aracId4);
+            tourValues.push(servisId1);
+            tourValues.push(servisId2);
+            tourValues.push(servisId3);
+
+            if (showRentBusCheckbox.checked) {
+                tourValues.push(sirket);
+                tourValues.push(aracSayisi);
+                tourValues.push(verecekParaBirimi);
+                tourValues.push(toplamVerecek);
+                tourValues.push(odenenVerecek);
+                tourValues.push(odendiMi);
+            }
+
+            console.log(tourValues);
+            @Model.TourValues = tourValues;
+        } else {
+            console.log("Please fill in all the required fields.");
+        }
+    }
+</script>
