@@ -5,9 +5,11 @@ VisualStudioVersion = 17.11.35222.181
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YalcomaniaToursMkfMtr", "YalcomaniaToursMkfMtr\YalcomaniaToursMkfMtr.csproj", "{0D3D9A8A-7C55-491A-B8BA-93B807E568BA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityLayer", "EntityLayer\EntityLayer.csproj", "{130EC783-188B-4062-84FA-AB036D3390F3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EntityLayer", "EntityLayer\EntityLayer.csproj", "{130EC783-188B-4062-84FA-AB036D3390F3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAccessLayer", "DataAccessLayer\DataAccessLayer.csproj", "{C014F51F-4D2F-4DD2-BAAF-DAFA988FC8D2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAccessLayer", "DataAccessLayer\DataAccessLayer.csproj", "{C014F51F-4D2F-4DD2-BAAF-DAFA988FC8D2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessLayer", "BusinessLayer\BusinessLayer.csproj", "{A7323C26-C15E-4E0D-A98A-D70B72AC47CF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{C014F51F-4D2F-4DD2-BAAF-DAFA988FC8D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C014F51F-4D2F-4DD2-BAAF-DAFA988FC8D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C014F51F-4D2F-4DD2-BAAF-DAFA988FC8D2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A7323C26-C15E-4E0D-A98A-D70B72AC47CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A7323C26-C15E-4E0D-A98A-D70B72AC47CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A7323C26-C15E-4E0D-A98A-D70B72AC47CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A7323C26-C15E-4E0D-A98A-D70B72AC47CF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

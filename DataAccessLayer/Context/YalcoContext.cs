@@ -207,8 +207,7 @@ public partial class YalcoContext : DbContext
         modelBuilder.Entity<BolgeOtel>(entity =>
         {
             entity
-                .HasNoKey()
-                .ToTable("BolgeOtel");
+                .HasKey(gc => new { gc.BolgeId, gc.OtelId });
 
             entity.HasOne(d => d.Bolge).WithMany()
                 .HasForeignKey(d => d.BolgeId)
@@ -224,8 +223,7 @@ public partial class YalcoContext : DbContext
         modelBuilder.Entity<BolgeSube>(entity =>
         {
             entity
-                .HasNoKey()
-                .ToTable("BolgeSube");
+                .HasKey(gc => new { gc.BolgeId, gc.SubeId });
 
             entity.HasOne(d => d.Bolge).WithMany()
                 .HasForeignKey(d => d.BolgeId)
@@ -313,8 +311,7 @@ public partial class YalcoContext : DbContext
         modelBuilder.Entity<GorevCalisan>(entity =>
         {
             entity
-                .HasNoKey()
-                .ToTable("GorevCalisan");
+                .HasKey(gc => new { gc.GorevId, gc.CalisanId });
 
             entity.HasOne(d => d.Calisan).WithMany()
                 .HasForeignKey(d => d.CalisanId)
@@ -449,8 +446,7 @@ public partial class YalcoContext : DbContext
         modelBuilder.Entity<SirketTurTipi>(entity =>
         {
             entity
-                .HasNoKey()
-                .ToTable("SirketTurTipi");
+                .HasKey(gc => new { gc.SirketId, gc.TurTipiId });
 
             entity.HasOne(d => d.Sirket).WithMany()
                 .HasForeignKey(d => d.SirketId)
@@ -488,8 +484,7 @@ public partial class YalcoContext : DbContext
         modelBuilder.Entity<SubeCalisan>(entity =>
         {
             entity
-                .HasNoKey()
-                .ToTable("SubeCalisan");
+                .HasKey(gc => new { gc.CalisanId, gc.SubeId });
 
             entity.HasOne(d => d.Calisan).WithMany()
                 .HasForeignKey(d => d.CalisanId)

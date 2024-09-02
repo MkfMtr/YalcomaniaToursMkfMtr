@@ -13,7 +13,7 @@ namespace YalcomaniaToursMkfMtr.Controllers
             _logger = logger;
         }
 
-        public IActionResult Index()
+        public IActionResult TicketIndex()
         {
             return View();
         }
