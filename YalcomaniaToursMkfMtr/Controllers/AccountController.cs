@@ -1,5 +1,6 @@
 ﻿using DataAccessLayer.Context;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using YalcomaniaToursMkfMtr.Models;
 
 namespace YalcomaniaToursMkfMtr.Controllers
@@ -39,6 +40,8 @@ namespace YalcomaniaToursMkfMtr.Controllers
                             switch (gorev.GorevAdi)
                             {
                                 case "BiletSatis":
+                                    //string currentUserId = user.Id.ToString();
+                                    //TempData["CurrentUserId"] = currentUserId;
                                     return RedirectToAction("TicketIndex", "Home");
                                 case "OperasyonYonetim":
                                     return RedirectToAction("OperationIndex", "Home");

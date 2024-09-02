@@ -1,3 +1,6 @@
+using DataAccessLayer;
+using DataAccessLayer.Abstract;
+using DataAccessLayer.Concrete;
 using DataAccessLayer.Context;
 using DataAccessLayer.Seeds;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +14,8 @@ builder.Services.AddDbContext<YalcoContext>(options =>
     options.UseSqlServer(connectionString));
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddScoped < IGenericRepository<Tur>, GenericRepository<Tur> >();
+builder.Services.AddScoped < IGenericRepository<AracVerecek>, GenericRepository<AracVerecek> >();
 
 var app = builder.Build();
 

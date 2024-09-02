@@ -1,0 +1,146 @@
+﻿@model TicketCreateModel
+@{
+    ViewData["Title"] = "Bilet Oluştur";
+}
+
+<div id="addticketdiv">
+    <div>
+        <p>Tur</p>
+        <select id="TurId" name="TurId">
+            <option value="">Seçenek seçin</option>
+            @foreach (var tur in Model.TurList)
+            {
+                var turTipi = @Model.TurTipiList.FirstOrDefault(t => t.Id == tur.TurTipiId);
+                <option value="@tur.Id">@tur.Tarih - @tur.Saat - @turTipi.TurTipiAdi</option>
+            }
+        </select>
+    </div>
+    <div>
+        <p>Satan Şube</p>
+        <select id="SatanSubeId" name="SatanSubeId" disabled>
+            @foreach (var calisan in Model.CalisanList)
+            {
+                if (calisan.Id == Model.CurrentUserId)
+                {
+                    var subeCalisan = Model.SubeCalisanList.FirstOrDefault(sc => sc.CalisanId == calisan.Id);
+                    var sube = Model.SubeList.FirstOrDefault(s => s.Id == subeCalisan.SubeId);
+                    <option value="@sube.Id">@sube.SubeAd</option>
+                }
+            }
+        </select>
+    </div>
+    <div>
+        <p>Satan Eleman</p>
+        <select id="SatanElemanId" name="SatanElemanId" disabled>
+            <option value="@Model.CurrentUserId">@Model.CalisanList.FirstOrDefault(c => c.Id == Model.CurrentUserId)?.CalisanAdi @Model.CalisanList.FirstOrDefault(c => c.Id == Model.CurrentUserId)?.CalisanSoyadi</option>
+        </select>
+    </div>
+    <div>
+        <p>Müşteri Ad</p>
+        <input type="text" id="MusteriAd" name="MusteriAd" placeholder="Müşteri Ad" />
+    </div>
+    <div>
+        <p>Müşteri Soyad</p>
+        <input type="text" id="MusteriSoyad" name="MusteriSoyad" placeholder="Müşteri Soyad" />
+    </div>
+    <div>
+        <p>Müşteri Uyruk</p>
+        <select id="MusteriUyruk" name="MusteriUyruk">
+            <option value="">Seçenek seçin</option>
+            @foreach (var uyruk in Model.UyrukList)
+            {
+                <option value="@uyruk.Alpha3Code">@uyruk.UlkeIsmi</option>
+            }
+        </select>
+    </div>
+    <div>
+        <p>Müşteri Bölge</p>
+        <select id="MusteriBolgeId" name="MusteriBolgeId">
+            <option value="">Seçenek seçin</option>
+            @foreach (var bolge in Model.BolgeList)
+            {
+                <option value="@bolge.Id">@bolge.BolgeIsim</option>
+            }
+        </select>
+    </div>
+    <div>
+        <p>Müşteri Otel</p>
+        <select id="MusteriOtelId" name="MusteriOtelId">
+            <option value="">Seçenek seçin</option>
+            @foreach (var otel in Model.OtelList)
+            {
+                <option value="@otel.Id">@otel.OtelIsim</option>
+            }
+        </select>
+    </div>
+    <div>
+        <p>Müşteri Oda No</p>
+        <input type="text" id="MusteriOdaNo" name="MusteriOdaNo" placeholder="Müşteri Oda No" />
+    </div>
+    <div>
+        <p>Müşteri Adres</p>
+        <input type="text" id="MusteriAdres" name="MusteriAdres" placeholder="Müşteri Adres" />
+    </div>
+    <div>
+        <p>Müşteri Tel No</p>
+        <input type="text" id="MusteriTelNo" name="MusteriTelNo" placeholder="Müşteri Tel No" />
+    </div>
+    <div>
+        <p>Full Sayı</p>
+        <input type="number" id="FullSayi" name="FullSayi" placeholder="Full Sayı" />
+    </div>
+    <div>
+        <p>Half Sayı</p>
+        <input type="number" id="HalfSayi" name="HalfSayi" placeholder="Half Sayı" />
+    </div>
+    <div>
+        <p>Guest Sayı</p>
+        <input type="number" id="GuestSayi" name="GuestSayi" placeholder="Guest Sayı" />
+    </div>
+    <div>
+        <p>Para Birimi</p>
+        <select id="ParaBirimi" name="ParaBirimi">
+            <option value="">Seçenek seçin</option>
+            @foreach (var paraBirimi in Model.ParaBirimiList)
+            {
+                <option value="@paraBirimi.Iso4217">@paraBirimi.ParaBirimiAdi</option>
+            }
+        </select>
+    </div>
+    <div>
+        <p>Paid</p>
+        <input type="number" id="Paid" name="Paid" placeholder="Paid" step="0.01" pattern="\d{1,16}(\.\d{2})?" />
+    </div>
+    <div>
+        <p>Rest</p>
+        <input type="number" id="Rest" name="Rest" placeholder="Rest" step="0.01" pattern="\d{1,16}(\.\d{2})?" />
+    </div>
+    <div>
+        <p>Açıklama</p>
+        <input type="text" id="Aciklama" name="Aciklama" placeholder="Açıklama" />
+    </div>
+    <div>
+        <p>Servis İstiyor Mu</p>
+        <input type="checkbox" id="ServisIstiyorMu" name="ServisIstiyorMu" />
+    </div>
+    <div>
+        <p>Servis Saati</p>
+        <input type="time" id="ServisSaati" name="ServisSaati" placeholder="Servis Saati" />
+    </div>
+    <div>
+        <p>Bilet İptal Mi</p>
+        <input type="checkbox" id="BiletIptalMi" name="BiletIptalMi" />
+    </div>
+    <div>
+        <p>Pas Bilet Mi</p>
+        <input type="checkbox" id="PasBiletMi" name="PasBiletMi" />
+    </div>
+    <div>
+        <p>Gelen/Giden Pas</p>
+        <input type="checkbox" id="GelenGidenPas" name="GelenGidenPas" />
+    </div>
+    <div>
+        <p>Pas Şirketi</p>
+        <input type="text" id="PasSirketi" name="PasSirketi" placeholder="Pas Şirketi" />
+    </div>
+</div>
