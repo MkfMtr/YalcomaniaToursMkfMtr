@@ -13,15 +13,15 @@ public partial class PasAnlasma
 
     public string AlacakParaBirimi { get; set; } = null!;
 
-    public byte AlacakF { get; set; }
+    public decimal AlacakF { get; set; }
 
-    public byte AlacakH { get; set; }
+    public decimal AlacakH { get; set; }
 
     public string VerecekParaBirimi { get; set; } = null!;
 
-    public byte VerecekF { get; set; }
+    public decimal VerecekF { get; set; }
 
-    public byte VerecehH { get; set; }
+    public decimal VerecehH { get; set; }
 
     public bool AnlasmaBittiMi { get; set; }
 

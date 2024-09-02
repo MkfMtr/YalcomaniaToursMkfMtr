@@ -20,22 +20,105 @@ using (var scope = app.Services.CreateScope())
     var dbContext = scope.ServiceProvider.GetRequiredService<YalcoContext>();
     dbContext.Database.EnsureCreated();
 
+    #region Seeds
+    // Check if the tables are empty and if so, seed them.
     if (!dbContext.Gorevler.Any())
     {
-        dbContext.Gorevler.AddRange(GorevSeed.GetSeedData());
+        dbContext.Gorevler.AddRange(GorevSeed.GetSeeds());
     }
 
     if (!dbContext.Calisanlar.Any())
     {
-        dbContext.Calisanlar.AddRange(CalisanSeed.GetCalisanSeeds());
+        dbContext.Calisanlar.AddRange(CalisanSeed.GetSeeds());
     }
 
     if (!dbContext.GorevlerCalisanlar.Any())
     {
-        dbContext.GorevlerCalisanlar.AddRange(GorevCalisanSeed.SeedData());
+        dbContext.GorevlerCalisanlar.AddRange(GorevCalisanSeed.GetSeeds());
+    }
+
+    if (!dbContext.ParaBirimleri.Any())
+    {
+        dbContext.ParaBirimleri.AddRange(ParaBirimiSeed.GetSeeds());
+    }
+
+    if (!dbContext.Subeler.Any())
+    {
+        dbContext.Subeler.AddRange(SubeSeed.GetSeeds());
+    }
+
+    if (!dbContext.Bolgeler.Any())
+    {
+        dbContext.Bolgeler.AddRange(BolgeSeed.GetSeeds());
+    }
+
+    if (!dbContext.BolgelerSubeler.Any())
+    {
+        dbContext.BolgelerSubeler.AddRange(BolgeSubeSeed.GetSeeds());
+    }
+
+    if (!dbContext.ParaBirimleri.Any())
+    {
+        dbContext.ParaBirimleri.AddRange(ParaBirimiSeed.GetSeeds());
+    }
+
+    if (!dbContext.Sirketler.Any())
+    {
+        dbContext.Sirketler.AddRange(SirketSeed.GetSeeds());
+    }
+
+    if (!dbContext.SubelerCalisanlar.Any())
+    {
+        dbContext.SubelerCalisanlar.AddRange(SubeCalisanSeed.GetSeeds());
+    }
+
+    if (!dbContext.Oteller.Any())
+    {
+        dbContext.Oteller.AddRange(OtelSeed.GetSeeds());
+    }
+
+    if (!dbContext.BolgelerOteller.Any())
+    {
+        dbContext.BolgelerOteller.AddRange(BolgeOtelSeed.GetSeeds());
+    }
+
+    if (!dbContext.Uyruklar.Any())
+    {
+        dbContext.Uyruklar.AddRange(UyrukSeed.GetSeeds());
+    }
+
+    if (!dbContext.AracTipleri.Any())
+    {
+        dbContext.AracTipleri.AddRange(AracTipiSeed.GetSeeds());
+    }
+
+    if (!dbContext.Araclar.Any())
+    {
+        dbContext.Araclar.AddRange(AracSeed.GetSeeds());
+    }
+
+    if (!dbContext.TurTipleri.Any())
+    {
+        dbContext.TurTipleri.AddRange(TurTipiSeed.GetSeeds());
+    }
+    
+    if (!dbContext.SirketTurTipleri.Any())
+    {
+        dbContext.SirketTurTipleri.AddRange(SirketTurTipiSeed.GetSeeds());
+    }
+    
+    if (!dbContext.GelirGiderKategoriler.Any())
+    {
+        dbContext.GelirGiderKategoriler.AddRange(GelirGiderKategoriSeed.GetSeeds());
+    }
+    
+    if (!dbContext.PasAnlasmalar.Any()) 
+    {
+        dbContext.PasAnlasmalar.AddRange(PasAnlasmaSeed.GetSeeds());
     }
 
     dbContext.SaveChanges();
+    #endregion
 }
 
 // Configure the HTTP request pipeline.

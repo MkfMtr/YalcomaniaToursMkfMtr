@@ -8,10 +8,19 @@ namespace DataAccessLayer.Seeds
 {
     public class CalisanSeed
     {
-        public static List<Calisan> GetCalisanSeeds()
+        public static List<Calisan> GetSeeds()
         {
             return new List<Calisan>
             {
+                    new Calisan
+                    {
+                        CalisanAdi = "Default Admin",
+                        CalisanSifre = "admin",
+                        CalisanTelNo = "0000000000",
+                        CalisanMail = "admin",
+                        SilindiMi = false,
+                        CalisanSoyadi = "Hesap"
+                    },
                     new Calisan
                     {
                         CalisanAdi = "Adi 1",
@@ -59,12 +68,12 @@ namespace DataAccessLayer.Seeds
                     },
                     new Calisan
                     {
-                        CalisanAdi = "Default Admin",
-                        CalisanSifre = "admin",
-                        CalisanTelNo = "0000000000",
-                        CalisanMail = "admin",
+                        CalisanAdi = "Adi 6",
+                        CalisanSifre = "6",
+                        CalisanTelNo = "9876543210",
+                        CalisanMail = "6",
                         SilindiMi = false,
-                        CalisanSoyadi = "Hesap"
+                        CalisanSoyadi = "Soyadi 6"
                     }
             };
         }

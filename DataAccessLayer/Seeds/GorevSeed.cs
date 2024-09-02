@@ -8,7 +8,7 @@ namespace DataAccessLayer.Seeds
 {
     public class GorevSeed
     {
-        public static List<Gorev> GetSeedData()
+        public static List<Gorev> GetSeeds()
         {
             return new List<Gorev>
             {
