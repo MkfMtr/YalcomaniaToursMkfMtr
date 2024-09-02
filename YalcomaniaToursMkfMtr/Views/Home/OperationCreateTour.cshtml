@@ -24,7 +24,7 @@
     </div>
     <div>
         <p>Fiyat</p>
-        <input type="number" id="Fiyat" name="Fiyat" placeholder="Fiyat" />
+        <input type="number" id="Fiyat" name="Fiyat" placeholder="Fiyat" step="0.01" pattern="\d{1,16}(\.\d{2})?" />
     </div>
     
     <div>
@@ -138,11 +138,11 @@
         </div>
         <div>
             <p>ToplamVerecek</p>
-            <input type="number" id="ToplamVerecek" name="ToplamVerecek" placeholder="ToplamVerecek" step="0.01" />
+            <input type="number" id="ToplamVerecek" name="ToplamVerecek" placeholder="ToplamVerecek" step="0.01" pattern="\d{1,16}(\.\d{2})?" />
         </div>
         <div>
             <p>OdenenVerecek</p>
-            <input type="number" id="OdenenVerecek" name="OdenenVerecek" placeholder="OdenenVerecek" step="0.01" />
+            <input type="number" id="OdenenVerecek" name="OdenenVerecek" placeholder="OdenenVerecek" step="0.01" pattern="\d{1,16}(\.\d{2})?" />
         </div>
         <div>
             <p>OdendiMi</p>
@@ -223,7 +223,7 @@
             }
 
             console.log(tourValues);
-            @Model.TourValues = tourValues;
+            
         } else {
             console.log("Please fill in all the required fields.");
         }
