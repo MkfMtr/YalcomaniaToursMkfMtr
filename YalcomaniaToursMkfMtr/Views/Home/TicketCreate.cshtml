@@ -1,6 +1,10 @@
 ﻿@model TicketCreateModel
 @{
     ViewData["Title"] = "Bilet Oluştur";
+    var userId = Context.Session.GetInt32("UserId");
+    var userName = Context.Session.GetString("UserName") +" "+ Context.Session.GetString("UserSurname");
+    var subeId = Context.Session.GetInt32("SubeId");
+    var subeName = Context.Session.GetString("SubeName");
 }
 
 <div id="addticketdiv">
@@ -18,21 +22,13 @@
     <div>
         <p>Satan Şube</p>
         <select id="SatanSubeId" name="SatanSubeId" disabled>
-            @foreach (var calisan in Model.CalisanList)
-            {
-                if (calisan.Id == Model.CurrentUserId)
-                {
-                    var subeCalisan = Model.SubeCalisanList.FirstOrDefault(sc => sc.CalisanId == calisan.Id);
-                    var sube = Model.SubeList.FirstOrDefault(s => s.Id == subeCalisan.SubeId);
-                    <option value="@sube.Id">@sube.SubeAd</option>
-                }
-            }
+            <option value="@subeId">@subeName</option>
         </select>
     </div>
     <div>
         <p>Satan Eleman</p>
         <select id="SatanElemanId" name="SatanElemanId" disabled>
-            <option value="@Model.CurrentUserId">@Model.CalisanList.FirstOrDefault(c => c.Id == Model.CurrentUserId)?.CalisanAdi @Model.CalisanList.FirstOrDefault(c => c.Id == Model.CurrentUserId)?.CalisanSoyadi</option>
+            <option value="@userId">@userName</option>
         </select>
     </div>
     <div>

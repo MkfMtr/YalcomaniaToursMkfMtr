@@ -4,7 +4,6 @@ namespace YalcomaniaToursMkfMtr.Models
 {
     public class TicketCreateModel
     {
-        //public int CurrentUserId { get; set; }
         public List<Tur> TurList { get; set; }
         public List<TurTipi> TurTipiList { get; set; }
         public List<Sube> SubeList { get; set; }

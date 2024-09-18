@@ -13,6 +13,14 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<YalcoContext>(options =>
     options.UseSqlServer(connectionString));
 
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromDays(2);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped < IGenericRepository<Tur>, GenericRepository<Tur> >();
 builder.Services.AddScoped < IGenericRepository<AracVerecek>, GenericRepository<AracVerecek> >();
@@ -151,6 +159,8 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
+
+app.UseSession();
 
 app.MapControllerRoute(
     name: "default",

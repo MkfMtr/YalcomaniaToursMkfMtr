@@ -25,8 +25,6 @@ namespace YalcomaniaToursMkfMtr.Controllers
 
         public IActionResult TicketCreate()
         {
-            //var currentUserId = TempData["Message"] as string;
-
             var turList = _context.Turlar.ToList();
             var turTipiList = _context.TurTipleri.ToList();
             var subeList = _context.Subeler.ToList();
@@ -39,8 +37,6 @@ namespace YalcomaniaToursMkfMtr.Controllers
             var parabirimiList = _context.ParaBirimleri.ToList();
             var model = new TicketCreateModel
             {
-                //CurrentUserId = int.Parse(currentUserId),
-
                 TurList = turList,
                 TurTipiList = turTipiList,
                 SubeList = subeList,

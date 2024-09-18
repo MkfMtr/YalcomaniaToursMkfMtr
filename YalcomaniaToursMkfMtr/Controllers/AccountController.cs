@@ -28,6 +28,8 @@ namespace YalcomaniaToursMkfMtr.Controllers
             if (ModelState.IsValid)
             {
                 var user = _dbContext.Calisanlar.FirstOrDefault(c => c.CalisanMail == model.UserMail && c.CalisanSifre == model.Password);
+                var subelerCalisanlar = _dbContext.SubelerCalisanlar.FirstOrDefault(sc => sc.CalisanId == user.Id);
+                var sube = _dbContext.Subeler.FirstOrDefault(s => s.Id == subelerCalisanlar.SubeId);
 
                 if (user != null)
                 {
@@ -37,11 +39,16 @@ namespace YalcomaniaToursMkfMtr.Controllers
                         var gorev = _dbContext.Gorevler.FirstOrDefault(c => c.Id == gorevCalisan.GorevId);
                         if (gorev != null && callingView == "Login")
                         {
+                            // Store user information in session
+                            HttpContext.Session.SetInt32("UserId", user.Id);
+                            HttpContext.Session.SetString("UserName", user.CalisanAdi);
+                            HttpContext.Session.SetString("UserSurname", user.CalisanSoyadi);
+                            HttpContext.Session.SetInt32("SubeId", sube.Id);
+                            HttpContext.Session.SetString("SubeName", sube.SubeAd);
+
                             switch (gorev.GorevAdi)
                             {
                                 case "BiletSatis":
-                                    //string currentUserId = user.Id.ToString();
-                                    //TempData["CurrentUserId"] = currentUserId;
                                     return RedirectToAction("TicketIndex", "Home");
                                 case "OperasyonYonetim":
                                     return RedirectToAction("OperationIndex", "Home");
@@ -49,7 +56,8 @@ namespace YalcomaniaToursMkfMtr.Controllers
                                     return RedirectToAction("DataInputIndex", "Home");
                                 case "Muhasebe":
                                     return RedirectToAction("AccountingIndex", "Home");
-                                default:
+                                case "Admin":
+                                    ModelState.AddModelError(string.Empty, "Invalid role.");
                                     break;
                             }
                         }
