@@ -1,3 +1,5 @@
+using BusinessLayer.Abstract;
+using BusinessLayer.Concrete;
 using DataAccessLayer;
 using DataAccessLayer.Abstract;
 using DataAccessLayer.Concrete;
@@ -22,8 +24,14 @@ builder.Services.AddSession(options =>
 });
 
 builder.Services.AddControllersWithViews();
-builder.Services.AddScoped < IGenericRepository<Tur>, GenericRepository<Tur> >();
-builder.Services.AddScoped < IGenericRepository<AracVerecek>, GenericRepository<AracVerecek> >();
+
+//Dependency Injection
+builder.Services.AddScoped<ITurService, TurService>();
+builder.Services.AddScoped<IGenericRepository<Tur>, GenericRepository<Tur>>();
+builder.Services.AddScoped<IBiletService, BiletService>();
+builder.Services.AddScoped<IGenericRepository<Bilet>, GenericRepository<Bilet>>();
+
+
 
 var app = builder.Build();
 
@@ -140,6 +148,11 @@ using (var scope = app.Services.CreateScope())
     if (!dbContext.PasAnlasmalar.Any())
     {
         await dbContext.PasAnlasmalar.AddRangeAsync(PasAnlasmaSeed.GetSeeds());
+        await dbContext.SaveChangesAsync();
+    }
+    if (!dbContext.Kurlar.Any())
+    {
+        await dbContext.Kurlar.AddRangeAsync(KurSeed.GetSeeds());
         await dbContext.SaveChangesAsync();
     }
     #endregion

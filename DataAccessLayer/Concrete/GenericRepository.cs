@@ -1,5 +1,6 @@
 ﻿using DataAccessLayer.Abstract;
 using DataAccessLayer.Context;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,43 +12,73 @@ namespace DataAccessLayer.Concrete
     public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
         private readonly YalcoContext _context;
+        private DbSet<T> _entities;
         public GenericRepository(YalcoContext context)
         {
             _context = context;
+            _entities = _context.Set<T>();
         }
 
-        public void Add(T entity)
+        public async Task<string> Create(T entity)
         {
-            _context.Add(entity);
-            _context.SaveChanges();
+            try
+            {
+                await _entities.AddAsync(entity);
+                var result = await _context.SaveChangesAsync();
+                if (result > 0)
+                {
+                    Console.WriteLine("Create Başarılı.");
+                    return "Create Başarılı.";
+                }
+                else
+                {
+                    Console.WriteLine("Save Changes başarısız.");
+                    return "Save Changes başarısız.";
+                }
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+            }
         }
 
-        public async Task AddAsync(T entity)
+        public async Task<string> Destroy(T entity)
         {
-            await _context.AddAsync(entity);
-            await _context.SaveChangesAsync();
-        }
-
-        public void Delete(T entity)
-        {
-            _context.Remove(entity);
-            _context.SaveChanges();
+            _entities.Remove(entity);
+            int result = await _context.SaveChangesAsync();
+            if (result > 0)
+            {
+                return "Destroy başarılı.";
+            }
+            else
+            {
+                return "Destroy hata!";
+            }
         }
 
         public List<T> GetAll()
         {
-           return _context.Set<T>().ToList();
+           return _entities.ToList();
         }
 
         public T GetById(int id)
         {
-            return _context.Set<T>().Find(id);
+            try
+            {
+                return _entities.Find(id);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
         }
 
-        public void Update(T entity)
+        public async Task<string> Update(T entity)
         {
-            _context.Update(entity);
-            _context.SaveChanges();
+            _context.Entry(entity).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+            return "Update başarılı.";
         }
     }
 }

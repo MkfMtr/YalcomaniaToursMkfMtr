@@ -503,7 +503,9 @@ public partial class YalcoContext : DbContext
 
             entity.ToTable("Tur");
 
-            entity.Property(e => e.Fiyat).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.FiyatTRY).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.FiyatUSD).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.FiyatEUR).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.Saat).HasPrecision(0);
 
             entity.HasOne(d => d.TurTipi).WithMany(p => p.Turs)

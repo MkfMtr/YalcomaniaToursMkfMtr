@@ -7,136 +7,355 @@
     var subeName = Context.Session.GetString("SubeName");
 }
 
-<div id="addticketdiv">
-    <div>
-        <p>Tur</p>
-        <select id="TurId" name="TurId">
-            <option value="">Seçenek seçin</option>
-            @foreach (var tur in Model.TurList)
-            {
-                var turTipi = @Model.TurTipiList.FirstOrDefault(t => t.Id == tur.TurTipiId);
-                <option value="@tur.Id">@tur.Tarih - @tur.Saat - @turTipi.TurTipiAdi</option>
-            }
-        </select>
+<div>
+    <!-- Satan Şube - Satan Eleman - Tur -->
+    <div style="padding-bottom: 1em">
+        <div style="display: flex; flex-direction:row">
+            <div style="padding-bottom: 1em; padding-right: 2em; display: flex; flex-direction:column; width: 50%">
+                <p>Satan Şube</p>
+                <select id="SatanSubeId" name="SatanSubeId" disabled>
+                    <option value="@subeId">@subeName</option>
+                </select>
+            </div>
+            <div style="display: flex; flex-direction:column; width: 50%">
+                <p>Satan Eleman</p>
+                <select id="SatanElemanId" name="SatanElemanId" disabled>
+                    <option value="@userId">@userName</option>
+                </select>
+            </div>
+        </div>
+        <div style="display: flex; flex-direction: column; width: 100%">
+            <p>Tur</p>
+            <select id="TurId" name="TurId">
+                @foreach (var tur in Model.TurList)
+                {
+                    var turTipi = @Model.TurTipiList.FirstOrDefault(t => t.Id == tur.TurTipiId);
+                    <option value="@tur.Id">@tur.Tarih - @tur.Saat - @turTipi.TurTipiAdi</option>
+                }
+            </select>
+        </div>
     </div>
-    <div>
-        <p>Satan Şube</p>
-        <select id="SatanSubeId" name="SatanSubeId" disabled>
-            <option value="@subeId">@subeName</option>
-        </select>
+
+    <!-- Fiyat TRY - Fiyat USD - Fiyat EUR -->
+    <div style="padding-bottom: 3em">
+        <div style="display: flex; flex-direction:row">
+            <div style="padding-right: 2em; display: flex; flex-direction:column; width: 33%">
+                <p>Fiyat TRY</p>
+                <select id="TurFiyatTry" name="TurFiyatTry" disabled>
+                    @foreach (var tur in Model.TurList)
+                    {
+                        <option value="@tur.FiyatTRY">@tur.FiyatTRY</option>
+                    }
+                </select>
+            </div>
+            <div style="padding-right: 2em; display: flex; flex-direction:column; width: 33%">
+                <p>Fiyat USD</p>
+                <select id="TurFiyatUsd" name="TurFiyatUsd" disabled>
+                    @foreach (var tur in Model.TurList)
+                    {
+                        <option value="@tur.FiyatUSD">@tur.FiyatUSD</option>
+                    }
+                </select>
+            </div>
+            <div style="padding-right: 2em; display: flex; flex-direction:column; width: 33%">
+                <p>Fiyat EUR</p>
+                <select id="TurFiyatEur" name="TurFiyatEur" disabled>
+                    @foreach (var tur in Model.TurList)
+                    {
+                        <option value="@tur.FiyatEUR">@tur.FiyatEUR</option>
+                    }
+                </select>
+            </div>
+        </div>
     </div>
-    <div>
-        <p>Satan Eleman</p>
-        <select id="SatanElemanId" name="SatanElemanId" disabled>
-            <option value="@userId">@userName</option>
-        </select>
+    
+    <!-- Müşteri Ad - Müşteri Soyad - Müşteri Uyruk -->
+    <div style="padding-bottom: 1em; display: flex; flex-direction:row">
+        <div style="padding-right: 2em; display: flex; flex-direction:column; width: 33%">
+            <p>Müşteri Ad</p>
+            <input type="text" id="MusteriAd" name="MusteriAd" placeholder="Müşteri Ad" />
+        </div>
+        <div style="padding-right: 2em; display: flex; flex-direction:column; width: 33%">
+            <p>Müşteri Soyad</p>
+            <input type="text" id="MusteriSoyad" name="MusteriSoyad" placeholder="Müşteri Soyad" />
+        </div>
+        <div style="display: flex; flex-direction:column; width: 33%">
+            <p>Müşteri Uyruk</p>
+            <select id="MusteriUyruk" name="MusteriUyruk">
+                <option value="">Seçenek seçin</option>
+                @foreach (var uyruk in Model.UyrukList)
+                {
+                    <option value="@uyruk.Alpha3Code">@uyruk.UlkeIsmi</option>
+                }
+            </select>
+        </div>
     </div>
-    <div>
-        <p>Müşteri Ad</p>
-        <input type="text" id="MusteriAd" name="MusteriAd" placeholder="Müşteri Ad" />
+    
+    <!-- Müşteri Bölge - Müşteri Otel - Müşteri Oda No. -->
+    <div style="padding-bottom: 1em; display: flex; flex-direction:row">
+        <div style="padding-right: 2em; display: flex; flex-direction:column; width: 33%">
+            <p>Müşteri Bölge</p>
+            <select id="MusteriBolgeId" name="MusteriBolgeId">
+                @foreach (var bolge in Model.BolgeList)
+                {
+                    <option value="@bolge.Id">@bolge.BolgeIsim</option>
+                }
+            </select>
+        </div>
+        <div style="padding-right: 2em; display: flex; flex-direction:column; width: 33%">
+            <p>Müşteri Otel</p>
+            <select id="MusteriOtelId" name="MusteriOtelId">
+                <!-- Bu kısım javascript ile dolduruluyor -->
+            </select>
+        </div>
+        <div style="display: flex; flex-direction:column; width: 33%">
+            <p>Müşteri Oda No.</p>
+            <input type="text" id="MusteriOdaNo" name="MusteriOdaNo" placeholder="Müşteri Oda No" />
+        </div>
     </div>
-    <div>
-        <p>Müşteri Soyad</p>
-        <input type="text" id="MusteriSoyad" name="MusteriSoyad" placeholder="Müşteri Soyad" />
+
+    <!-- Müşteri Tel No. - Müşteri Adres -->
+    <div style="padding-bottom: 3em; display: flex; flex-direction:row">
+        <div style="padding-right: 2em; display: flex; flex-direction:column; width: 50%">
+            <p>Müşteri Tel No.</p>
+            <input type="text" id="MusteriTelNo" name="MusteriTelNo" placeholder="Müşteri Tel No" />
+        </div>
+        <div style="display: flex; flex-direction:column; width: 50%">
+            <p>Müşteri Adres</p>
+            <input type="text" id="MusteriAdres" name="MusteriAdres" placeholder="Müşteri Adres" />
+        </div>
     </div>
-    <div>
-        <p>Müşteri Uyruk</p>
-        <select id="MusteriUyruk" name="MusteriUyruk">
-            <option value="">Seçenek seçin</option>
-            @foreach (var uyruk in Model.UyrukList)
-            {
-                <option value="@uyruk.Alpha3Code">@uyruk.UlkeIsmi</option>
-            }
-        </select>
+
+    <!-- Para Birimi - Full Sayı - Half Sayı - Guest Sayı -->
+    <div style="padding-bottom: 1em; display: flex; flex-direction:row;">
+        <div style="padding-right: 2em; display: flex; flex-direction:column; width: 25%">
+            <p>Para Birimi</p>
+            <select id="ParaBirimi" name="ParaBirimi">
+                @foreach (var paraBirimi in Model.ParaBirimiList)
+                {
+                    <option value="@paraBirimi.Iso4217">@paraBirimi.ParaBirimiAdi</option>
+                }
+            </select>
+        </div>
+        <div style="padding-right: 2em; display: flex; flex-direction:column; width: 25%">
+            <p>Full Sayı</p>
+            <input type="number" id="FullSayi" name="FullSayi" placeholder="Full" />
+        </div>
+        <div style="padding-right: 2em; display: flex; flex-direction:column; width: 25%">
+            <p>Half Sayı</p>
+            <input type="number" id="HalfSayi" name="HalfSayi" placeholder="Half" />
+        </div>
+        <div style="display: flex; flex-direction:column; width: 25%">
+            <p>Guest Sayı</p>
+            <input type="number" id="GuestSayi" name="GuestSayi" placeholder="Guest" />
+        </div>
     </div>
-    <div>
-        <p>Müşteri Bölge</p>
-        <select id="MusteriBolgeId" name="MusteriBolgeId">
-            <option value="">Seçenek seçin</option>
-            @foreach (var bolge in Model.BolgeList)
-            {
-                <option value="@bolge.Id">@bolge.BolgeIsim</option>
-            }
-        </select>
+
+    <!-- Paid - Rest - Total -->
+    <div style="padding-bottom: 3em; display: flex; flex-direction:row">
+        <div style="padding-right: 2em; display: flex; flex-direction:column; width: 33%">
+            <p>Paid</p>
+            <input type="number" id="Paid" name="Paid" placeholder="Paid" step="0.01" pattern="\d{1,16}(\.\d{2})?"/>
+        </div>
+        <div style="padding-right: 2em; display: flex; flex-direction:column; width: 33%">
+            <p>Rest</p>
+            <input type="number" id="Rest" name="Rest" placeholder="Rest" step="0.01" pattern="\d{1,16}(\.\d{2})?" readonly />
+        </div>
+        <div style="display: flex; flex-direction:column; width: 33%">
+            <p>Total</p>
+            <input type="number" id="Total" name="Total" placeholder="Total" step="0.01" pattern="\d{1,16}(\.\d{2})?" readonly />
+        </div>
     </div>
-    <div>
-        <p>Müşteri Otel</p>
-        <select id="MusteriOtelId" name="MusteriOtelId">
-            <option value="">Seçenek seçin</option>
-            @foreach (var otel in Model.OtelList)
-            {
-                <option value="@otel.Id">@otel.OtelIsim</option>
-            }
-        </select>
-    </div>
-    <div>
-        <p>Müşteri Oda No</p>
-        <input type="text" id="MusteriOdaNo" name="MusteriOdaNo" placeholder="Müşteri Oda No" />
-    </div>
-    <div>
-        <p>Müşteri Adres</p>
-        <input type="text" id="MusteriAdres" name="MusteriAdres" placeholder="Müşteri Adres" />
-    </div>
-    <div>
-        <p>Müşteri Tel No</p>
-        <input type="text" id="MusteriTelNo" name="MusteriTelNo" placeholder="Müşteri Tel No" />
-    </div>
-    <div>
-        <p>Full Sayı</p>
-        <input type="number" id="FullSayi" name="FullSayi" placeholder="Full Sayı" />
-    </div>
-    <div>
-        <p>Half Sayı</p>
-        <input type="number" id="HalfSayi" name="HalfSayi" placeholder="Half Sayı" />
-    </div>
-    <div>
-        <p>Guest Sayı</p>
-        <input type="number" id="GuestSayi" name="GuestSayi" placeholder="Guest Sayı" />
-    </div>
-    <div>
-        <p>Para Birimi</p>
-        <select id="ParaBirimi" name="ParaBirimi">
-            <option value="">Seçenek seçin</option>
-            @foreach (var paraBirimi in Model.ParaBirimiList)
-            {
-                <option value="@paraBirimi.Iso4217">@paraBirimi.ParaBirimiAdi</option>
-            }
-        </select>
-    </div>
-    <div>
-        <p>Paid</p>
-        <input type="number" id="Paid" name="Paid" placeholder="Paid" step="0.01" pattern="\d{1,16}(\.\d{2})?" />
-    </div>
-    <div>
-        <p>Rest</p>
-        <input type="number" id="Rest" name="Rest" placeholder="Rest" step="0.01" pattern="\d{1,16}(\.\d{2})?" />
-    </div>
-    <div>
+
+    <!-- Açıklama -->
+    <div style="padding-bottom: 3em; display: flex; flex-direction:column; width: 100%">
         <p>Açıklama</p>
         <input type="text" id="Aciklama" name="Aciklama" placeholder="Açıklama" />
     </div>
-    <div>
-        <p>Servis İstiyor Mu</p>
-        <input type="checkbox" id="ServisIstiyorMu" name="ServisIstiyorMu" />
+
+    <!-- Servis İstiyor Mu - Servis Saati -->
+    <div style="padding-bottom: 3em; display: flex; flex-direction:row">
+        <div style="padding-right: 2em; display: flex; flex-direction:column">
+            <p>Servis İstiyor Mu</p>
+            <input type="checkbox" id="ServisIstiyorMu" name="ServisIstiyorMu" style="align-self: flex-start;" />
+        </div>
+        <div style="display: flex; flex-direction:column">
+            <p>Servis Saati</p>
+            <input type="time" id="ServisSaati" name="ServisSaati" readonly />
+            @* <select id="ServisSaati" name="ServisSaati" disabled>
+                @foreach (var tur in Model.TurList)
+                {
+                    <option value="@tur.Saat">@tur.Saat</option>
+                }
+            </select> *@
+        </div>
     </div>
-    <div>
-        <p>Servis Saati</p>
-        <input type="time" id="ServisSaati" name="ServisSaati" placeholder="Servis Saati" />
-    </div>
-    <div>
-        <p>Bilet İptal Mi</p>
-        <input type="checkbox" id="BiletIptalMi" name="BiletIptalMi" />
-    </div>
-    <div>
-        <p>Pas Bilet Mi</p>
-        <input type="checkbox" id="PasBiletMi" name="PasBiletMi" />
-    </div>
-    <div>
-        <p>Gelen/Giden Pas</p>
-        <input type="checkbox" id="GelenGidenPas" name="GelenGidenPas" />
-    </div>
-    <div>
-        <p>Pas Şirketi</p>
-        <input type="text" id="PasSirketi" name="PasSirketi" placeholder="Pas Şirketi" />
-    </div>
+
+    <button type="button" onclick="createTicket()">Bilet Oluştur</button>
 </div>
+
+<script>
+    //Servis saatini oto. seç.
+    $(document).ready(function () {
+        $('#TurId').change(function () {
+            var selectedTurId = $(this).val();
+            
+            var turFiyatTryOptions = $('#TurFiyatTry option');
+            turFiyatTryOptions.prop('selected', false);
+            turFiyatTryOptions.slice(0, selectedTurId).prop('selected', true);
+            var turFiyatUsdOptions = $('#TurFiyatUsd option');
+            turFiyatUsdOptions.prop('selected', false);
+            turFiyatUsdOptions.slice(0, selectedTurId).prop('selected', true);
+            var turFiyatEurOptions = $('#TurFiyatEur option');
+            turFiyatEurOptions.prop('selected', false);
+            turFiyatEurOptions.slice(0, selectedTurId).prop('selected', true);
+
+            updateTotalValue();
+        });
+
+        //Arrayleri oluştur
+        var bolgeServisSaatiList = @Html.Raw(Json.Serialize(Model.BolgeList.Select(bs => new { bs.Id, bs.ServisSaati })));
+        console.log(bolgeServisSaatiList);
+        var bolgeOtelList = @Html.Raw(Json.Serialize(Model.BolgeOtelList.Select(bo => new {bo.BolgeId, bo.OtelId})));
+        console.log(bolgeOtelList);
+        var otelList = @Html.Raw(Json.Serialize(Model.OtelList.Select(o => new {o.Id, o.OtelIsim})));
+        console.log(otelList);
+
+        //Bölge ile alakalı kısımları yenile
+        updateBolgeStuff();
+
+        //Seçilen bölge değişirse:
+        $('#MusteriBolgeId').change(function () {
+            selectedBolgeIdStr = $(this).val();
+            updateBolgeStuff();
+        });
+
+        //Seçilen Para birimi değişirse:
+        $('#ParaBirimi').change(function () {
+            updateTotalValue();
+        });
+
+        //Full, Half ve Paid değişirse:
+        $('#FullSayi, #HalfSayi, #Paid').on('input', function () {
+            updateTotalValue();
+        });
+
+        function updateBolgeStuff() {
+            //Seçilen bölgeyi güncelle ve int yap.
+            var selectedBolgeIdStr = $('#MusteriBolgeId').val();
+            var selectedBolgeId = parseInt(selectedBolgeIdStr);
+            console.log(selectedBolgeIdStr);
+            console.log(selectedBolgeId);
+
+            //Seçilen bölge-saati bul
+            var selectedBolgeSaat = bolgeServisSaatiList.find(b => b.id === selectedBolgeId);
+            console.log(selectedBolgeSaat);
+            //Seçilen Bölgeden otelleri bul
+            var selectedBolgeOteller = bolgeOtelList.filter(bo => bo.bolgeId === selectedBolgeId);
+            console.log(selectedBolgeOteller);
+            //Otel ID'leri ile otel listesini filtrele
+            var selectedOteller = otelList.filter(o => selectedBolgeOteller.some(bo => bo.otelId === o.id));
+            console.log(selectedOteller);
+
+            //ServisSaati güncelle
+            if (selectedBolgeSaat) {
+                $('#ServisSaati').val(selectedBolgeSaat.servisSaati);
+            }
+            //Otel Listesini Sil Ve Güncelle
+            var selectElementOtel = document.getElementById("MusteriOtelId");
+            selectElementOtel.innerHTML = "";
+            var option;
+            for (let i = 0; i < selectedOteller.length; i++) {
+                option = document.createElement('option');
+                option.value = selectedOteller[i].id;
+                option.text = selectedOteller[i].otelIsim;
+                selectElementOtel.appendChild(option);
+            }
+        }
+    });
+
+    
+    //Total ve Rest gibi otomatik dolacak parasal kutuları doldur.
+    function updateTotalValue() {
+        var fullSayi = parseFloat($('#FullSayi').val()) || 0;
+        var halfSayi = parseFloat($('#HalfSayi').val()) / 2 || 0;
+        var paid = parseFloat($('#Paid').val()) || 0;
+        var paraBirimi = document.getElementById("ParaBirimi").value;
+        var fiyat = 0;
+
+        if (paraBirimi === "TRY") {
+            fiyat = parseFloat(document.getElementById("TurFiyatTry").value) || 0;
+        } else if (paraBirimi === "USD") {
+            fiyat = parseFloat(document.getElementById("TurFiyatUsd").value) || 0;
+        } else if (paraBirimi === "EUR") {
+            fiyat = parseFloat(document.getElementById("TurFiyatEur").value) || 0;
+        }
+
+        var totalPrice = (fullSayi * fiyat) + (halfSayi * fiyat);
+        var rest = totalPrice - paid;
+        $('#Total').val(totalPrice.toFixed(2));
+        $('#Rest').val(rest.toFixed(2));
+    }
+
+    function createTicket() {
+        var satanSubeId = document.getElementById("SatanSubeId").value;
+        var satanElemanId = document.getElementById("SatanElemanId").value;
+        var turId = document.getElementById("TurId").value;
+
+        var musteriAd = document.getElementById("MusteriAd").value;
+        var musteriSoyad = document.getElementById("MusteriSoyad").value;
+        var musteriUyruk = document.getElementById("MusteriUyruk").value;
+
+        var musteriBolgeId = document.getElementById("MusteriBolgeId").value;
+        var musteriOtelId = document.getElementById("MusteriOtelId").value;
+        var musteriOdaNo = document.getElementById("MusteriOdaNo").value;
+
+        var musteriTelNo = document.getElementById("MusteriTelNo").value;
+        var musteriAdres = document.getElementById("MusteriAdres").value;
+
+        var fullSayi = document.getElementById("FullSayi").value;
+        var halfSayi = document.getElementById("HalfSayi").value;
+        var guestSayi = document.getElementById("GuestSayi").value;
+
+        var paraBirimi = document.getElementById("ParaBirimi").value;
+        var paid = document.getElementById("Paid").value;
+        var rest = document.getElementById("Rest").value;
+
+        var aciklama = document.getElementById("Aciklama").value;
+
+        var servisIstiyorMu = document.getElementById("ServisIstiyorMu").checked;
+        var servisSaati = document.getElementById("ServisSaati").value;
+
+        console.log(satanSubeId, satanElemanId, turId, musteriAd, musteriSoyad, musteriUyruk, musteriBolgeId, musteriOtelId, musteriOdaNo, musteriTelNo, musteriAdres, fullSayi, halfSayi, guestSayi, paraBirimi, paid, rest, aciklama, servisIstiyorMu, servisSaati)
+
+        //Check if certain values are full.
+        if (satanSubeId && turId && musteriAd && musteriUyruk && musteriBolgeId && musteriTelNo && fullSayi && halfSayi && guestSayi && paraBirimi && paid && rest) {
+            var ticketValues = [];
+
+            ticketValues.push(satanSubeId, satanElemanId, turId, musteriAd, musteriSoyad, musteriUyruk, musteriBolgeId, musteriOtelId, musteriOdaNo, musteriTelNo, musteriAdres, fullSayi, halfSayi, guestSayi, paraBirimi, paid, rest, aciklama, servisIstiyorMu.toString(), servisSaati);
+
+            console.log(ticketValues);
+            sendArrayToController(ticketValues);
+        }
+        else {
+            alert("Lütfen gerekli alanları doldurunuz.");
+        }
+    }
+    function sendArrayToController(array) {
+        $.ajax({
+            type: "POST",
+            url: "/Home/SendTicketDetails", // URL of the controller action
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(array),
+            success: function (response) {
+                console.log("Data sent successfully:", response);
+                if (response.redirectUrl) {
+                    window.location.href = response.redirectUrl;
+                }
+            },
+            error: function (error) {
+                console.error("Error sending data:", error);
+            }
+        });
+    }
+</script>

@@ -1,5 +1,481 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model YalcomaniaToursMkfMtr.Models.TicketSearchModel
 @{
 }
+<style>
+    #TicketSearchTable {
+        border-collapse: collapse;
+    }
+
+        #TicketSearchTable th {
+            background-color: black;
+            color: white;
+            border: 1px solid white;
+        }
+
+        #TicketSearchTable td {
+            border: 1px solid black;
+        }
+
+        #TicketSearchTable tr:nth-child(even) {
+            background-color: antiquewhite;
+        }
+
+        #TicketSearchTable td,
+        #TicketSearchTable th {
+            padding: 1em;
+        }
+</style>
+<div>
+    <div style="padding-bottom:1em; display:flex; flex-direction:row; gap: 0.5em;">
+        <p>Ad:</p>
+        <input type="text" id="AdFiltre" name="AdFiltre" placeholder="Müşteri Adı Arayın..." />
+        <p>Soyad:</p>
+        <input type="text" id="SoyadFiltre" name="SoyadFiltre" placeholder="Müşteri Soyadı Arayın..." />
+        <p>Uyruk:</p>
+        <select id="UyrukFiltre">
+            <option value="">Filtre Yok</option>
+            @foreach(var uyr in Model.UyrukList){
+                <option value="@uyr.Alpha3Code">@uyr.UlkeIsmi</option>
+            }
+        </select>
+        <p>Tel. No.:</p>
+        <input type="text" id="TelNoFiltre" name="TelNoFiltre" placeholder="Telefon No. Arayın..." />
+    </div>
+    <div style="padding-bottom:1em; display:flex; flex-direction:row; gap: 0.5em;">
+        <p>Bölge:</p>
+        <select id="BolgeFiltre">
+            <option value="">Filtre Yok</option>
+            @foreach (var bolge in Model.BolgeList)
+            {
+                <option value="@bolge.Id">@bolge.BolgeIsim</option>
+            })
+        </select>
+        <p>Otel:</p>
+        <select id="OtelFiltre">
+            <!-- Javascript ile doldur -->
+        </select>
+        <p>Para Birimi:</p>
+        <select id="ParaBirFiltre">
+            <option value="">Filtre Yok</option>
+            @foreach (var para in Model.ParaBirimiList)
+            {
+                <option value="@para.Iso4217">@para.ParaBirimiAdi</option>
+            }
+        </select>
+    </div>
+    <div style="padding-bottom:2em; display:flex; flex-direction:row; gap: 0.5em;">
+        <p>Satan Şube:</p>
+        <select id="SatanSubFiltre">
+            <option value="">Filtre Yok</option>
+            @foreach(var sube in Model.SubeList)
+            {
+                <option value="@sube.Id">@sube.SubeAd</option>
+            }
+        </select>
+        <p>Satan Eleman:</p>
+        <select id="SatanElFiltre">
+            <!-- Javascript ile doldur -->
+        </select>
+        <p>Tur Tipi:</p>
+        <select id="TurTipiFiltre">
+            <option value="">Filtre Yok</option>
+            @foreach(var turTip in Model.TurTipiList)
+            {
+                <option value="@turTip.Id">@turTip.TurTipiAdi</option>
+            }
+        </select>
+        <p>Tur Tarihi:</p>
+        <input type="date" id="TurTarihFiltre" name="TurTarihFiltre" />
+        <p>Tur Bitti Mi:</p>
+        <input type="checkbox" id="BittiFiltre" name="BittiFiltre" />
+        <p>Bilet İptal Mi:</p>
+        <input type="checkbox" id="IptalFiltre" name="IptalFiltre" />
+        <button id="SearchTicketButton">Ara</button>
+    </div>
+    <div style="overflow-x: auto; /* Added overflow-x property */">
+        <table id="TicketSearchTable">
+            <thead>
+                <tr>
+                    <th style="width:10%">Satan Şube</th>
+                    <th style="width:10%">Satan Eleman</th>
+                    <th style="width:10%">Tarih</th>
+                    <th style="width:15%">Tur</th>
+                    <th style="width:20%">Müşteri Adı-Soyadı</th>
+                    <th style="width:10%">Uyruk</th>
+                    <th style="width:10%">Tel. No.</th>
+                    <th style="width:10%">Bölge</th>
+                    <th style="width:10%">Otel</th>
+                    <th style="width:5%">F</th>
+                    <th style="width:5%">H</th>
+                    <th style="width:5%">G</th>
+                    <th style="width:5%">Para Birimi</th>
+                    <th style="width:5%">PAID</th>
+                    <th style="width:5%">REST</th>
+                    <th style="width:5%">Bitti Mi</th>
+                    <th style="width:5%">İptal Mi</th>
+                    <th style="width:10%"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Rows will be filled with data later -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        var turList = @Html.Raw(Json.Serialize(Model.TurList.Select(t => new { t.Id, t.Tarih, t.TurTipiId, t.BittiMi })));
+        console.log(turList);
+        var turTipiList = @Html.Raw(Json.Serialize(Model.TurTipiList.Select(tu => new { tu.Id, tu.TurTipiAdi })));
+        console.log(turTipiList);
+        var subeList = @Html.Raw(Json.Serialize(Model.SubeList.Select(s => new { s.Id, s.SubeAd })));
+        console.log(subeList);
+        var calisanList = @Html.Raw(Json.Serialize(Model.CalisanList.Select(c => new { c.Id, c.CalisanAdi, c.CalisanSoyadi })));
+        console.log(calisanList);
+        var subeCalisanList = @Html.Raw(Json.Serialize(Model.SubeCalisanList.Select(sc => new { sc.SubeId, sc.CalisanId })));
+        console.log(subeCalisanList);
+        var gorevList = @Html.Raw(Json.Serialize(Model.GorevList.Select(g => new { g.Id, g.GorevAdi })));
+        console.log(gorevList);
+        var gorevCalisanList = @Html.Raw(Json.Serialize(Model.GorevCalisanList.Select(bc => new { bc.GorevId, bc.CalisanId })));
+        console.log(gorevCalisanList);
+        for (var i = 0; i < calisanList.length; i++) {
+            calisanList[i]["gorevId"] = gorevCalisanList[i].gorevId;
+        }
+        console.log(calisanList);
+        var bolgeSubeList = @Html.Raw(Json.Serialize(Model.BolgeSubeList.Select(bs => new { bs.BolgeId, bs.SubeId })));
+        console.log(bolgeSubeList);
+        var uyrukList = @Html.Raw(Json.Serialize(Model.UyrukList.Select(t => new {t.Alpha3Code,t.UlkeIsmi })));
+        console.log(uyrukList);
+        var otelList = @Html.Raw(Json.Serialize(Model.OtelList.Select(o => new { o.Id, o.OtelIsim, o.OtelMerkezeUzaklikMetre })));
+        console.log(otelList);
+        var bolgeList = @Html.Raw(Json.Serialize(Model.BolgeList.Select(bo => new { bo.Id, bo.BolgeIsim, bo.BolgeMerkezeUzaklikMetre })));
+        var bolgeOtelList = @Html.Raw(Json.Serialize(Model.BolgeOtelList.Select(bo => new { bo.BolgeId, bo.OtelId })));
+        console.log(bolgeList);
+        var paraBirimiList = @Html.Raw(Json.Serialize(Model.ParaBirimiList.Select(p => new { p.Iso4217, p.ParaBirimiAdi })));
+        console.log(paraBirimiList);
+        var kurList = @Html.Raw(Json.Serialize(Model.KurList.Select(p => new { p.Tarih, p.ParaBirimiAdi, p.DolaraOran, p.EuroyaOran })));
+        console.log(kurList);
+        var biletList = @Html.Raw(Json.Serialize(Model.BiletList.Select(b => new { b.Id, b.SatanSubeId, b.SatanElemanId, b.TurId, b.MusteriAd, b.MusteriSoyad, b.MusteriUyruk, b.MusteriTelNo, b.MusteriBolgeId, b.MusteriOtelId, b.MusteriOdaNo, b.FullSayi, b.HalfSayi, b.GuestSayi, b.ParaBirimi, b.Paid, b.Rest, b.ServisIstiyorMu, b.ServisSaati, b.BiletIptalMi })));
+        console.log(biletList);
+
+        updateSubeStuff();
+        updateBolgeStuff();
+
+
+        $('#SearchTicketButton').click(function () {
+            musteriAd = document.getElementById("AdFiltre").value;
+            musteriSoyad = document.getElementById("SoyadFiltre").value;
+            turTarih = document.getElementById("TurTarihFiltre").value;
+            turBitti = document.getElementById("BittiFiltre").checked;
+            console.log(turBitti);
+            biletIptal = document.getElementById("IptalFiltre").checked;
+            secilenTelNo = document.getElementById("TelNoFiltre").value;
+            secilenUyrukId = document.getElementById("UyrukFiltre").value;
+            secilenBolgeId = document.getElementById("BolgeFiltre").value;
+            secilenOtelId = document.getElementById("OtelFiltre").value;
+            secilenParaBirimi = document.getElementById("ParaBirFiltre").value;
+            secilenSatanSubeId = document.getElementById("SatanSubFiltre").value;
+            secilenSatanElemanId = document.getElementById("SatanElFiltre").value;
+            secilenTurTipiId = document.getElementById("TurTipiFiltre").value;
+
+            var musteriAdArray = musteriAd.toLowerCase().split(" ");
+            console.log(musteriAdArray);
+            var musteriSoyadArray = musteriSoyad.toLowerCase().split(" ");
+            console.log(musteriSoyadArray);
+            
+            var tableBody = $('#TicketSearchTable tbody');
+            tableBody.empty();
+
+            var biletTurBittiMi = biletList;
+            for (var i = 0; i < biletList.length; i++) {
+                var bilet = biletList[i];
+                var selectedTur = turList.find(t => t.id === bilet.turId);
+                if (selectedTur.bittiMi === turBitti) {
+                    biletTurBittiMi.push(bilet);
+                }
+            }
+
+            var biletIptalMi = biletTurBittiMi;
+            if (biletIptal) {
+                for (var i = 0; i < biletTurBittiMi.length; i++) {
+                    var bilet = biletTurBittiMi[i];
+                    if (bilet.biletIptalMi === biletIptal) {
+                        biletIptalMi.push(bilet);
+                    }
+                }
+            }
+
+            var biletBolge = biletIptalMi;
+            if (secilenBolgeId !== "") {
+                for (var i = 0; i < biletIptalMi.length; i++) {
+                    var bilet = biletIptalMi[i];
+                    if (bilet.musteriBolgeId === secilenBolgeId) {
+                        biletBolge.push(bilet);
+                    }
+                }
+            }
+
+            var biletOtel = biletBolge;
+            if (secilenOtelId !== "") {
+                for (var i = 0; i < biletIptalMi.length; i++) {
+                    var bilet = biletIptalMi[i];
+                    if (bilet.musteriOtelId === secilenOtelId) {
+                        biletOtel.push(bilet);
+                    }
+                }
+            }
+
+            var biletPara = biletOtel;
+            if (secilenParaBirimi !== "") {
+                for (var i = 0; i < biletIptalMi.length; i++) {
+                    var bilet = biletIptalMi[i];
+                    if (bilet.paraBirimi === secilenParaBirimi) {
+                        biletPara.push(bilet);
+                    }
+                }
+            }
+
+            var biletSube = biletPara;
+            if (secilenSatanSubeId !== "") {
+                for (var i = 0; i < biletIptalMi.length; i++) {
+                    var bilet = biletIptalMi[i];
+                    if (bilet.satanSubeId === secilenSatanSubeId) {
+                        biletSube.push(bilet);
+                    }
+                }
+            }
+
+            var biletEleman = biletSube;
+            if (secilenSatanElemanId !== "") {
+                for (var i = 0; i < biletIptalMi.length; i++) {
+                    var bilet = biletIptalMi[i];
+                    if (bilet.satanElemanId === secilenSatanElemanId) {
+                        biletEleman.push(bilet);
+                    }
+                }
+            }
+
+            var biletTurTipi = biletEleman;
+            if (secilenTurTipiId !== "") {
+                for (var i = 0; i < biletIptalMi.length; i++) {
+                    var bilet = biletIptalMi[i];
+                    var selectedTur = turList.find(t => t.id === bilet.turId);
+                    if (selectedTur.turTipiId === secilenTurTipiId) {
+                        biletTurTipi.push(bilet);
+                    }
+                }
+            }
+
+            var biletTarih = biletTurTipi;
+            if (turTarih !== "") {
+                for (var i = 0; i < biletIptalMi.length; i++) {
+                    var bilet = biletIptalMi[i];
+                    var selectedTur = turList.find(t => t.id === bilet.turId);
+                    if (selectedTur.tarih === turTarih) {
+                        biletTarih.push(bilet);
+                    }
+                }
+            }
+
+            var biletUyruk = biletTarih;
+            if (secilenUyrukId !== "") {
+                for (var i = 0; i < biletIptalMi.length; i++) {
+                    var bilet = biletIptalMi[i];
+                    if (bilet.musteriUyruk === secilenUyrukId) {
+                        biletUyruk.push(bilet);
+                    }
+                }
+            }
+
+            var biletTelNo = biletUyruk;
+            if (secilenTelNo.length !== 0) {
+                for (var i = 0; i < biletUyruk.length; i++) {
+                    var bilet = biletUyruk[i];
+                    if (bilet.musteriTelNo.includes(secilenTelNo)) {
+                        biletTelNo.push(bilet);
+                    }
+                }
+            }
+
+            var biletSoyad = biletTelNo;
+            if (musteriSoyad.length !== 0) {
+                for (var i = 0; i < biletTelNo.length; i++) {
+                    var bilet = biletTelNo[i];
+                    var biletSoyadArray = bilet.musteriSoyad.toLowerCase().split(" ");
+                    if (musteriSoyadArray.every(ms => biletSoyadArray.some(bs => bs.includes(ms)))) {
+                        biletSoyad.push(bilet);
+                    }
+                }
+            }
+
+            var biletAd = biletSoyad;
+            if (musteriAd.length !== 0) {
+                for (var i = 0; i < biletSoyad.length; i++) {
+                    var bilet = biletSoyad[i];
+                    var biletAdArray = bilet.musteriAd.toLowerCase().split(" ");
+                    if (musteriAdArray.every(ma => biletAdArray.some(ba => ba.includes(ma)))) {
+                        biletAd.push(bilet);
+                    }
+                }
+            }
+            
+            
+            var biletListFinal = biletList;
+            for (var i = 0; i < biletListFinal.length; i++) {
+                var bilet = biletListFinal[i];
+                console.log(biletListFinal[i]);
+                var row = $('<tr></tr>');
+
+                var selectedSube = subeList.find(s => s.id === bilet.satanSubeId);
+                var satanSubeCell = $('<td></td>').text(selectedSube.subeAd);
+                row.append(satanSubeCell);
+
+                var selectedCalisan = calisanList.find(c => c.id === bilet.satanElemanId);
+                var satanElemanCell = $('<td></td>').text(selectedCalisan.calisanAdi + ' ' + selectedCalisan.calisanSoyadi);
+                row.append(satanElemanCell);
+
+                var selectedTur = turList.find(t => t.id === bilet.turId);
+                console.log(selectedTur);
+                var tarihCell = $('<td></td>').text(selectedTur.tarih);
+                row.append(tarihCell);
+
+                var selectedTurTipi = turTipiList.find(tu => tu.id === selectedTur.turTipiId);
+                var turCell = $('<td></td>').text(selectedTurTipi.turTipiAdi);
+                row.append(turCell);
+
+                var musteriAdSoyadCell = $('<td></td>').text(bilet.musteriAd + ' ' + bilet.musteriSoyad);
+                row.append(musteriAdSoyadCell);
+
+                var selectedUyruk = uyrukList.find(u => u.alpha3Code === bilet.musteriUyruk);
+                var uyrukCell = $('<td></td>').text(selectedUyruk.ulkeIsmi);
+                row.append(uyrukCell);
+
+                var telNoCell = $('<td></td>').text(bilet.musteriTelNo);
+                row.append(telNoCell);
+
+                selectedBolge = bolgeList.find(b => b.id === bilet.musteriBolgeId);
+                var bolgeCell = $('<td></td>').text(selectedBolge.bolgeIsim);
+                row.append(bolgeCell);
+
+                selectedOtel = otelList.find(o => o.id === bilet.musteriOtelId);
+                var otelCell = $('<td></td>').text(selectedOtel.otelIsim);
+                row.append(otelCell);
+
+                var fCell = $('<td></td>').text(bilet.fullSayi);
+                row.append(fCell);
+
+                var hCell = $('<td></td>').text(bilet.halfSayi);
+                row.append(hCell);
+
+                var gCell = $('<td></td>').text(bilet.guestSayi);
+                row.append(gCell);
+
+                var paraBirimiCell = $('<td></td>').text(bilet.paraBirimi);
+                row.append(paraBirimiCell);
+
+                var paidCell = $('<td></td>').text(bilet.paid);
+                row.append(paidCell);
+
+                var restCell = $('<td></td>').text(bilet.rest);
+                row.append(restCell);
+
+                var bittiMiCell = $('<td></td>').text(selectedTur.bittiMi ? 'Evet' : 'Hayır');
+                row.append(bittiMiCell);
+
+                var iptalMiCell = $('<td></td>').text(bilet.biletIptalMi ? 'Evet' : 'Hayır');
+                row.append(iptalMiCell);
+
+                var emptyCell = $('<td></td>');
+                row.append(emptyCell);
+
+                tableBody.append(row);
+            }
+        });
+
+        $('#SatanSubFiltre').change(function () {
+            updateSubeStuff();
+        });
+
+        $('#BolgeFiltre').change(function () {
+            updateBolgeStuff();
+        });
+
+        function updateSubeStuff() {
+            //Seçilen şubeyi güncelle ve int yap.
+            var selectedSubeIdStr = $('#SatanSubFiltre').val();
+            var selectedSubeId = parseInt(selectedSubeIdStr) || 0;
+            console.log(selectedSubeIdStr);
+            console.log(selectedSubeId);
+
+            var selectedSubeCalisan
+            if (selectedSubeId === 0) {
+                selectedSubeCalisan = subeCalisanList;
+            }
+            else {
+                //Seçilen Şubeden çalışanları bul
+                selectedSubeCalisan = subeCalisanList.filter(sc => sc.subeId === selectedSubeId);
+            }
+            console.log(selectedSubeCalisan);
+
+            //Çalışan ID'leri ile çalışan listesini filtrele
+            var selectedCalisan = calisanList.filter(c => selectedSubeCalisan.some(sc => sc.calisanId === c.id));
+            console.log(selectedCalisan);
+
+            var selectedTicketCalisan = selectedCalisan.filter(c => c.gorevId === 2);
+            console.log(selectedTicketCalisan);
+
+            //Çalışan Listesini Sil Ve Güncelle
+            var selectElementCalisan = document.getElementById("SatanElFiltre");
+            selectElementCalisan.innerHTML = "";
+            var option;
+            option = document.createElement('option');
+            option.value = "";
+            option.text = "Filtre Yok";
+            selectElementCalisan.appendChild(option);
+            for (var i = 0; i < selectedTicketCalisan.length; i++) {
+                option = document.createElement('option');
+                option.value = selectedTicketCalisan[i].Id;
+                option.text = selectedTicketCalisan[i].calisanAdi + " " + selectedTicketCalisan[i].calisanSoyadi;
+                selectElementCalisan.appendChild(option);
+            }
+        }
+
+        function updateBolgeStuff() {
+            //Seçilen bölgeyi güncelle ve int yap.
+            var selectedBolgeIdStr = $('#BolgeFiltre').val();
+            var selectedBolgeId = parseInt(selectedBolgeIdStr) || 0;
+            console.log(selectedBolgeIdStr);
+            console.log(selectedBolgeId);
+            
+            var selectedBolgeOteller
+            if (selectedBolgeId === 0) {
+                selectedBolgeOteller = bolgeOtelList;
+            }
+            else {
+                //Seçilen Bölgeden otelleri bul
+                selectedBolgeOteller = bolgeOtelList.filter(bo => bo.bolgeId === selectedBolgeId);
+            }
+            console.log(selectedBolgeOteller);
+
+            //Otel ID'leri ile otel listesini filtrele
+            var selectedOteller = otelList.filter(o => selectedBolgeOteller.some(bo => bo.otelId === o.id));
+            console.log(selectedOteller);
+
+            //Otel Listesini Sil Ve Güncelle
+            var selectElementOtel = document.getElementById("OtelFiltre");
+            selectElementOtel.innerHTML = "";
+            var option;
+            option = document.createElement('option');
+            option.value = "";
+            option.text = "Filtre Yok";
+            selectElementOtel.appendChild(option);
+            for (var i = 0; i < selectedOteller.length; i++) {
+                option = document.createElement('option');
+                option.value = selectedOteller[i].id;
+                option.text = selectedOteller[i].otelIsim;
+                selectElementOtel.appendChild(option);
+            }
+        }
+    });
+</script>

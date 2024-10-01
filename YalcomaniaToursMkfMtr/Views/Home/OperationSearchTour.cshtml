@@ -1,0 +1,666 @@
+﻿@model OperationSearchTourModel
+@{
+
+}
+<style>
+    #TourSearchTable {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        #TourSearchTable th {
+            background-color: black;
+            color: white;
+            border: 1px solid white;
+        }
+
+        #TourSearchTable td {
+            border: 1px solid black;
+        }
+
+        #TourSearchTable tr:nth-child(even) {
+            background-color: antiquewhite;
+        }
+
+        #TourSearchTable td,
+        #TourSearchTable th {
+            padding: 1em;
+        }
+
+    #BottomTable {
+        width: 100%;
+        border-collapse: collapse;
+        position: relative;
+    }
+
+        #BottomTable td {
+            border: 1px solid white;
+            padding: 1em;
+            background-color: black;
+            color: white;
+        }
+
+    #Window {
+        position: fixed;
+        width: 97%;
+        height: 70%;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: aliceblue;
+        border: 1px solid black;
+        display: none;
+    }
+
+    #TourDetailsTable {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        #TourDetailsTable th {
+            background-color: black;
+            color: white;
+            border: 1px solid white;
+        }
+
+        #TourDetailsTable td {
+            border: 1px solid black;
+        }
+
+        #TourDetailsTable tr:nth-child(even) {
+            background-color: aliceblue;
+        }
+
+    #KurTable {
+        width: 10%;
+        border-collapse: collapse;
+    }
+
+        #KurTable th {
+            background-color: black;
+            color: white;
+            border: 1px solid white;
+        }
+
+        #KurTable td {
+            border: 1px solid black;
+        }
+
+    #ToplamTable {
+        width: 20%;
+        border-collapse: collapse;
+    }
+
+        #ToplamTable th {
+            background-color: black;
+            color: white;
+            border: 1px solid white;
+        }
+
+        #ToplamTable td {
+            border: 1px solid black;
+        }
+
+    #AyriTable {
+        width: 20%;
+        border-collapse: collapse;
+    }
+
+        #AyriTable th {
+            background-color: black;
+            color: white;
+            border: 1px solid white;
+        }
+
+        #AyriTable td {
+            border: 1px solid black;
+        }
+</style>
+<div>
+    <div style="padding-bottom:2em; display:flex; flex-direction:row; gap: 1em;">
+        <p>Tur Adı:</p>
+        <input type="text" id="TourNameSearch" name="TourNameSearch" placeholder="Tur Adı Arayın..." />
+        <p>Tur Tarihi:</p>
+        <input type="date" id="TourDateSearch" name="TourDateSearch" />
+        <p>Tur Bitti Mi:</p>
+        <input type="checkbox" id="TourFinishedCheck" name="TourFinishedCheck" />
+        <button id="SearchTourButton">Ara</button>
+    </div>
+    
+    <table id="TourSearchTable">
+        <thead>
+            <tr>
+                <th style="width:15%">Tarih</th>
+                <th style="width:45%">Tur Adı</th>
+                <th style="width:10%">Bitti Mi</th>
+                <th style="width:5%">F</th>
+                <th style="width:5%">H</th>
+                <th style="width:5%">G</th>
+                <th style="width:5%">T</th>
+                <th style="width:10%"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Rows will be filled with data later -->
+        </tbody>
+    </table>
+    <table id="BottomTable">
+        <tr>
+            <td style="width: 70%;">Toplam</td>
+            <td id="TfBox" style="width: 5%;"></td>
+            <td id="ThBox" style="width: 5%;"></td>
+            <td id="TgBox" style="width: 5%;"></td>
+            <td id="TtBox" style="width: 5%;"></td>
+            <td style="width:10%"></td>
+        </tr>
+    </table>
+</div>
+<div id="Window">
+    <div>
+        <button id="CloseWindow" style="float:right">Kapat</button>
+    </div>
+    <div style="padding-bottom:1em">
+        <table id="TourDetailsTable">
+            <thead>
+                <tr>
+                    <th style="width:10%">Ad</th>
+                    <th style="width:9%">Uyruk</th>
+                    <th style="width:8%">Otel</th>
+                    <th style="width:8%">Bölge</th>
+                    <th style="width:5%">Oda</th>
+                    <th style="width:3%">F</th>
+                    <th style="width:3%">H</th>
+                    <th style="width:3%">G</th>
+                    <th style="width:6%">Para Birimi</th>
+                    <th style="width:6%">Paid</th>
+                    <th style="width:6%">Rest</th>
+                    <th style="width:6%">Total</th>
+                    <th style="width:6%">Servis</th>
+                    <th style="width:7%">Servis Saati</th>
+                    <th style="width:10%">Pas Şirketi</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Javascript ile doldur -->
+            </tbody>
+        </table>
+    </div>
+    <div>
+
+        <div style="width:100%; display:flex; flex-direction:row; gap:1em">
+            <table id="KurTable">
+                <thead>
+                    <tr>
+                        <th>Kur</th>
+                        <th>TRY</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="background-color:black; color:white">USD</td>
+                        <td id="UsdToTryBox"></td>
+                    </tr>
+                    <tr>
+                        <td style="background-color:black; color:white">EUR</td>
+                        <td id ="EurToTryBox"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <table id="AyriTable">
+                <thead>
+                    <tr>
+                        <th>Ayri</th>
+                        <th>Total</th>
+                        <th>PAID</th>
+                        <th>REST</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- javascript ile doldur -->
+                </tbody>
+            </table>
+            <table id="ToplamTable">
+                <thead>
+                    <tr>
+                        <th>Toplam</th>
+                        <th>Total</th>
+                        <th>PAID</th>
+                        <th>REST</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- javascript ile doldur -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        var turTipiListArray = @Html.Raw(Json.Serialize(Model.TurTipiList.Select(tu => new { tu.Id, tu.TurTipiAdi })));
+        var turListArray = @Html.Raw(Json.Serialize(Model.TurList.Select(t => new { t.Id, t.Tarih, t.TurTipiId, t.BittiMi })));
+        var biletListArray = @Html.Raw(Json.Serialize(Model.BiletList.Select(b => new { b.Id, b.TurId, b.MusteriAd, b.MusteriSoyad, b.MusteriUyruk, b.MusteriBolgeId, b.MusteriOtelId, b.MusteriOdaNo, b.FullSayi, b.HalfSayi, b.GuestSayi, b.ParaBirimi, b.Paid, b.Rest, b.ServisIstiyorMu, b.ServisSaati })));
+        var bolgeListArray = @Html.Raw(Json.Serialize(Model.BolgeList.Select(bo => new { bo.Id, bo.BolgeIsim, bo.BolgeMerkezeUzaklikMetre })));
+        var otelListArray = @Html.Raw(Json.Serialize(Model.OtelList.Select(o => new { o.Id, o.OtelIsim, o.OtelMerkezeUzaklikMetre })));
+        var paraBirimiListArray = @Html.Raw(Json.Serialize(Model.ParaBirimiList.Select(p => new { p.Iso4217, p.ParaBirimiAdi })));
+        var uyrukListArray = @Html.Raw(Json.Serialize(Model.UyrukList.Select(u => new { u.Alpha3Code, u.UlkeIsmi })));
+        var kurListArray = @Html.Raw(Json.Serialize(Model.KurList.Select(p => new { p.Tarih, p.ParaBirimiAdi, p.DolaraOran, p.EuroyaOran })));
+        console.log(turTipiListArray);
+        console.log(turListArray);
+        console.log(biletListArray);
+        console.log(bolgeListArray);
+        console.log(otelListArray);
+        console.log(paraBirimiListArray);
+        console.log(uyrukListArray);
+        console.log(kurListArray);
+
+        var tourName = "";
+        var tourDate;
+
+        var fTotal;
+        var hTotal;
+        var gTotal;
+
+        var bottomFTotal;
+        var bottomHTotal;
+        var bottomGTotal;
+
+        //Ara butonuna tıklayınca
+        document.getElementById("SearchTourButton").addEventListener("click", function () {
+            
+            //Yazılan ad ve seçilen tarihi kaydet
+            tourName = document.getElementById("TourNameSearch").value;
+            tourDate = document.getElementById("TourDateSearch").value;
+            tourEnded = document.getElementById("TourFinishedCheck").checked;
+            console.log(tourName);
+            console.log(tourDate);
+            var tourNameArray = tourName.toLowerCase().split(" ");
+            console.log(tourNameArray);
+
+            //Tur ve Tur Tipi arraylerini filtrele
+            var turTipiArray = [];
+            var turBittiMiArray = [];
+            var turTarihArray = [];
+            var turArray = [];
+            for (var i = 0; i < turTipiListArray.length; i++) {
+                var turAdi = turTipiListArray[i].turTipiAdi.toLowerCase();
+                if (tourNameArray.every(tna => turAdi.includes(tna))) {
+                    turTipiArray.push(turTipiListArray[i]);
+                }
+            }
+            for (var i = 0; i < turListArray.length; i++) {
+                var tur = turListArray[i];
+                if (tur.bittiMi === tourEnded) {
+                    turBittiMiArray.push(tur);
+                }
+            }
+            if (tourDate !== "") {
+                for (var i = 0; i < turBittiMiArray.length; i++) {
+                    var tur = turBittiMiArray[i];
+                    console.log("turtarih:")
+                    console.log(tur.tarih);
+                    if (tur.tarih === tourDate) {
+                        turTarihArray.push(tur);
+                    }
+                }
+            }
+            else{
+                turTarihArray = turBittiMiArray;
+            }
+            
+            for (var i = 0; i < turTarihArray.length; i++) {
+                var tur = turTarihArray[i];
+                if (turTipiArray.some(tt => tt.id === tur.turTipiId)) {
+                    turArray.push(tur);
+                }
+            }
+
+            // Tabloyu temizle
+            var tableBody = document.querySelector("#TourSearchTable tbody");
+            tableBody.innerHTML = "";
+            document.getElementById("TfBox").textContent = "";
+            document.getElementById("ThBox").textContent = "";
+            document.getElementById("TgBox").textContent = "";
+            document.getElementById("TtBox").textContent = "";
+            bottomFTotal = 0;
+            bottomHTotal = 0;
+            bottomGTotal = 0;
+
+            // Tabloyu doldur
+            for (var i = 0; i < turArray.length; i++) {
+                var tur = turArray[i];
+                var turTipi = turTipiArray.find(tt => tt.id === tur.turTipiId);
+                var biletArray = biletListArray.filter(bi => bi.turId === tur.id);
+                console.log("tur-turTipi-bilet:");
+                console.log(tur);
+                console.log(turTipi);
+                console.log(biletArray);
+
+                fTotal = 0;
+                hTotal = 0;
+                gTotal = 0;
+
+                for (var j = 0; j < biletArray.length; j++) {
+                    console.log("BiletArray:");
+                    console.log(biletArray[j]);
+                    fTotal += biletArray[j].fullSayi;
+                    hTotal += biletArray[j].halfSayi;
+                    gTotal += biletArray[j].guestSayi;
+                }
+                console.log("Totaller:");
+                console.log(fTotal);
+                console.log(hTotal);
+                console.log(gTotal);
+
+                var row = document.createElement("tr");
+
+                var tarihCell = document.createElement("td");
+                tarihCell.textContent = tur.tarih;
+                row.appendChild(tarihCell);
+
+                var turAdiCell = document.createElement("td");
+                turAdiCell.textContent = turTipi.turTipiAdi;
+                row.appendChild(turAdiCell);
+
+                var bittiMiCell = document.createElement("td");
+                if (tur.bittiMi) {
+                    bittiMiCell.textContent = "Evet";
+                }
+                else {
+                    bittiMiCell.textContent = "Hayır";
+                }
+                row.appendChild(bittiMiCell);
+
+                var fCell = document.createElement("td");
+                fCell.textContent = fTotal;
+                row.appendChild(fCell);
+
+                var hCell = document.createElement("td");
+                hCell.textContent = hTotal;
+                row.appendChild(hCell);
+
+                var gCell = document.createElement("td");
+                gCell.textContent = gTotal;
+                row.appendChild(gCell);
+
+                var tCell = document.createElement("td");
+                tCell.textContent = fTotal+hTotal+gTotal;
+                row.appendChild(tCell);
+
+                //Detay butonlarını oluştur
+                var detailsCell = document.createElement("td");
+                var detailsButton = document.createElement("button");
+                detailsButton.id = "DetailsButton" + tur.id;
+                detailsButton.textContent = "Detaylar";
+                //Detay butonlarına fonksiyon ata
+                detailsButton.addEventListener("click", function(turObject) {
+                    return function() {
+                        console.log(turObject);
+                        var biletDetailArray = [];
+                        for (var l = 0; l < biletListArray.length; l++){
+                            var bilet = biletListArray[l];
+                            if (bilet.turId === turObject.id){
+                                biletDetailArray.push(bilet);
+                            }
+                        }
+                        console.log("biletDetailArray:");
+                        console.log(biletDetailArray);
+                        
+                        //Detay tablolarını temizle
+                        var tourDetailsTableBody = document.querySelector("#TourDetailsTable tbody");
+                        tourDetailsTableBody.innerHTML = "";
+                        var ayriTableBody = document.querySelector("#AyriTable tbody");
+                        ayriTableBody.innerHTML = "";
+                        var topTableBody = document.querySelector("#ToplamTable tbody");
+                        topTableBody.innerHTML = "";
+
+                        var ayriTryPaid = 0;
+                        var ayriTryRest = 0;
+                        var ayriUsdPaid = 0;
+                        var ayriUsdRest = 0;
+                        var ayriEurPaid = 0;
+                        var ayriEurRest = 0;
+
+                        //Detay tablosunu doldur
+                        for (var m=0; m<biletDetailArray.length; m++){
+                            var biletDetail = biletDetailArray[m];
+                            console.log("biletDetail:");
+                            console.log(biletDetail);
+                            
+                            var detailRow = document.createElement("tr");
+
+                            var adSoyadCell = document.createElement("td");
+                            adSoyadCell.textContent = bilet.musteriAd + " " + bilet.musteriSoyad;
+                            detailRow.appendChild(adSoyadCell);
+
+                            var uyrukCell = document.createElement("td");
+                            var uyruk = uyrukListArray.find(u => u.alpha3Code === biletDetail.musteriUyruk);
+                            uyrukCell.textContent = uyruk.ulkeIsmi;
+                            detailRow.appendChild(uyrukCell);
+
+                            var otelCell = document.createElement("td");
+                            var otel = otelListArray.find(o => o.id === biletDetail.musteriOtelId);
+                            otelCell.textContent = otel.otelIsim;
+                            detailRow.appendChild(otelCell);
+
+                            var bolgeCell = document.createElement("td");
+                            var bolge = bolgeListArray.find(bo => bo.id === biletDetail.musteriBolgeId);
+                            bolgeCell.textContent = bolge.bolgeIsim;
+                            detailRow.appendChild(bolgeCell);
+
+                            var odaCell = document.createElement("td");
+                            odaCell.textContent = biletDetail.musteriOdaNo;
+                            detailRow.appendChild(odaCell);
+                            
+                            var fCell = document.createElement("td");
+                            fCell.textContent = biletDetail.fullSayi;
+                            detailRow.appendChild(fCell);
+
+                            var hCell = document.createElement("td");
+                            hCell.textContent = biletDetail.halfSayi;
+                            detailRow.appendChild(hCell);
+
+                            var gCell = document.createElement("td");
+                            gCell.textContent = biletDetail.guestSayi;
+                            detailRow.appendChild(gCell);
+
+                            var paraBirimiCell = document.createElement("td");
+                            paraBirimiCell.textContent = biletDetail.paraBirimi;
+                            detailRow.appendChild(paraBirimiCell);
+
+                            var paidCell = document.createElement("td");
+                            paidCell.textContent = biletDetail.paid;
+                            detailRow.appendChild(paidCell);
+
+                            var restCell = document.createElement("td");
+                            restCell.textContent = biletDetail.rest;
+                            detailRow.appendChild(restCell);
+
+                            var totalCell = document.createElement("td");
+                            totalCell.textContent = biletDetail.fullSayi + biletDetail.halfSayi + biletDetail.guestSayi;
+                            detailRow.appendChild(totalCell);
+
+                            var servisCell = document.createElement("td");
+                            if (biletDetail.servisIstiyorMu){
+                                servisCell.textContent = "Evet";
+                            }
+                            else{
+                                servisCell.textContent = "Hayır";
+                            }
+                            detailRow.appendChild(servisCell);
+
+                            var servisSaatiCell = document.createElement("td");
+                            servisSaatiCell.textContent = biletDetail.servisSaati;
+                            detailRow.appendChild(servisSaatiCell);
+
+                            var pasSirketiCell = document.createElement("td");
+                            pasSirketiCell.textContent = "";
+                            detailRow.appendChild(pasSirketiCell);
+
+                            tourDetailsTableBody.appendChild(detailRow);
+                            
+                            switch (biletDetail.paraBirimi) {
+                                case "TRY":
+                                    ayriTryPaid += biletDetail.paid;
+                                    ayriTryRest += biletDetail.rest;
+                                    break;
+                                case "USD":
+                                    ayriUsdPaid += biletDetail.paid;
+                                    ayriUsdRest += biletDetail.rest;
+                                    break;
+                                case "EUR":
+                                    ayriEurPaid += biletDetail.paid;
+                                    ayriEurRest += biletDetail.rest;
+                                    break;
+                            }
+                        };
+
+                        //Ayrı Tabloyu Doldur
+                        //Ayrı tabloda TRY
+                        var ayriTryRow = document.createElement("tr");
+                        var ayriTryCell = document.createElement("td");
+                        ayriTryCell.textContent = "TRY";
+                        ayriTryRow.appendChild(ayriTryCell);
+                        var ayriTryTotalCell = document.createElement("td");
+                        ayriTryTotalCell.textContent = ayriTryPaid + ayriTryRest;
+                        ayriTryRow.appendChild(ayriTryTotalCell);
+                        var ayriTryPaidCell = document.createElement("td");
+                        ayriTryPaidCell.textContent = ayriTryPaid;
+                        ayriTryRow.appendChild(ayriTryPaidCell);
+                        var ayriTryRestCell = document.createElement("td");
+                        ayriTryRestCell.textContent = ayriTryRest;
+                        ayriTryRow.appendChild(ayriTryRestCell);
+                        ayriTableBody.appendChild(ayriTryRow);
+                        //Ayrı tabloda USD
+                        var ayriUsdRow = document.createElement("tr");
+                        var ayriUsdCell = document.createElement("td");
+                        ayriUsdCell.textContent = "USD";
+                        ayriUsdRow.appendChild(ayriUsdCell);
+                        var ayriUsdTotalCell = document.createElement("td");
+                        ayriUsdTotalCell.textContent = ayriUsdPaid + ayriUsdRest;
+                        ayriUsdRow.appendChild(ayriUsdTotalCell);
+                        var ayriUsdPaidCell = document.createElement("td");
+                        ayriUsdPaidCell.textContent = ayriUsdPaid;
+                        ayriUsdRow.appendChild(ayriUsdPaidCell);
+                        var ayriUsdRestCell = document.createElement("td");
+                        ayriUsdRestCell.textContent = ayriUsdRest;
+                        ayriUsdRow.appendChild(ayriUsdRestCell);
+                        ayriTableBody.appendChild(ayriUsdRow);
+                        //Ayrı tabloda EUR
+                        var ayriEurRow = document.createElement("tr");
+                        var ayriEurCell = document.createElement("td");
+                        ayriEurCell.textContent = "EUR";
+                        ayriEurRow.appendChild(ayriEurCell);
+                        var ayriEurTotalCell = document.createElement("td");
+                        ayriEurTotalCell.textContent = ayriEurPaid + ayriEurRest;
+                        ayriEurRow.appendChild(ayriEurTotalCell);
+                        var ayriEurPaidCell = document.createElement("td");
+                        ayriEurPaidCell.textContent = ayriEurPaid;
+                        ayriEurRow.appendChild(ayriEurPaidCell);
+                        var ayriEurRestCell = document.createElement("td");
+                        ayriEurRestCell.textContent = ayriEurRest;
+                        ayriEurRow.appendChild(ayriEurRestCell);
+                        ayriTableBody.appendChild(ayriEurRow);
+
+                        //Seçilen tura en yakın tarihteki kuru bul.
+                        var closestKur = kurListArray.reduce(function(prev, curr) {
+                          var prevDate = new Date(prev.tarih);
+                          var currDate = new Date(curr.tarih);
+                          var turDate = new Date(turObject.tarih);
+                          if (prevDate < turDate && currDate < turDate && prevDate > currDate) {
+                            return prev;
+                          } else if (prevDate < turDate && currDate < turDate && prevDate < currDate) {
+                            return curr;
+                          } else {
+                            return prev;
+                          }
+                        });
+                        console.log("closestKur:");
+                        console.log(closestKur);
+
+                        //Kur tablosunu doldur
+                        var usdToTryBox = document.getElementById("UsdToTryBox");
+                        var eurToTryBox = document.getElementById("EurToTryBox");
+                        usdToTryBox.textContent = (1 / closestKur.dolaraOran).toFixed(2);
+                        eurToTryBox.textContent = (1 / closestKur.euroyaOran).toFixed(2);
+
+                        //Toplam tablosunu doldur
+                        //Toplamları hesapla
+                        var topTryPaid = ayriTryPaid + ayriUsdPaid * (1 / closestKur.dolaraOran) + ayriEurPaid * (1 / closestKur.euroyaOran);
+                        var topTryRest = ayriTryRest + ayriUsdRest * (1 / closestKur.dolaraOran) + ayriEurRest * (1 / closestKur.euroyaOran);
+                        var topUsdPaid = ayriUsdPaid + ayriTryPaid * closestKur.dolaraOran + ayriEurPaid * (1 / closestKur.euroyaOran) * closestKur.dolaraOran;
+                        var topUsdRest = ayriUsdRest + ayriTryRest * closestKur.dolaraOran + ayriEurRest * (1 / closestKur.euroyaOran) * closestKur.dolaraOran;
+                        var topEurPaid = ayriEurPaid + ayriTryPaid * closestKur.euroyaOran + ayriUsdPaid * (1 / closestKur.dolaraOran) * closestKur.euroyaOran;
+                        var topEurRest = ayriEurRest + ayriTryRest * closestKur.euroyaOran + ayriUsdRest * (1 / closestKur.dolaraOran) * closestKur.euroyaOran;
+                        //Toplam Tabloda TRY
+                        var topTryRow = document.createElement("tr");
+                        var topTryCell = document.createElement("td");
+                        topTryCell.textContent = "TRY";
+                        topTryRow.appendChild(topTryCell);
+                        var topTryTotalCell = document.createElement("td");
+                        topTryTotalCell.textContent = (topTryPaid + topTryRest).toFixed(2);
+                        topTryRow.appendChild(topTryTotalCell);
+                        var topTryPaidCell = document.createElement("td");
+                        topTryPaidCell.textContent = (topTryPaid).toFixed(2);
+                        topTryRow.appendChild(topTryPaidCell);
+                        var topTryRestCell = document.createElement("td");
+                        topTryRestCell.textContent = (topTryRest).toFixed(2);
+                        topTryRow.appendChild(topTryRestCell);
+                        topTableBody.appendChild(topTryRow);
+                        //Toplam Tabloda USD
+                        var topUsdRow = document.createElement("tr");
+                        var topUsdCell = document.createElement("td");
+                        topUsdCell.textContent = "USD";
+                        topUsdRow.appendChild(topUsdCell);
+                        var topUsdTotalCell = document.createElement("td");
+                        topUsdTotalCell.textContent = (topUsdPaid + topUsdRest).toFixed(2);
+                        topUsdRow.appendChild(topUsdTotalCell);
+                        var topUsdPaidCell = document.createElement("td");
+                        topUsdPaidCell.textContent = (topUsdPaid).toFixed(2);
+                        topUsdRow.appendChild(topUsdPaidCell);
+                        var topUsdRestCell = document.createElement("td");
+                        topUsdRestCell.textContent = (topUsdRest).toFixed(2);
+                        topUsdRow.appendChild(topUsdRestCell);
+                        topTableBody.appendChild(topUsdRow);
+                        //Toplam Tabloda EUR
+                        var topEurRow = document.createElement("tr");
+                        var topEurCell = document.createElement("td");
+                        topEurCell.textContent = "EUR";
+                        topEurRow.appendChild(topEurCell);
+                        var topEurTotalCell = document.createElement("td");
+                        topEurTotalCell.textContent = (topEurPaid + topEurRest).toFixed(2);
+                        topEurRow.appendChild(topEurTotalCell);
+                        var topEurPaidCell = document.createElement("td");
+                        topEurPaidCell.textContent = (topEurPaid).toFixed(2);
+                        topEurRow.appendChild(topEurPaidCell);
+                        var topEurRestCell = document.createElement("td");
+                        topEurRestCell.textContent = (topEurRest).toFixed(2);
+                        topEurRow.appendChild(topEurRestCell);
+                        topTableBody.appendChild(topEurRow);
+
+                        //Pencereyi göster.
+                        document.getElementById("Window").style.display = "block";
+                    };
+                }(tur));
+                detailsCell.appendChild(detailsButton);
+                row.appendChild(detailsCell);
+
+                tableBody.appendChild(row);
+
+                bottomFTotal += fTotal;
+                bottomHTotal += hTotal;
+                bottomGTotal += gTotal;
+            }
+
+            document.getElementById("TfBox").textContent = bottomFTotal;
+            document.getElementById("ThBox").textContent = bottomHTotal;
+            document.getElementById("TgBox").textContent = bottomGTotal;
+            document.getElementById("TtBox").textContent = bottomFTotal + bottomHTotal + bottomGTotal;
+
+        });
+        document.getElementById("CloseWindow").addEventListener("click", function () {
+            document.getElementById("Window").style.display = "none";
+        });
+    });
+</script>

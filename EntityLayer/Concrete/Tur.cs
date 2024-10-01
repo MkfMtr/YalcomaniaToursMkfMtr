@@ -15,7 +15,9 @@ public partial class Tur
 
     public bool BittiMi { get; set; }
 
-    public decimal Fiyat { get; set; }
+    public decimal FiyatTRY { get; set; }
+    public decimal FiyatUSD { get; set; }
+    public decimal FiyatEUR { get; set; }
 
     public int AracId1 { get; set; }
 

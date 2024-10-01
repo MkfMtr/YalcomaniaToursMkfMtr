@@ -1,109 +1,161 @@
 ﻿@model OperationCreateTourModel
 @{
     ViewData["Title"] = "Operasyon Tur Düzenleme";
+
+    // Bugüne en yakın Kur verisini al
+    var closestKur = Model.KurList.OrderBy(k => Math.Abs((k.Tarih.ToDateTime(TimeOnly.MinValue) - DateTime.Today).TotalDays)).FirstOrDefault();
+
+    // Kur değerlerini al
+    decimal dolaraOran = closestKur?.DolaraOran ?? 0;
+    decimal euroyaOran = closestKur?.EuroyaOran ?? 0;
+    decimal kurUsd = 1 / dolaraOran;
+    decimal kurEur = 1 / euroyaOran;
+    kurUsd = Math.Round(kurUsd, 2);
+    kurEur = Math.Round(kurEur, 2);
+    Console.WriteLine(kurUsd);
+    Console.WriteLine(kurEur);
 }
 
 <div id="addtourdiv">
-    <div>
-        <p>Tarih</p>
-        <input type="date" id="Tarih" name="Tarih" placeholder="Tarih" />
+    <!-- Tarih - Saat - Tur Tipi -->
+    <div style ="padding-bottom:2em; display:flex; flex-direction:row">
+        <div style="padding-right:1em; display:flex; flex-direction:column">
+            <p>Tarih</p>
+            <input type="date" id="Tarih" name="Tarih" placeholder="Tarih" />
+        </div>
+        <div style="padding-right:1em; display:flex; flex-direction:column">
+            <p>Saat</p>
+            <input type="time" id="Saat" name="Saat" placeholder="Saat" />
+        </div>
+        <div>
+            <p>Tur Tipi</p>
+            <select id="TurTipiId" name="TurTipiId">
+                <option value="">Seçenek seçin</option>
+                @foreach (var tur in Model.TurTipiList)
+                {
+                    <option value="@tur.Id">@tur.TurTipiAdi</option>
+                }
+            </select>
+        </div>
     </div>
-    <div>
-        <p>Saat</p>
-        <input type="time" id="Saat" name="Saat" placeholder="Saat" />
+
+    <!-- USD to TRY - EUR to TRY -->
+    <div style="padding-bottom:2em; display:flex; flex-direction:row">
+        <div style="padding-right:3em; display:flex; flex-direction:row">
+            <p style="padding-right:1em;">1 USD =</p>
+            <select id="UsdToTry" name="UsdToTry" disabled>
+                <option value="@kurUsd">@kurUsd</option>
+            </select>
+            <p>TRY</p>
+        </div>
+        <div style="display:flex; flex-direction:row">
+            <p style="padding-right:1em;">1 EUR =</p>
+            <select id="EurToTry" name="EurToTry" disabled>
+                <option value="@kurEur">@kurEur</option>
+            </select>
+            <p>TRY</p>
+        </div>
     </div>
-    <div>
-        <p>Tur Tipi</p>
-        <select id="TurTipiId" name="TurTipiId">
-            <option value="">Seçenek seçin</option>
-            @foreach (var tur in Model.TurTipiList)
-            {
-                <option value="@tur.Id">@tur.TurTipiAdi</option>
-            }
-        </select>
-    </div>
-    <div>
-        <p>Fiyat</p>
-        <input type="number" id="Fiyat" name="Fiyat" placeholder="Fiyat" step="0.01" pattern="\d{1,16}(\.\d{2})?" />
-    </div>
-    
-    <div>
-        <p>Arac 1</p>
-        <select id="AracId1" name="AracId1">
-            <option value="">Seçenek seçin</option>
-            @foreach (var arac in Model.AracList.Where(a => a.AracTipiId == 1))
-            {
-                var aracTipi = Model.AracTipiList.FirstOrDefault(a => a.Id == arac.AracTipiId);
-                <option value="@arac.Id">@($"{aracTipi.AracTipiAdi}, {arac.PlakaVeyaIsim}")</option>
-            }
-        </select>
-    </div>
-    <div>
-        <p>Arac 2</p>
-        <select id="AracId2" name="AracId2">
-            <option value="">Seçenek seçin</option>
-            @foreach (var arac in Model.AracList.Where(a => a.AracTipiId == 1))
-            {
-                var aracTipi = Model.AracTipiList.FirstOrDefault(a => a.Id == arac.AracTipiId);
-                <option value="@arac.Id">@($"{aracTipi.AracTipiAdi}, {arac.PlakaVeyaIsim}")</option>
-            }
-        </select>
-    </div>
-    <div>
-        <p>Arac 3</p>
-        <select id="AracId3" name="AracId3">
-            <option value="">Seçenek seçin</option>
-            @foreach (var arac in Model.AracList.Where(a => a.AracTipiId == 1))
-            {
-                var aracTipi = Model.AracTipiList.FirstOrDefault(a => a.Id == arac.AracTipiId);
-                <option value="@arac.Id">@($"{aracTipi.AracTipiAdi}, {arac.PlakaVeyaIsim}")</option>
-            }
-        </select>
-    </div>
-    <div>
-        <p>Arac 4</p>
-        <select id="AracId4" name="AracId4">
-            <option value="">Seçenek seçin</option>
-            @foreach (var arac in Model.AracList.Where(a => a.AracTipiId == 1))
-            {
-                var aracTipi = Model.AracTipiList.FirstOrDefault(a => a.Id == arac.AracTipiId);
-                <option value="@arac.Id">@($"{aracTipi.AracTipiAdi}, {arac.PlakaVeyaIsim}")</option>
-            }
-        </select>
+
+    <!-- Fiyat TRY - Fiyat USD - Fiyat EUR -->
+    <div style="padding-bottom:2em; display:flex; flex-direction:row">
+        <div style="padding-right:1em; display:flex; flex-direction:column">
+            <p>Fiyat TRY</p>
+            <input type="number" id="FiyatTry" name="FiyatTry" placeholder="FiyatTry" step="0.01" pattern="\d{1,16}(\.\d{2})?" />
+        </div>
+        <div style="padding-right:1em; display:flex; flex-direction:column">
+            <p>Fiyat USD</p>
+            <input type="number" id="FiyatUsd" name="FiyatUsd" placeholder="FiyatUsd" step="0.01" pattern="\d{1,16}(\.\d{2})?" />
+        </div>
+        <div style="padding-right:1em; display:flex; flex-direction:column">
+            <p>Fiyat EUR</p>
+            <input type="number" id="FiyatEur" name="FiyatEur" placeholder="FiyatEur" step="0.01" pattern="\d{1,16}(\.\d{2})?" />
+        </div>
     </div>
     
-    <div>
-        <p>Servis 1</p>
-        <select id="ServisId1" name="ServisId1">
-            <option value="">Seçenek seçin</option>
-            @foreach (var arac in Model.AracList.Where(a => a.AracTipiId == 2))
-            {
-                var aracTipi = Model.AracTipiList.FirstOrDefault(a => a.Id == arac.AracTipiId);
-                <option value="@arac.Id">@($"{aracTipi.AracTipiAdi}, {arac.PlakaVeyaIsim}")</option>
-            }
-        </select>
+    <!-- Arac 1 - Arac 2 - Arac 3 - Arac 4 -->
+    <div style="padding-bottom:2em; display:flex; flex-direction:row">
+        <div style="padding-right:1em; display:flex; flex-direction:column">
+            <p>Arac 1</p>
+            <select id="AracId1" name="AracId1">
+                <option value="">Seçenek seçin</option>
+                @foreach (var arac in Model.AracList.Where(a => a.AracTipiId == 1))
+                {
+                    var aracTipi = Model.AracTipiList.FirstOrDefault(a => a.Id == arac.AracTipiId);
+                    <option value="@arac.Id">@($"{aracTipi.AracTipiAdi}, {arac.PlakaVeyaIsim}")</option>
+                }
+            </select>
+        </div>
+        <div style="padding-right:1em; display:flex; flex-direction:column">
+            <p>Arac 2</p>
+            <select id="AracId2" name="AracId2">
+                <option value="">Seçenek seçin</option>
+                @foreach (var arac in Model.AracList.Where(a => a.AracTipiId == 1))
+                {
+                    var aracTipi = Model.AracTipiList.FirstOrDefault(a => a.Id == arac.AracTipiId);
+                    <option value="@arac.Id">@($"{aracTipi.AracTipiAdi}, {arac.PlakaVeyaIsim}")</option>
+                }
+            </select>
+        </div>
+        <div style="padding-right:1em; display:flex; flex-direction:column">
+            <p>Arac 3</p>
+            <select id="AracId3" name="AracId3">
+                <option value="">Seçenek seçin</option>
+                @foreach (var arac in Model.AracList.Where(a => a.AracTipiId == 1))
+                {
+                    var aracTipi = Model.AracTipiList.FirstOrDefault(a => a.Id == arac.AracTipiId);
+                    <option value="@arac.Id">@($"{aracTipi.AracTipiAdi}, {arac.PlakaVeyaIsim}")</option>
+                }
+            </select>
+        </div>
+        <div style="padding-right:1em; display:flex; flex-direction:column">
+            <p>Arac 4</p>
+            <select id="AracId4" name="AracId4">
+                <option value="">Seçenek seçin</option>
+                @foreach (var arac in Model.AracList.Where(a => a.AracTipiId == 1))
+                {
+                    var aracTipi = Model.AracTipiList.FirstOrDefault(a => a.Id == arac.AracTipiId);
+                    <option value="@arac.Id">@($"{aracTipi.AracTipiAdi}, {arac.PlakaVeyaIsim}")</option>
+                }
+            </select>
+        </div>
     </div>
-    <div>
-        <p>Servis 2</p>
-        <select id="ServisId2" name="ServisId2">
-            <option value="">Seçenek seçin</option>
-            @foreach (var arac in Model.AracList.Where(a => a.AracTipiId == 2))
-            {
-                var aracTipi = Model.AracTipiList.FirstOrDefault(a => a.Id == arac.AracTipiId);
-                <option value="@arac.Id">@($"{aracTipi.AracTipiAdi}, {arac.PlakaVeyaIsim}")</option>
-            }
-        </select>
-    </div>
-    <div>
-        <p>Servis 3</p>
-        <select id="ServisId3" name="ServisId3">
-            <option value="">Seçenek seçin</option>
-            @foreach (var arac in Model.AracList.Where(a => a.AracTipiId == 2))
-            {
-                var aracTipi = Model.AracTipiList.FirstOrDefault(a => a.Id == arac.AracTipiId);
-                <option value="@arac.Id">@($"{aracTipi.AracTipiAdi}, {arac.PlakaVeyaIsim}")</option>
-            }
-        </select>
+    
+    <!-- Servis 1 - Servis 2 - Servis 3 -->
+    <div style="padding-bottom:2em; display:flex; flex-direction:row">
+        <div style="padding-right:1em; display:flex; flex-direction:column">
+            <p>Servis 1</p>
+            <select id="ServisId1" name="ServisId1">
+                <option value="">Seçenek seçin</option>
+                @foreach (var arac in Model.AracList.Where(a => a.AracTipiId == 2))
+                {
+                    var aracTipi = Model.AracTipiList.FirstOrDefault(a => a.Id == arac.AracTipiId);
+                    <option value="@arac.Id">@($"{aracTipi.AracTipiAdi}, {arac.PlakaVeyaIsim}")</option>
+                }
+            </select>
+        </div>
+        <div style="padding-right:1em; display:flex; flex-direction:column">
+            <p>Servis 2</p>
+            <select id="ServisId2" name="ServisId2">
+                <option value="">Seçenek seçin</option>
+                @foreach (var arac in Model.AracList.Where(a => a.AracTipiId == 2))
+                {
+                    var aracTipi = Model.AracTipiList.FirstOrDefault(a => a.Id == arac.AracTipiId);
+                    <option value="@arac.Id">@($"{aracTipi.AracTipiAdi}, {arac.PlakaVeyaIsim}")</option>
+                }
+            </select>
+        </div>
+        <div style="padding-right:1em; display:flex; flex-direction:column">
+            <p>Servis 3</p>
+            <select id="ServisId3" name="ServisId3">
+                <option value="">Seçenek seçin</option>
+                @foreach (var arac in Model.AracList.Where(a => a.AracTipiId == 2))
+                {
+                    var aracTipi = Model.AracTipiList.FirstOrDefault(a => a.Id == arac.AracTipiId);
+                    <option value="@arac.Id">@($"{aracTipi.AracTipiAdi}, {arac.PlakaVeyaIsim}")</option>
+                }
+            </select>
+        </div>
     </div>
 
     <button type="button" onclick="createTour()">Tur Oluştur</button>
@@ -114,7 +166,9 @@
         var tarih = document.getElementById("Tarih").value;
         var saat = document.getElementById("Saat").value;
         var turTipiId = document.getElementById("TurTipiId").value;
-        var fiyat = document.getElementById("Fiyat").value;
+        var fiyatTry = document.getElementById("FiyatTry").value;
+        var fiyatUsd = document.getElementById("FiyatUsd").value;
+        var fiyatEur = document.getElementById("FiyatEur").value;
         var aracId1 = document.getElementById("AracId1").value;
         var aracId2 = document.getElementById("AracId2").value;
         var aracId3 = document.getElementById("AracId3").value;
@@ -126,13 +180,15 @@
         
 
         // Check if certain values are null
-        if (tarih && saat && turTipiId && fiyat && aracId1) {
+        if (tarih && saat && turTipiId && fiyatTry && fiyatUsd && fiyatEur && aracId1) {
             
             var tourValues = [];
             tourValues.push(tarih);
             tourValues.push(saat);
             tourValues.push(turTipiId);
-            tourValues.push(fiyat);
+            tourValues.push(fiyatTry);
+            tourValues.push(fiyatUsd);
+            tourValues.push(fiyatEur);
             tourValues.push(aracId1);
             tourValues.push(aracId2);
             tourValues.push(aracId3);
@@ -146,7 +202,7 @@
             sendArrayToController(tourValues);
             
         } else {
-            console.log("Please fill in all the required fields.");
+            alert("Please fill in all the required fields.");
         }
     }
 
@@ -158,6 +214,9 @@
             data: JSON.stringify(array),
             success: function (response) {
                 console.log("Data sent successfully:", response);
+                if (response.redirectUrl) {
+                    window.location.href = response.redirectUrl;
+                }
             },
             error: function (error) {
                 console.error("Error sending data:", error);
