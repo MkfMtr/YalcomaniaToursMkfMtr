@@ -40,8 +40,6 @@ builder.Services.AddScoped<IBolgeOtelService, BolgeOtelService>();
 builder.Services.AddScoped<IGenericRepository<BolgeOtel>, GenericRepository<BolgeOtel>>();
 builder.Services.AddScoped<ICalisanService, CalisanService>();
 builder.Services.AddScoped<IGenericRepository<Calisan>, GenericRepository<Calisan>>();
-//builder.Services.AddScoped<IGelirGiderKategoriService, GelirGiderKategoriService>();
-//builder.Services.AddScoped<IGenericRepository<GelirGiderKategori>, GenericRepository<GelirGiderKategori>>();
 builder.Services.AddScoped<IGorevService, GorevService>();
 builder.Services.AddScoped<IGenericRepository<Gorev>, GenericRepository<Gorev>>();
 builder.Services.AddScoped<IGorevCalisanService, GorevCalisanService>();
@@ -52,10 +50,18 @@ builder.Services.AddScoped<IOtelService, OtelService>();
 builder.Services.AddScoped<IGenericRepository<Otel>, GenericRepository<Otel>>();
 builder.Services.AddScoped<IParaBirimiService, ParaBirimiService>();
 builder.Services.AddScoped<IGenericRepository<ParaBirimi>, GenericRepository<ParaBirimi>>();
-
-
-
-
+builder.Services.AddScoped<ISirketService, SirketService>();
+builder.Services.AddScoped<IGenericRepository<Sirket>, GenericRepository<Sirket>>();
+builder.Services.AddScoped<ISirketTurTipiService, SirketTurTipiService>();
+builder.Services.AddScoped<IGenericRepository<SirketTurTipi>, GenericRepository<SirketTurTipi>>();
+builder.Services.AddScoped<ISubeService, SubeService>();
+builder.Services.AddScoped<IGenericRepository<Sube>, GenericRepository<Sube>>();
+builder.Services.AddScoped<ISubeCalisanService, SubeCalisanService>();
+builder.Services.AddScoped<IGenericRepository<SubeCalisan>, GenericRepository<SubeCalisan>>();
+builder.Services.AddScoped<ITurTipiService, TurTipiService>();
+builder.Services.AddScoped<IGenericRepository<TurTipi>, GenericRepository<TurTipi>>();
+builder.Services.AddScoped<IUyrukService, UyrukService>();
+builder.Services.AddScoped<IGenericRepository<Uyruk>, GenericRepository<Uyruk>>();
 
 var app = builder.Build();
 

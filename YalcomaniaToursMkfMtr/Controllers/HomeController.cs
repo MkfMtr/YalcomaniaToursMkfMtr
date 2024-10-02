@@ -12,40 +12,58 @@ namespace YalcomaniaToursMkfMtr.Controllers
 {
     public class HomeController : Controller
     {
+        #region private readonly ...
         private readonly ILogger<HomeController> _logger;
         private readonly YalcoContext _context;
-        private readonly ITurService _turService;
         private readonly IAracService _aracService;
         private readonly IAracTipiService _aracTipiService;
         private readonly IBiletService _biletService;
         private readonly IBolgeService _bolgeService;
         private readonly IBolgeOtelService _bolgeOtelService;
+        private readonly IBolgeSubeService _bolgeSubeService;
         private readonly ICalisanService _calisanService;
         private readonly IGorevService _gorevService;
         private readonly IGorevCalisanService _gorevCalisanService;
         private readonly IKurService _kurService;
         private readonly IOtelService _otelService;
         private readonly IParaBirimiService _paraBirimiService;
+        private readonly ISirketService _sirketService;
+        private readonly ISirketTurTipiService _sirketTurTipiService;
+        private readonly ISubeCalisanService _subeCalisanService;
+        private readonly ISubeService _subeService;
+        private readonly ITurService _turService;
+        private readonly ITurTipiService _turTipiService;
+        private readonly IUyrukService _uyrukService; 
+        #endregion
 
         public HomeController(ILogger<HomeController> logger, YalcoContext context, 
-            ITurService turService, IAracService aracService, IAracTipiService aracTipiService, IBiletService biletService, IBolgeService bolgeService,
-            IBolgeOtelService bolgeOtelService, ICalisanService calisanService, IGorevService gorevService, IGorevCalisanService gorevCalisanService,
-            IKurService kurService, IOtelService otelService, IParaBirimiService paraBirimiService)
+            IAracService aracService, IAracTipiService aracTipiService, IBiletService biletService, IBolgeService bolgeService,
+            IBolgeOtelService bolgeOtelService, IBolgeSubeService bolgeSubeService, ICalisanService calisanService, IGorevService gorevService, IGorevCalisanService gorevCalisanService,
+            IKurService kurService, IOtelService otelService, IParaBirimiService paraBirimiService, ISirketService sirketService,
+            ISirketTurTipiService sirketTurTipiService, ISubeCalisanService subeCalisanService, ISubeService subeService, ITurService turService,
+            ITurTipiService turTipiService, IUyrukService uyrukService)
         {
             _logger = logger;
             _context = context;
-            _turService = turService;
             _aracService = aracService;
             _aracTipiService = aracTipiService;
             _biletService = biletService;
             _bolgeService = bolgeService;
             _bolgeOtelService = bolgeOtelService;
+            _bolgeSubeService = bolgeSubeService;
             _calisanService = calisanService;
             _gorevService = gorevService;
             _gorevCalisanService = gorevCalisanService;
             _kurService = kurService;
             _otelService = otelService;
             _paraBirimiService = paraBirimiService;
+            _sirketService = sirketService;
+            _sirketTurTipiService = sirketTurTipiService;
+            _subeCalisanService = subeCalisanService;
+            _subeService = subeService;
+            _turService = turService;
+            _turTipiService = turTipiService;
+            _uyrukService = uyrukService;
         }
 
         public IActionResult AdminIndex()
@@ -55,12 +73,12 @@ namespace YalcomaniaToursMkfMtr.Controllers
         public IActionResult TicketCreate()
         {
             var turList = _turService.GetAll().ToList();
-            var turTipiList = _context.TurTipleri.ToList();
-            var subeList = _context.Subeler.ToList();
+            var turTipiList = _turTipiService.GetAll().ToList();
+            var subeList = _subeService.GetAll().ToList();
             var calisanList = _calisanService.GetAll().ToList();
-            var subeCalisanList = _context.SubelerCalisanlar.ToList();
-            var bolgeSubeList = _context.BolgelerSubeler.ToList();
-            var uyrukList = _context.Uyruklar.ToList();
+            var subeCalisanList = _subeCalisanService.GetAll().ToList();
+            var bolgeSubeList = _bolgeSubeService.GetAll().ToList();
+            var uyrukList = _uyrukService.GetAll().ToList();
             var otelList = _otelService.GetAll().ToList();
             var bolgeList = _bolgeService.GetAll().ToList();
             var bolgeOtelList = _bolgeOtelService.GetAll().ToList();
@@ -227,14 +245,14 @@ namespace YalcomaniaToursMkfMtr.Controllers
         public IActionResult TicketSearch()
         {
             var turList = _turService.GetAll().ToList();
-            var turTipiList = _context.TurTipleri.ToList();
-            var subeList = _context.Subeler.ToList();
+            var turTipiList = _turTipiService.GetAll().ToList();
+            var subeList = _subeService.GetAll().ToList();
             var calisanList = _calisanService.GetAll().ToList();
-            var subeCalisanList = _context.SubelerCalisanlar.ToList();
+            var subeCalisanList = _subeCalisanService.GetAll().ToList();
             var gorevList = _gorevService.GetAll().ToList();
             var gorevCalisanList = _gorevCalisanService.GetAll().ToList();
-            var bolgeSubeList = _context.BolgelerSubeler.ToList();
-            var uyrukList = _context.Uyruklar.ToList();
+            var bolgeSubeList = _bolgeSubeService.GetAll().ToList();
+            var uyrukList = _uyrukService.GetAll().ToList();
             var otelList = _otelService.GetAll().ToList();
             var bolgeList = _bolgeService.GetAll().ToList();
             var bolgeOtelList = _bolgeOtelService.GetAll().ToList();
@@ -267,11 +285,11 @@ namespace YalcomaniaToursMkfMtr.Controllers
         {
             var aracTipiList = _aracTipiService.GetAll().ToList();
             var aracList = _aracService.GetAll().ToList();
-            var turTipiList = _context.TurTipleri.ToList();
-            var sirketList = _context.Sirketler.ToList();
-            var paraBirimiList = _context.ParaBirimleri.ToList();
-            var sirketTurTipiList = _context.SirketTurTipleri.ToList();
-            var kurList = _context.Kurlar.ToList();
+            var turTipiList = _turTipiService.GetAll().ToList();
+            var sirketList = _sirketService.GetAll().ToList();
+            var paraBirimiList = _paraBirimiService.GetAll().ToList();
+            var sirketTurTipiList = _sirketTurTipiService.GetAll().ToList();
+            var kurList = _kurService.GetAll().ToList();
             var model = new OperationCreateTourModel
             {
                 AracTipiList = aracTipiList,
@@ -350,8 +368,8 @@ namespace YalcomaniaToursMkfMtr.Controllers
             var otelList = _otelService.GetAll().ToList();
             var paraBirimiList = _paraBirimiService.GetAll().ToList();
             var turList = _turService.GetAll().ToList();
-            var turTipiList = _context.TurTipleri.ToList();
-            var uyrukList = _context.Uyruklar.ToList();
+            var turTipiList = _turTipiService.GetAll().ToList();
+            var uyrukList = _uyrukService.GetAll().ToList();
             var model = new OperationSearchTourModel
             {
                 AracList = aracList,
