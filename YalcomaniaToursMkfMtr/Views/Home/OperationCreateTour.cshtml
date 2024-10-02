@@ -1,6 +1,6 @@
 ﻿@model OperationCreateTourModel
 @{
-    ViewData["Title"] = "Operasyon Tur Düzenleme";
+    ViewData["Title"] = "Tur Oluşturma";
 
     // Bugüne en yakın Kur verisini al
     var closestKur = Model.KurList.OrderBy(k => Math.Abs((k.Tarih.ToDateTime(TimeOnly.MinValue) - DateTime.Today).TotalDays)).FirstOrDefault();
@@ -30,7 +30,6 @@
         <div>
             <p>Tur Tipi</p>
             <select id="TurTipiId" name="TurTipiId">
-                <option value="">Seçenek seçin</option>
                 @foreach (var tur in Model.TurTipiList)
                 {
                     <option value="@tur.Id">@tur.TurTipiAdi</option>
@@ -78,45 +77,25 @@
         <div style="padding-right:1em; display:flex; flex-direction:column">
             <p>Arac 1</p>
             <select id="AracId1" name="AracId1">
-                <option value="">Seçenek seçin</option>
-                @foreach (var arac in Model.AracList.Where(a => a.AracTipiId == 1))
-                {
-                    var aracTipi = Model.AracTipiList.FirstOrDefault(a => a.Id == arac.AracTipiId);
-                    <option value="@arac.Id">@($"{aracTipi.AracTipiAdi}, {arac.PlakaVeyaIsim}")</option>
-                }
+                <!-- Javascript ile doldur -->
             </select>
         </div>
         <div style="padding-right:1em; display:flex; flex-direction:column">
             <p>Arac 2</p>
             <select id="AracId2" name="AracId2">
-                <option value="">Seçenek seçin</option>
-                @foreach (var arac in Model.AracList.Where(a => a.AracTipiId == 1))
-                {
-                    var aracTipi = Model.AracTipiList.FirstOrDefault(a => a.Id == arac.AracTipiId);
-                    <option value="@arac.Id">@($"{aracTipi.AracTipiAdi}, {arac.PlakaVeyaIsim}")</option>
-                }
+                <!-- Javascript ile doldur -->
             </select>
         </div>
         <div style="padding-right:1em; display:flex; flex-direction:column">
             <p>Arac 3</p>
             <select id="AracId3" name="AracId3">
-                <option value="">Seçenek seçin</option>
-                @foreach (var arac in Model.AracList.Where(a => a.AracTipiId == 1))
-                {
-                    var aracTipi = Model.AracTipiList.FirstOrDefault(a => a.Id == arac.AracTipiId);
-                    <option value="@arac.Id">@($"{aracTipi.AracTipiAdi}, {arac.PlakaVeyaIsim}")</option>
-                }
+                <!-- Javascript ile doldur -->
             </select>
         </div>
         <div style="padding-right:1em; display:flex; flex-direction:column">
             <p>Arac 4</p>
             <select id="AracId4" name="AracId4">
-                <option value="">Seçenek seçin</option>
-                @foreach (var arac in Model.AracList.Where(a => a.AracTipiId == 1))
-                {
-                    var aracTipi = Model.AracTipiList.FirstOrDefault(a => a.Id == arac.AracTipiId);
-                    <option value="@arac.Id">@($"{aracTipi.AracTipiAdi}, {arac.PlakaVeyaIsim}")</option>
-                }
+                <!-- Javascript ile doldur -->
             </select>
         </div>
     </div>
@@ -126,34 +105,19 @@
         <div style="padding-right:1em; display:flex; flex-direction:column">
             <p>Servis 1</p>
             <select id="ServisId1" name="ServisId1">
-                <option value="">Seçenek seçin</option>
-                @foreach (var arac in Model.AracList.Where(a => a.AracTipiId == 2))
-                {
-                    var aracTipi = Model.AracTipiList.FirstOrDefault(a => a.Id == arac.AracTipiId);
-                    <option value="@arac.Id">@($"{aracTipi.AracTipiAdi}, {arac.PlakaVeyaIsim}")</option>
-                }
+                <!-- Javascript ile doldur -->
             </select>
         </div>
         <div style="padding-right:1em; display:flex; flex-direction:column">
             <p>Servis 2</p>
             <select id="ServisId2" name="ServisId2">
-                <option value="">Seçenek seçin</option>
-                @foreach (var arac in Model.AracList.Where(a => a.AracTipiId == 2))
-                {
-                    var aracTipi = Model.AracTipiList.FirstOrDefault(a => a.Id == arac.AracTipiId);
-                    <option value="@arac.Id">@($"{aracTipi.AracTipiAdi}, {arac.PlakaVeyaIsim}")</option>
-                }
+                <!-- Javascript ile doldur -->
             </select>
         </div>
         <div style="padding-right:1em; display:flex; flex-direction:column">
             <p>Servis 3</p>
             <select id="ServisId3" name="ServisId3">
-                <option value="">Seçenek seçin</option>
-                @foreach (var arac in Model.AracList.Where(a => a.AracTipiId == 2))
-                {
-                    var aracTipi = Model.AracTipiList.FirstOrDefault(a => a.Id == arac.AracTipiId);
-                    <option value="@arac.Id">@($"{aracTipi.AracTipiAdi}, {arac.PlakaVeyaIsim}")</option>
-                }
+                <!-- Javascript ile doldur -->
             </select>
         </div>
     </div>
@@ -162,27 +126,191 @@
 </div>
 
 <script>
-    function createTour() {
-        var tarih = document.getElementById("Tarih").value;
-        var saat = document.getElementById("Saat").value;
-        var turTipiId = document.getElementById("TurTipiId").value;
-        var fiyatTry = document.getElementById("FiyatTry").value;
-        var fiyatUsd = document.getElementById("FiyatUsd").value;
-        var fiyatEur = document.getElementById("FiyatEur").value;
-        var aracId1 = document.getElementById("AracId1").value;
-        var aracId2 = document.getElementById("AracId2").value;
-        var aracId3 = document.getElementById("AracId3").value;
-        var aracId4 = document.getElementById("AracId4").value;
-        var servisId1 = document.getElementById("ServisId1").value;
-        var servisId2 = document.getElementById("ServisId2").value;
-        var servisId3 = document.getElementById("ServisId3").value;
-
+    $(document).ready(function () {
+        //#region Gerekli şeyleri (array vs.) oluştur
+        let option;
+        let aracList2
+        let aracList3
+        let aracList4
+        let servisList2
+        let servisList3
+        let aracTipiList = @Html.Raw(Json.Serialize(Model.AracTipiList.Select(a => new{ a.Id, a.AracTipiAdi})));
+        let aracListPre = @Html.Raw(Json.Serialize(Model.AracList.Select(a => new { a.Id, a.AracTipiId, a.PlakaVeyaIsim, a.SilindiMi })));
+        let aracList = aracListPre.filter(a => a.silindiMi === false);
+        let otobusId = aracTipiList.find(a => a.aracTipiAdi === "Otobüs").id;
+        let otobusList = aracList.filter(a => a.aracTipiId === otobusId);
+        let servisId = aracTipiList.find(a => a.aracTipiAdi === "Servis").id;
+        let servisList = aracList.filter(a => a.aracTipiId === servisId);
+        console.log("otobusList:", otobusList);
+        console.log("servisList:", servisList);
+        //#endregion
         
+        //İlk araç seçeneklerini oluştur
+        createAracOptions(otobusList, "AracId1");
+        createAracOptions(servisList, "ServisId1");
 
-        // Check if certain values are null
+        //#region Araç değerlerini al
+        let aracId1D = getValue("AracId1");
+        let aracId2D = getValue("AracId2");
+        let aracId3D = getValue("AracId3");
+        let servisId1D = getValue("ServisId1");
+        let servisId2D = getValue("ServisId2");
+        updateAracDisable();
+        //#endregion
+        
+        //#region Araç seçince olacaklar
+        $("#AracId1").change(function () {
+            aracId1D = getValue("AracId1");
+            clearOptions("AracId2");
+            clearOptions("AracId3");
+            clearOptions("AracId4");
+            aracList2 = eliminateAracFromList(aracId1D, otobusList);
+            createAracOptions(aracList2, "AracId2");
+            updateAracDisable();
+        });
+        $("#AracId2").change(function () {
+            aracId2D = getValue("AracId2");
+            clearOptions("AracId3");
+            clearOptions("AracId4");
+            aracList3 = eliminateAracFromList(aracId2D, aracList2);
+            createAracOptions(aracList3, "AracId3");
+            updateAracDisable();
+        });
+        $("#AracId3").change(function () {
+            aracId3D = getValue("AracId3");
+            clearOptions("AracId4");
+            aracList4 = eliminateAracFromList(aracId3D, aracList3);
+            createAracOptions(aracList4, "AracId4");
+            updateAracDisable();
+        });
+        $("#ServisId1").change(function () {
+            servisId1D = getValue("ServisId1");
+            clearOptions("ServisId2");
+            clearOptions("ServisId3");
+            servisList2 = eliminateAracFromList(servisId1D, servisList);
+            createAracOptions(servisList2, "ServisId2");
+            updateAracDisable();
+        });
+        $("#ServisId2").change(function () {
+            servisId2D = getValue("ServisId2");
+            clearOptions("ServisId3");
+            servisList3 = eliminateAracFromList(servisId2D, servisList2);
+            createAracOptions(servisList3, "ServisId3");
+            updateAracDisable();
+        });
+        //#endregion
+
+        //Araç için arrayden seçenekler oluştur
+        function createAracOptions(array, elementId) {
+            option = createOption("Seçilmedi", "");
+            document.getElementById(elementId).appendChild(option);
+            for (let i = 0; i < array.length; i++) {
+                option = createOption(array[i].plakaVeyaIsim, array[i].id);
+                document.getElementById(elementId).appendChild(option);
+            }
+        }
+
+        //Seçenek oluştur
+        function createOption(text, value) {
+            let option1 = document.createElement("option");
+            option1.value = value;
+            option1.text = text;
+            return option1;
+        }
+
+        //Araçların sırayla seçilmesini sağla
+        function updateAracDisable(){
+            if (!aracId1D) {
+                clearOptions("AracId2");
+                $("#AracId2").prop("disabled", true);
+                aracId2D = null;
+            }
+            else{
+                $("#AracId2").prop("disabled", false);
+            }
+            if (!aracId2D) {
+                clearOptions("AracId3");
+                $("#AracId3").prop("disabled", true);
+                aracId3D = null;
+            }
+            else{
+                $("#AracId3").prop("disabled", false);
+            }
+            if (!aracId3D) {
+                clearOptions("AracId4");
+                $("#AracId4").prop("disabled", true);
+                aracId4D = null;
+            }
+            else{
+                $("#AracId4").prop("disabled", false);
+            }
+            if (!servisId1D) {
+                clearOptions("ServisId2");
+                $("#ServisId2").prop("disabled", true);
+                servisId2D = null;
+            }
+            else{
+                $("#ServisId2").prop("disabled", false);
+            }
+            if (!servisId2D) {
+                clearOptions("ServisId3");
+                $("#ServisId3").prop("disabled", true);
+                servisId3D = null;
+            }
+            else{
+                $("#ServisId3").prop("disabled", false);
+            }
+        }
+
+        //Arrayden aracı sil
+        function eliminateAracFromList(aracId, array) {
+            let chosenAracId = aracId;
+            return array.filter(a => a.id !== chosenAracId);
+        }
+
+        //Elementin içini sil
+        function clearOptions(elementId) {
+            document.getElementById(elementId).innerHTML = "";
+        }
+    });
+
+    //Turu oluşturmaya başla
+    function createTour() {
+        let tarih = getValue("Tarih");
+        let saat = getValue("Saat");
+        let turTipiId = getValue("TurTipiId");
+        let fiyatTry = getValue("FiyatTry");
+        let fiyatUsd = getValue("FiyatUsd");
+        let fiyatEur = getValue("FiyatEur");
+        let aracId1 = getValue("AracId1");
+        let aracId2 = getValue("AracId2");
+        let aracId3 = getValue("AracId3");
+        let aracId4 = getValue("AracId4");
+        let servisId1 = getValue("ServisId1");
+        let servisId2 = getValue("ServisId2");
+        let servisId3 = getValue("ServisId3");
+
+        let logTourValues = {
+            "tarih": tarih,
+            "saat": saat,
+            "turTipiId": turTipiId,
+            "fiyatTry": fiyatTry,
+            "fiyatUsd": fiyatUsd,
+            "fiyatEur": fiyatEur,
+            "aracId1": aracId1,
+            "aracId2": aracId2,
+            "aracId3": aracId3,
+            "aracId4": aracId4,
+            "servisId1": servisId1,
+            "servisId2": servisId2,
+            "servisId3": servisId3
+        };
+        console.log("logTourValues:", logTourValues);
+
+        // Boş varsa uyar
         if (tarih && saat && turTipiId && fiyatTry && fiyatUsd && fiyatEur && aracId1) {
             
-            var tourValues = [];
+            let tourValues = [];
             tourValues.push(tarih);
             tourValues.push(saat);
             tourValues.push(turTipiId);
@@ -197,19 +325,25 @@
             tourValues.push(servisId2);
             tourValues.push(servisId3);
 
-            console.log(tourValues);
+            console.log("tourValues:",tourValues);
 
-            sendArrayToController(tourValues);
+            //sendArrayToController(tourValues);
             
         } else {
-            alert("Please fill in all the required fields.");
+            alert("Lütfen boş alanları doldurunuz!");
         }
     }
 
+    //Değeri al, int'e çevir, boş stringi null yap
+    function getValue(string) {
+        return document.getElementById(string).value !== "" ? parseInt(document.getElementById(string).value) : null;
+    }
+
+    //Arrayi controllera gönder
     function sendArrayToController(array) {
         $.ajax({
             type: "POST",
-            url: "/Home/SendTourDetails", // URL of the controller action
+            url: "/Home/SendTourDetails",
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify(array),
             success: function (response) {

@@ -2,8 +2,10 @@ using BusinessLayer.Abstract;
 using DataAccessLayer;
 using DataAccessLayer.Context;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Globalization;
+using System.Numerics;
 using YalcomaniaToursMkfMtr.Models;
 
 namespace YalcomaniaToursMkfMtr.Controllers
@@ -13,30 +15,57 @@ namespace YalcomaniaToursMkfMtr.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly YalcoContext _context;
         private readonly ITurService _turService;
+        private readonly IAracService _aracService;
+        private readonly IAracTipiService _aracTipiService;
         private readonly IBiletService _biletService;
+        private readonly IBolgeService _bolgeService;
+        private readonly IBolgeOtelService _bolgeOtelService;
+        private readonly ICalisanService _calisanService;
+        private readonly IGorevService _gorevService;
+        private readonly IGorevCalisanService _gorevCalisanService;
+        private readonly IKurService _kurService;
+        private readonly IOtelService _otelService;
+        private readonly IParaBirimiService _paraBirimiService;
 
-        public HomeController(ILogger<HomeController> logger, YalcoContext context, ITurService turService, IBiletService biletService)
+        public HomeController(ILogger<HomeController> logger, YalcoContext context, 
+            ITurService turService, IAracService aracService, IAracTipiService aracTipiService, IBiletService biletService, IBolgeService bolgeService,
+            IBolgeOtelService bolgeOtelService, ICalisanService calisanService, IGorevService gorevService, IGorevCalisanService gorevCalisanService,
+            IKurService kurService, IOtelService otelService, IParaBirimiService paraBirimiService)
         {
             _logger = logger;
             _context = context;
             _turService = turService;
+            _aracService = aracService;
+            _aracTipiService = aracTipiService;
             _biletService = biletService;
+            _bolgeService = bolgeService;
+            _bolgeOtelService = bolgeOtelService;
+            _calisanService = calisanService;
+            _gorevService = gorevService;
+            _gorevCalisanService = gorevCalisanService;
+            _kurService = kurService;
+            _otelService = otelService;
+            _paraBirimiService = paraBirimiService;
         }
 
+        public IActionResult AdminIndex()
+        {
+            return View();
+        }
         public IActionResult TicketCreate()
         {
-            var turList = _context.Turlar.ToList();
+            var turList = _turService.GetAll().ToList();
             var turTipiList = _context.TurTipleri.ToList();
             var subeList = _context.Subeler.ToList();
-            var calisanList = _context.Calisanlar.ToList();
+            var calisanList = _calisanService.GetAll().ToList();
             var subeCalisanList = _context.SubelerCalisanlar.ToList();
             var bolgeSubeList = _context.BolgelerSubeler.ToList();
             var uyrukList = _context.Uyruklar.ToList();
-            var otelList = _context.Oteller.ToList();
-            var bolgeList = _context.Bolgeler.ToList();
-            var bolgeOtelList = _context.BolgelerOteller.ToList();
-            var parabirimiList = _context.ParaBirimleri.ToList();
-            var kurList = _context.Kurlar.ToList();
+            var otelList = _otelService.GetAll().ToList();
+            var bolgeList = _bolgeService.GetAll().ToList();
+            var bolgeOtelList = _bolgeOtelService.GetAll().ToList();
+            var parabirimiList = _paraBirimiService.GetAll().ToList();
+            var kurList = _kurService.GetAll().ToList();
             var model = new TicketCreateModel
             {
                 TurList = turList,
@@ -113,12 +142,80 @@ namespace YalcomaniaToursMkfMtr.Controllers
                     Aciklama = aciklama,
                     ServisIstiyorMu = servisIstiyorMu,
                     ServisSaati = servisSaati,
+                    OdendiMi = false,
                     BiletIptalMi = false,
                     PasBiletMi = false,
                     GelenGidenPas = null,
                     PasSirketi = null
                 });
                 return Ok(new { redirectUrl = Url.Action("TicketIndex", "Home") });
+            }
+        }
+
+        public async Task<IActionResult> SendTicketUpdate([FromBody] List<string> ticketValues)
+        {
+            if (ticketValues == null || ticketValues.Count == 0)
+            {
+                return BadRequest("Array is null or empty");
+            }
+            else
+            {
+                //foreach (var value in ticketValues)
+                //{
+                //    Console.WriteLine(value);
+                //}
+                var satanSubeId = int.Parse(ticketValues[0]);
+                var satanElemanId = int.Parse(ticketValues[1]);
+                var turId = int.Parse(ticketValues[2]);
+                var musteriAd = ticketValues[3];
+                var musteriSoyad = ticketValues[4];
+                var musteriUyruk = ticketValues[5];
+                var musteriBolgeId = int.Parse(ticketValues[6]);
+                int? musteriOtelId = string.IsNullOrEmpty(ticketValues[7]) ? null : int.Parse(ticketValues[7]);
+                var musteriOdaNo = ticketValues[8];
+                var musteriTelNo = ticketValues[9];
+                var musteriAdres = ticketValues[10];
+                var fullSayi = byte.Parse(ticketValues[11]);
+                var halfSayi = byte.Parse(ticketValues[12]);
+                var guestSayi = byte.Parse(ticketValues[13]);
+                var paraBirimi = ticketValues[14];
+                var paid = decimal.Parse(ticketValues[15], CultureInfo.InvariantCulture);
+                var rest = decimal.Parse(ticketValues[16], CultureInfo.InvariantCulture);
+                var aciklama = ticketValues[17];
+                var servisIstiyorMu = bool.Parse(ticketValues[18]);
+                TimeOnly? servisSaati = string.IsNullOrEmpty(ticketValues[19]) ? null : TimeOnly.Parse(ticketValues[19]);
+                var biletId = int.Parse(ticketValues[20]);
+                var biletIptalMi = bool.Parse(ticketValues[21]);
+
+                Bilet eskiBilet = _biletService.GetById(biletId);
+                if (eskiBilet == null)
+                {
+                    return BadRequest("Bilet not found");
+                }
+                else
+                {
+                    eskiBilet.TurId = turId;
+                    eskiBilet.MusteriAd = musteriAd;
+                    eskiBilet.MusteriSoyad = musteriSoyad;
+                    eskiBilet.MusteriUyruk = musteriUyruk;
+                    eskiBilet.MusteriBolgeId = musteriBolgeId;
+                    eskiBilet.MusteriOtelId = musteriOtelId;
+                    eskiBilet.MusteriOdaNo = musteriOdaNo;
+                    eskiBilet.MusteriAdres = musteriAdres;
+                    eskiBilet.MusteriTelNo = musteriTelNo;
+                    eskiBilet.FullSayi = fullSayi;
+                    eskiBilet.HalfSayi = halfSayi;
+                    eskiBilet.GuestSayi = guestSayi;
+                    eskiBilet.ParaBirimi = paraBirimi;
+                    eskiBilet.Paid = paid;
+                    eskiBilet.Rest = rest;
+                    eskiBilet.Aciklama = aciklama;
+                    eskiBilet.ServisIstiyorMu = servisIstiyorMu;
+                    eskiBilet.BiletIptalMi = biletIptalMi;
+                }
+
+                await _biletService.Update(eskiBilet);
+                return Ok(new { redirectUrl = Url.Action("TicketSearch", "Home") });
             }
         }
 
@@ -129,21 +226,21 @@ namespace YalcomaniaToursMkfMtr.Controllers
 
         public IActionResult TicketSearch()
         {
-            var turList = _context.Turlar.ToList();
+            var turList = _turService.GetAll().ToList();
             var turTipiList = _context.TurTipleri.ToList();
             var subeList = _context.Subeler.ToList();
-            var calisanList = _context.Calisanlar.ToList();
+            var calisanList = _calisanService.GetAll().ToList();
             var subeCalisanList = _context.SubelerCalisanlar.ToList();
-            var gorevList = _context.Gorevler.ToList();
-            var gorevCalisanList = _context.GorevlerCalisanlar.ToList();
+            var gorevList = _gorevService.GetAll().ToList();
+            var gorevCalisanList = _gorevCalisanService.GetAll().ToList();
             var bolgeSubeList = _context.BolgelerSubeler.ToList();
             var uyrukList = _context.Uyruklar.ToList();
-            var otelList = _context.Oteller.ToList();
-            var bolgeList = _context.Bolgeler.ToList();
-            var bolgeOtelList = _context.BolgelerOteller.ToList();
-            var parabirimiList = _context.ParaBirimleri.ToList();
-            var kurList = _context.Kurlar.ToList();
-            var biletList = _context.Biletler.ToList();
+            var otelList = _otelService.GetAll().ToList();
+            var bolgeList = _bolgeService.GetAll().ToList();
+            var bolgeOtelList = _bolgeOtelService.GetAll().ToList();
+            var parabirimiList = _paraBirimiService.GetAll().ToList();
+            var kurList = _kurService.GetAll().ToList();
+            var biletList = _biletService.GetAll().ToList();
             var model = new TicketSearchModel
             {
                 TurList = turList,
@@ -168,8 +265,8 @@ namespace YalcomaniaToursMkfMtr.Controllers
 
         public IActionResult OperationCreateTour()
         {
-            var aracTipiList = _context.AracTipleri.ToList();
-            var aracList = _context.Araclar.ToList();
+            var aracTipiList = _aracTipiService.GetAll().ToList();
+            var aracList = _aracService.GetAll().ToList();
             var turTipiList = _context.TurTipleri.ToList();
             var sirketList = _context.Sirketler.ToList();
             var paraBirimiList = _context.ParaBirimleri.ToList();
@@ -244,15 +341,15 @@ namespace YalcomaniaToursMkfMtr.Controllers
 
         public IActionResult OperationSearchTour()
         {
-            var aracList = _context.Araclar.ToList();
-            var aracTipiList = _context.AracTipleri.ToList();
-            var biletList = _context.Biletler.ToList();
-            var bolgeList = _context.Bolgeler.ToList();
-            var bolgeOtelList = _context.BolgelerOteller.ToList();
-            var kurList = _context.Kurlar.ToList();
-            var otelList = _context.Oteller.ToList();
-            var paraBirimiList = _context.ParaBirimleri.ToList();
-            var turList = _context.Turlar.ToList();
+            var aracList = _aracService.GetAll().ToList();
+            var aracTipiList = _aracTipiService.GetAll().ToList();
+            var biletList = _biletService.GetAll().ToList();
+            var bolgeList = _bolgeService.GetAll().ToList();
+            var bolgeOtelList = _bolgeOtelService.GetAll().ToList();
+            var kurList = _kurService.GetAll().ToList();
+            var otelList = _otelService.GetAll().ToList();
+            var paraBirimiList = _paraBirimiService.GetAll().ToList();
+            var turList = _turService.GetAll().ToList();
             var turTipiList = _context.TurTipleri.ToList();
             var uyrukList = _context.Uyruklar.ToList();
             var model = new OperationSearchTourModel
@@ -270,6 +367,74 @@ namespace YalcomaniaToursMkfMtr.Controllers
                 UyrukList = uyrukList
             };
             return View(model);
+        }
+
+        public IActionResult OperationVehicles()
+        {
+            var aracList = _aracService.GetAll().ToList();
+            var aracTipiList = _aracTipiService.GetAll().ToList();
+            var model = new OperationVehiclesModel
+            {
+                AracList = aracList,
+                AracTipiList = aracTipiList
+            };
+            return View(model);
+        }
+
+        public async Task<IActionResult> SendNewVehicleDetails([FromBody] List<string> vehicleValues)
+        {
+            if (vehicleValues == null || vehicleValues.Count == 0)
+            {
+                return BadRequest("Array is null or empty");
+            }
+            else
+            {
+                foreach (var value in vehicleValues)
+                {
+                    Console.WriteLine(value);
+                }
+                string plaka = vehicleValues[0];
+                int aracTipiId = int.Parse(vehicleValues[1]);
+                await _aracService.Create(new Arac
+                {
+                    PlakaVeyaIsim = plaka,
+                    AracTipiId = aracTipiId,
+                    SilindiMi = false
+                });
+                return Ok(new { redirectUrl = Url.Action("OperationVehicles", "Home") });
+            }
+        }
+
+        public async Task<IActionResult> SendDeleteVehicleDetails([FromBody] List<string> vehicleValues)
+        {
+            if (vehicleValues == null || vehicleValues.Count == 0)
+            {
+                return BadRequest("Array is null or empty");
+            }
+            else
+            {
+                foreach (var value in vehicleValues)
+                {
+                    Console.WriteLine(value);
+                }
+                int aracId = int.Parse(vehicleValues[0]);
+                string plaka = vehicleValues[1];
+                int aracTipiId = int.Parse(vehicleValues[2]);
+                bool silindiMi = bool.Parse(vehicleValues[3]);
+                Arac arac = _aracService.GetById(aracId);
+                if (arac == null)
+                {
+                    return BadRequest("Vehicle not found");
+                }
+                else
+                {
+                    arac.PlakaVeyaIsim = plaka;
+                    arac.AracTipiId = aracTipiId;
+                    arac.SilindiMi = silindiMi;
+                }
+                await _aracService.Update(arac);
+                return Ok(new { redirectUrl = Url.Action("OperationVehicles", "Home") });
+            }
         }
 
         public IActionResult DataInputEdit()
@@ -306,6 +471,20 @@ namespace YalcomaniaToursMkfMtr.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+        [HttpPost]
+        public IActionResult TicketToUpdate([FromBody] List<string> biletValues)
+        {
+            if (biletValues == null || biletValues.Count == 0)
+            {
+                return BadRequest("Array is null or empty");
+            }
+            else
+            {
+                string jsonString = JsonConvert.SerializeObject(biletValues);
+                HttpContext.Session.SetString("biletValues", jsonString);
+                return Ok(new { redirectUrl = Url.Action("TicketCreate", "Home") });
+            }
         }
     }
 }

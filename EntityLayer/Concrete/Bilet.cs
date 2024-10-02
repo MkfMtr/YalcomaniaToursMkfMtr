@@ -43,6 +43,8 @@ public partial class Bilet
 
     public decimal Rest { get; set; }
 
+    public bool OdendiMi { get; set; }
+
     public string? Aciklama { get; set; }
 
     public bool ServisIstiyorMu { get; set; }

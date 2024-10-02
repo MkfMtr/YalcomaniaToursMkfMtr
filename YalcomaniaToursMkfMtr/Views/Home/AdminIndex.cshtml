@@ -1,12 +1,13 @@
 ﻿@{
-    ViewData["Title"] = "Operasyon Ana Sayfa";
+    ViewData["Title"] = "Admin Ana Sayfa";
 }
-
 <div class="text-center">
-    <h1 class="display-4">Operasyon Departmanı Ana Sayfa</h1>
+    <h1 class="display-4">Admin Ana Sayfa</h1>
     <div>
         <a href="@Url.Action("OperationCreateTour", "Home")" class="btn btn-primary">Tur Oluştur</a>
         <a href="@Url.Action("OperationSearchTour", "Home")" class="btn btn-primary">Turları Ara</a>
         <a href="@Url.Action("OperationVehicles", "Home")" class="btn btn-primary">Araçları Yönet</a>
+        <a href="@Url.Action("TicketCreate", "Home")" class="btn btn-primary">Bilet Olştur</a>
+        <a href="@Url.Action("TicketSearch", "Home")" class="btn btn-primary">Biletleri Ara</a>
     </div>
 </div>

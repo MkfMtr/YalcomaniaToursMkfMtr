@@ -1,0 +1,211 @@
+﻿@model OperationVehiclesModel
+@{
+    ViewData["Title"] = "Araçları Yönet";
+    var userGorev = Context.Session.GetString("UserRole");
+}
+<style>
+    #OtobusTable{
+        width:40%;
+    }
+        #OtobusTable th {
+            border: 1px solid black;
+        }
+
+        #OtobusTable td {
+            border: 1px solid black;
+        }
+    #ServisTable{
+        width:40%;
+    }
+        #ServisTable th {
+            border: 1px solid black;
+        }
+        #ServisTable td {
+            border: 1px solid black;
+        }
+
+</style>
+<div style="display:flex; flex-direction:row; gap:1em;">
+    <p>Silindi Mi?:</p>
+    <input type="checkbox" id="SilindiMiBox" />
+</div>
+<div style="display:flex; flex-direction:row; padding-bottom:2em">
+    <table id="OtobusTable">
+        <thead>
+            <tr>
+                <th>Araç Plaka</th>
+                <th>Araç Tipi</th>
+                <th>Silindi Mi</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Javascriptte doldur -->
+        </tbody>
+    </table>
+
+    <div style="width:20%"></div>
+
+    <table id="ServisTable">
+        <thead>
+            <tr>
+                <th>Araç Plaka</th>
+                <th>Araç Tipi</th>
+                <th>Silindi Mi</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Javascriptte doldur -->
+        </tbody>
+    </table>
+</div>
+
+<div style="display:flex; flex-direction:row; gap:1em;">
+    <div style="width:40%">
+        <p>Yeni Araç Plaka:</p>
+        <input type="text" id="YeniAracPlaka" />
+        <p>Yeni Araç Tipi:</p>
+        <select id="YeniAracTipi">
+            @foreach (var item in Model.AracTipiList)
+            {
+                <option value="@item.Id">@item.AracTipiAdi</option>
+            }
+        </select>
+        <button id="YeniAracEkle">Ekle</button>
+    </div>
+    <div style="width:20%"></div>
+    <div style="width:40%">
+        <p id="AracBilgiBilgi">Silinen Araç:</p>
+        <p id="AracBilgi"></p>
+    </div>
+    
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        if ("@userGorev" !== "OperasyonYönetim" || "@userGorev" !== "Admin") {
+            window.location.href = "@Url.Action("Login", "Account")";
+        }
+        let aracList = @Html.Raw(Json.Serialize(Model.AracList.Select(a => new { a.Id, a.AracTipiId, a.PlakaVeyaIsim, a.SilindiMi})));
+        let aracTipiList = @Html.Raw(Json.Serialize(Model.AracTipiList.Select(a => new { a.Id, a.AracTipiAdi })));
+        console.log("aracList:",aracList);
+        console.log("aracTipiList:",aracTipiList);
+        let silindiMi = document.getElementById("SilindiMiBox").checked;
+
+        fillTable("#OtobusTable", "Otobüs");
+        fillTable("#ServisTable", "Servis");
+
+        document.getElementById("SilindiMiBox").addEventListener("change", function () {
+            silindiMi = this.checked;
+            fillTable("#OtobusTable", "Otobüs");
+            fillTable("#ServisTable", "Servis");
+        });
+
+        document.getElementById("YeniAracEkle").addEventListener("click", function () {
+            let yeniAracPlaka = document.getElementById("YeniAracPlaka").value;
+            let yeniAracTipi = document.getElementById("YeniAracTipi").value;
+            let yeniArac = [yeniAracPlaka,yeniAracTipi];
+            sendArrayToController(yeniArac);
+        });
+
+        function fillTable(id, string){
+            let tableBody = document.querySelector(id + " tbody");
+            tableBody.innerHTML = "";
+            for (let i = 0; i < aracList.length; i++) {
+                let arac = aracList[i];
+                let row = document.createElement("tr");
+                let aracTipi = aracTipiList.find(a => a.id === arac.aracTipiId);
+                if (aracTipi.aracTipiAdi === string && arac.silindiMi === silindiMi) {
+                    let plakaCell = document.createElement("td");
+                    plakaCell.innerText = arac.plakaVeyaIsim;
+                    row.appendChild(plakaCell);
+                    let tipCell = document.createElement("td");
+                    tipCell.innerText = aracTipi.aracTipiAdi;
+                    row.appendChild(tipCell);
+                    let silindiMiCell = document.createElement("td");
+                    silindiMiCell.innerText = arac.silindiMi ? "Evet" : "Hayır";
+                    row.appendChild(silindiMiCell);
+                    let silButtonCell = document.createElement("td");
+                    let silButton = document.createElement("button");
+                    silButton.id = arac.id;
+                    let silArac;
+                    let silArray;
+                    if (silindiMi === false){
+                        document.getElementById("AracBilgiBilgi").innerText = "Silinen Araç:";
+                        silButton.innerText = "Sil";
+                        silButton.addEventListener("click", function (aracObject) {
+                            return function () {
+                                silArac = aracList.find(a => a.id === aracObject.id);
+                                silArac.silindiMi = true;
+                                silArray = [silArac.id, silArac.plakaVeyaIsim, silArac.aracTipiId, silArac.silindiMi];
+                                mark(silArray);
+                            }
+                        }(arac));
+                    }
+                    else {
+                        document.getElementById("AracBilgiBilgi").innerText = "Geri Alınan Araç:";
+                        silButton.innerText = "Geri Al";
+                        silButton.addEventListener("click", function (aracObject) {
+                            return function () {
+                                silArac = aracList.find(a => a.id === aracObject.id);
+                                silArac.silindiMi = false;
+                                silArray = [silArac.id, silArac.plakaVeyaIsim, silArac.aracTipiId, silArac.silindiMi];
+                                mark(silArray);
+                            }
+                        }(arac));
+                    }
+                    console.log("silArray:", silArray);
+                    silButtonCell.appendChild(silButton);
+                    row.appendChild(silButtonCell);
+                    tableBody.appendChild(row);
+                }
+                
+            }
+        }
+        function mark(array){
+            document.getElementById("AracBilgi").innerText = "Plaka: " + array[1] + ", Tip: " + array[2];
+            document.getElementById("IsaretButton").addEventListener("click", function () {
+                sendDeleteToController(array);
+            });
+            
+        }
+
+        
+    });
+    function sendArrayToController(array) {
+        $.ajax({
+            type: "POST",
+            url: "/Home/SendNewVehicleDetails",
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(array),
+            success: function (response) {
+                console.log("Data sent successfully:", response);
+                if (response.redirectUrl) {
+                    window.location.href = response.redirectUrl;
+                }
+            },
+            error: function (error) {
+                console.error("Error sending data:", error);
+            }
+        });
+    }
+    function sendDeleteToController(array) {
+        $.ajax({
+            type: "POST",
+            url: "/Home/SendDeleteVehicleDetails",
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(array),
+            success: function (response) {
+                console.log("Data sent successfully:", response);
+                if (response.redirectUrl) {
+                    window.location.href = response.redirectUrl;
+                }
+            },
+            error: function (error) {
+                console.error("Error sending data:", error);
+            }
+        });
+    }
+</script>

@@ -1,10 +1,29 @@
-﻿@model TicketCreateModel
+﻿@using Newtonsoft.Json
+@model TicketCreateModel
 @{
     ViewData["Title"] = "Bilet Oluştur";
+    var userGorev = Context.Session.GetString("UserRole");
+    Console.WriteLine("User Gorev:", userGorev);
     var userId = Context.Session.GetInt32("UserId");
     var userName = Context.Session.GetString("UserName") +" "+ Context.Session.GetString("UserSurname");
     var subeId = Context.Session.GetInt32("SubeId");
     var subeName = Context.Session.GetString("SubeName");
+    var jsonString = Context.Session.GetString("biletValues");
+    List<string> existingBiletList = new List<string>();
+    bool existingBilet = false;
+    if (jsonString != null)
+    {
+        List<string> biletValues = JsonConvert.DeserializeObject<List<string>>(jsonString);
+        Console.WriteLine("Bilet Values:");
+        int i = 0;
+        foreach (var item in biletValues)
+        {
+            Console.WriteLine(i + ": " + item);
+            existingBiletList.Add(item);
+            i++;
+        }
+        existingBilet = true;
+    }
 }
 
 <div>
@@ -29,42 +48,27 @@
             <select id="TurId" name="TurId">
                 @foreach (var tur in Model.TurList)
                 {
-                    var turTipi = @Model.TurTipiList.FirstOrDefault(t => t.Id == tur.TurTipiId);
-                    <option value="@tur.Id">@tur.Tarih - @tur.Saat - @turTipi.TurTipiAdi</option>
+                    if(tur.BittiMi != true && tur.TurIptalMi != true)
+                    {
+                        var turTipi = @Model.TurTipiList.FirstOrDefault(t => t.Id == tur.TurTipiId);
+                        <option value="@tur.Id">@tur.Tarih - @tur.Saat - @turTipi.TurTipiAdi</option>
+                    }
                 }
             </select>
         </div>
     </div>
 
     <!-- Fiyat TRY - Fiyat USD - Fiyat EUR -->
-    <div style="padding-bottom: 3em">
+    <div style="padding-bottom: 2em">
         <div style="display: flex; flex-direction:row">
             <div style="padding-right: 2em; display: flex; flex-direction:column; width: 33%">
-                <p>Fiyat TRY</p>
-                <select id="TurFiyatTry" name="TurFiyatTry" disabled>
-                    @foreach (var tur in Model.TurList)
-                    {
-                        <option value="@tur.FiyatTRY">@tur.FiyatTRY</option>
-                    }
-                </select>
+                <p id="TryFiyat">Fiyat TRY: </p>
             </div>
             <div style="padding-right: 2em; display: flex; flex-direction:column; width: 33%">
-                <p>Fiyat USD</p>
-                <select id="TurFiyatUsd" name="TurFiyatUsd" disabled>
-                    @foreach (var tur in Model.TurList)
-                    {
-                        <option value="@tur.FiyatUSD">@tur.FiyatUSD</option>
-                    }
-                </select>
+                <p id="UsdFiyat">Fiyat USD: </p>
             </div>
             <div style="padding-right: 2em; display: flex; flex-direction:column; width: 33%">
-                <p>Fiyat EUR</p>
-                <select id="TurFiyatEur" name="TurFiyatEur" disabled>
-                    @foreach (var tur in Model.TurList)
-                    {
-                        <option value="@tur.FiyatEUR">@tur.FiyatEUR</option>
-                    }
-                </select>
+                <p id="EurFiyat">Fiyat EUR: </p>
             </div>
         </div>
     </div>
@@ -179,7 +183,7 @@
             <p>Servis İstiyor Mu</p>
             <input type="checkbox" id="ServisIstiyorMu" name="ServisIstiyorMu" style="align-self: flex-start;" />
         </div>
-        <div style="display: flex; flex-direction:column">
+        <div style="padding-right: 2em; display: flex; flex-direction:column">
             <p>Servis Saati</p>
             <input type="time" id="ServisSaati" name="ServisSaati" readonly />
             @* <select id="ServisSaati" name="ServisSaati" disabled>
@@ -189,173 +193,343 @@
                 }
             </select> *@
         </div>
+        <div style="display: flex; flex-direction:column">
+            <p>Bilet İptal Mi:</p>
+            <input type="checkbox" id="BiletIptalMi" name="BiletIptalMi" style="align-self: flex-start;" disabled/>
+        </div>
     </div>
 
-    <button type="button" onclick="createTicket()">Bilet Oluştur</button>
+    <button id="Confirm" type="button">Bileti Onayla</button>
 </div>
 
 <script>
-    //Servis saatini oto. seç.
     $(document).ready(function () {
-        $('#TurId').change(function () {
-            var selectedTurId = $(this).val();
+
+        // #region Arrayleri oluştur
+        let turList = @Html.Raw(Json.Serialize(Model.TurList.Select(t => new { t.Id, t.Tarih, t.Saat, t.TurTipiId, t.BittiMi, t.FiyatTRY, t.FiyatUSD, t.FiyatEUR, t.AracId1, t.AracId2, t.AracId3, t.AracId4, t.ServisId1, t.ServisId2, t.ServisId3, t.TurIptalMi })));
+        let bolgeServisSaatiList = @Html.Raw(Json.Serialize(Model.BolgeList.Select(bs => new { bs.Id, bs.ServisSaati })));
+        let bolgeOtelList = @Html.Raw(Json.Serialize(Model.BolgeOtelList.Select(bo => new { bo.BolgeId, bo.OtelId })));
+        let otelList = @Html.Raw(Json.Serialize(Model.OtelList.Select(o => new { o.Id, o.OtelIsim })));
+        // #endregion
+
+        let biletExists = @existingBilet.ToString().ToLower();
+        let existingBiletList;
+        console.log("biletExists:", biletExists);
+        
+        //Bilet zaten varsa kutuları doldur.
+        if (biletExists){
+            document.getElementById("BiletIptalMi").disabled = false;
+
+            existingBiletList = @Html.Raw(Json.Serialize(existingBiletList));
+            console.log("existingBiletList:", existingBiletList)
+
+            document.getElementById("TurId").value = existingBiletList[1];
+            document.getElementById("SatanSubeId").value = existingBiletList[3];
+            document.getElementById("SatanElemanId").value = existingBiletList[4];
+            document.getElementById("MusteriAd").value = existingBiletList[5];
+            document.getElementById("MusteriSoyad").value = existingBiletList[6];
+            document.getElementById("MusteriUyruk").value = existingBiletList[7];
+            document.getElementById("MusteriBolgeId").value = existingBiletList[8];
+            if(existingBiletList[9]==="null"){
+                document.getElementById("MusteriOtelId").value = "";
+            }
+            else{
+                document.getElementById("MusteriOtelId").value = existingBiletList[9];
+            }
+            if(existingBiletList[10]==="null"){
+                document.getElementById("MusteriOdaNo").value = "";
+            }
+            else{
+                document.getElementById("MusteriOdaNo").value = existingBiletList[10];
+            }
+            document.getElementById("MusteriTelNo").value = existingBiletList[12];
+            if(existingBiletList[11]==="null"){
+                document.getElementById("MusteriAdres").value = "";
+            }
+            else{
+                document.getElementById("MusteriAdres").value = existingBiletList[11];
+            }
+            document.getElementById("FullSayi").value = existingBiletList[13];
+            document.getElementById("HalfSayi").value = existingBiletList[14];
+            document.getElementById("GuestSayi").value = existingBiletList[15];
+            document.getElementById("ParaBirimi").value = existingBiletList[16];
+            document.getElementById("Paid").value = existingBiletList[17];
+            document.getElementById("Rest").value = existingBiletList[18];
+            if(existingBiletList[20]==="null"){
+                document.getElementById("Aciklama").value = "";
+            }
+            else{
+                document.getElementById("Aciklama").value = existingBiletList[20];
+            }
+            document.getElementById("ServisIstiyorMu").checked = existingBiletList[21] === "true" ? true : false;
+            if(existingBiletList[22]==="null"){
+                document.getElementById("ServisSaati").value = "";
+            }
+            else{
+                document.getElementById("ServisSaati").value = existingBiletList[22];
+            }
+            document.getElementById("BiletIptalMi").checked = existingBiletList[23] === "true" ? true : false;
             
-            var turFiyatTryOptions = $('#TurFiyatTry option');
-            turFiyatTryOptions.prop('selected', false);
-            turFiyatTryOptions.slice(0, selectedTurId).prop('selected', true);
-            var turFiyatUsdOptions = $('#TurFiyatUsd option');
-            turFiyatUsdOptions.prop('selected', false);
-            turFiyatUsdOptions.slice(0, selectedTurId).prop('selected', true);
-            var turFiyatEurOptions = $('#TurFiyatEur option');
-            turFiyatEurOptions.prop('selected', false);
-            turFiyatEurOptions.slice(0, selectedTurId).prop('selected', true);
+        }
 
-            updateTotalValue();
-        });
+        // Varsayılan olarak seçilen turun fiyatlarını göster
+        let selectedTurId = parseInt(document.getElementById("TurId").value);
+        console.log("selectedTurId:",selectedTurId);
+        updateTotalValue();
 
-        //Arrayleri oluştur
-        var bolgeServisSaatiList = @Html.Raw(Json.Serialize(Model.BolgeList.Select(bs => new { bs.Id, bs.ServisSaati })));
-        console.log(bolgeServisSaatiList);
-        var bolgeOtelList = @Html.Raw(Json.Serialize(Model.BolgeOtelList.Select(bo => new {bo.BolgeId, bo.OtelId})));
-        console.log(bolgeOtelList);
-        var otelList = @Html.Raw(Json.Serialize(Model.OtelList.Select(o => new {o.Id, o.OtelIsim})));
-        console.log(otelList);
-
-        //Bölge ile alakalı kısımları yenile
+        // Varsayılan olarak seçilen bölgeden otelleri göster
+        let selectedBolgeId = parseInt(document.getElementById("MusteriBolgeId").value);
         updateBolgeStuff();
 
+        //Varsayılan olarak seçilen otelden adres ya da oda no kutusunu kapat
+        let selectedOtelId = parseInt(document.getElementById("MusteriOtelId").value) || 0;
+        updateAdresStuff();
+        
+        //#region Seçilen veri değişirse işlem yap
+        //Secilen Tur değişirse
+        $('#TurId').change(function () {
+            selectedTurId = parseInt($(this).val());
+            updateTotalValue();
+        });
         //Seçilen bölge değişirse:
         $('#MusteriBolgeId').change(function () {
-            selectedBolgeIdStr = $(this).val();
+            selectedBolgeId = parseInt($(this).val());
             updateBolgeStuff();
         });
-
+        //Seçilen otel değişirse:
+        $('#MusteriOtelId').change(function () {
+            selectedOtelId = parseInt($(this).val()) || 0;
+            updateAdresStuff();
+        });
         //Seçilen Para birimi değişirse:
         $('#ParaBirimi').change(function () {
             updateTotalValue();
-        });
-
+        })
         //Full, Half ve Paid değişirse:
         $('#FullSayi, #HalfSayi, #Paid').on('input', function () {
             updateTotalValue();
         });
+        //#endregion
 
+        document.getElementById("Confirm").addEventListener("click", function () {
+            
+            let satanSubeId = document.getElementById("SatanSubeId").value;
+            let satanElemanId = document.getElementById("SatanElemanId").value;
+            let turId = document.getElementById("TurId").value;
+            let musteriAd = document.getElementById("MusteriAd").value;
+            let musteriSoyad = document.getElementById("MusteriSoyad").value;
+            let musteriUyruk = document.getElementById("MusteriUyruk").value;
+            let musteriBolgeId = document.getElementById("MusteriBolgeId").value;
+            let musteriOtelId = document.getElementById("MusteriOtelId").value;
+            let musteriOdaNo = document.getElementById("MusteriOdaNo").value;
+            let musteriTelNo = document.getElementById("MusteriTelNo").value;
+            let musteriAdres = document.getElementById("MusteriAdres").value;
+            let fullSayi = document.getElementById("FullSayi").value;
+            let halfSayi = document.getElementById("HalfSayi").value;
+            let guestSayi = document.getElementById("GuestSayi").value;
+            let paraBirimi = document.getElementById("ParaBirimi").value;
+            let paid = document.getElementById("Paid").value;
+            let rest = document.getElementById("Rest").value;
+            let aciklama = document.getElementById("Aciklama").value;
+            let servisIstiyorMu = document.getElementById("ServisIstiyorMu").checked;
+            let servisSaati;
+            let biletId;
+            if (biletExists) {
+                biletId = existingBiletList[0];
+            }
+            let biletIptalMi;
+            if (biletExists) {
+                biletIptalMi = document.getElementById("BiletIptalMi").checked;
+            }
+
+            //#region Bilet bilgilerini göndermeden önce düzenle
+            if (musteriOdaNo === "") {
+                musteriOdaNo = null;
+            }
+            if (musteriAdres === "") {
+                musteriAdres = null;
+            }
+            if (aciklama === "") {
+                aciklama = null;
+            }
+            if (musteriOtelId === "") {
+                musteriOtelId = null;
+                musteriOdaNo = null;
+            }
+            else {
+                musteriAdres = null;
+            }
+            if (servisIstiyorMu) {
+                servisSaati = document.getElementById("ServisSaati").value;
+            } else {
+                servisSaati = null;
+            }
+            // #endregion
+
+            //#region Bilet bilgilerini konsola yazdır.
+            let logArray = {
+                "satanSubeId": satanSubeId,
+                "satanElemanId": satanElemanId,
+                "turId": turId,
+                "musteriAd": musteriAd,
+                "musteriSoyad": musteriSoyad,
+                "musteriUyruk": musteriUyruk,
+                "musteriBolgeId": musteriBolgeId,
+                "musteriOtelId": musteriOtelId,
+                "musteriOdaNo": musteriOdaNo,
+                "musteriTelNo": musteriTelNo,
+                "musteriAdres": musteriAdres,
+                "fullSayi": fullSayi,
+                "halfSayi": halfSayi,
+                "guestSayi": guestSayi,
+                "paraBirimi": paraBirimi,
+                "paid": paid,
+                "rest": rest,
+                "aciklama": aciklama,
+                "servisIstiyorMu": servisIstiyorMu,
+                "servisSaati": servisSaati
+            };
+            console.log("Controller'a Giden Bilet Bilgileri:", logArray);
+            //#endregion
+
+            //#region Doldurulması lazım alanlar boş mu kontrol et.
+            if (satanSubeId && turId && musteriAd && musteriUyruk && musteriBolgeId && musteriTelNo && fullSayi && halfSayi && guestSayi && paraBirimi && paid && rest) {
+                if ((musteriOtelId === null && musteriAdres !== null) || (musteriOtelId !== null && musteriOdaNo !== null)) {
+                    let ticketValues = [];
+                    ticketValues.push(satanSubeId, satanElemanId, turId, musteriAd, musteriSoyad, musteriUyruk, musteriBolgeId, musteriOtelId, musteriOdaNo, musteriTelNo, musteriAdres, fullSayi, halfSayi, guestSayi, paraBirimi, paid, rest, aciklama, servisIstiyorMu.toString(), servisSaati);
+                    if (biletExists) {
+                        ticketValues.push(biletId);
+                        ticketValues.push(biletIptalMi.toString());
+                        sendExistingToController(ticketValues);
+                    }
+                    else{
+                        console.log("ticketValues:", ticketValues);
+                        sendArrayToController(ticketValues);
+                    }
+                    
+                }
+                else {
+                    alert("Lütfen müşteri adresi alanlarını tam doldurunuz.");
+                }
+            }
+            else {
+                alert("Lütfen gerekli alanları doldurunuz.");
+            }
+            //#endregion
+        });
+
+        //Bölgeyle alakalı kısımları doldur
         function updateBolgeStuff() {
-            //Seçilen bölgeyi güncelle ve int yap.
-            var selectedBolgeIdStr = $('#MusteriBolgeId').val();
-            var selectedBolgeId = parseInt(selectedBolgeIdStr);
-            console.log(selectedBolgeIdStr);
-            console.log(selectedBolgeId);
-
             //Seçilen bölge-saati bul
-            var selectedBolgeSaat = bolgeServisSaatiList.find(b => b.id === selectedBolgeId);
-            console.log(selectedBolgeSaat);
+            let selectedBolgeSaat = bolgeServisSaatiList.find(b => b.id === selectedBolgeId);
             //Seçilen Bölgeden otelleri bul
-            var selectedBolgeOteller = bolgeOtelList.filter(bo => bo.bolgeId === selectedBolgeId);
-            console.log(selectedBolgeOteller);
+            let selectedBolgeOteller = bolgeOtelList.filter(bo => bo.bolgeId === selectedBolgeId);
             //Otel ID'leri ile otel listesini filtrele
-            var selectedOteller = otelList.filter(o => selectedBolgeOteller.some(bo => bo.otelId === o.id));
-            console.log(selectedOteller);
+            let selectedOteller = otelList.filter(o => selectedBolgeOteller.some(bo => bo.otelId === o.id));
 
             //ServisSaati güncelle
             if (selectedBolgeSaat) {
                 $('#ServisSaati').val(selectedBolgeSaat.servisSaati);
             }
             //Otel Listesini Sil Ve Güncelle
-            var selectElementOtel = document.getElementById("MusteriOtelId");
+            let selectElementOtel = document.getElementById("MusteriOtelId");
             selectElementOtel.innerHTML = "";
-            var option;
+            let option;
+            option = document.createElement('option');
+            option.value = "";
+            option.text = "Otel Yok";
+            selectElementOtel.appendChild(option);
             for (let i = 0; i < selectedOteller.length; i++) {
                 option = document.createElement('option');
                 option.value = selectedOteller[i].id;
                 option.text = selectedOteller[i].otelIsim;
                 selectElementOtel.appendChild(option);
             }
-        }
-    });
-
-    
-    //Total ve Rest gibi otomatik dolacak parasal kutuları doldur.
-    function updateTotalValue() {
-        var fullSayi = parseFloat($('#FullSayi').val()) || 0;
-        var halfSayi = parseFloat($('#HalfSayi').val()) / 2 || 0;
-        var paid = parseFloat($('#Paid').val()) || 0;
-        var paraBirimi = document.getElementById("ParaBirimi").value;
-        var fiyat = 0;
-
-        if (paraBirimi === "TRY") {
-            fiyat = parseFloat(document.getElementById("TurFiyatTry").value) || 0;
-        } else if (paraBirimi === "USD") {
-            fiyat = parseFloat(document.getElementById("TurFiyatUsd").value) || 0;
-        } else if (paraBirimi === "EUR") {
-            fiyat = parseFloat(document.getElementById("TurFiyatEur").value) || 0;
-        }
-
-        var totalPrice = (fullSayi * fiyat) + (halfSayi * fiyat);
-        var rest = totalPrice - paid;
-        $('#Total').val(totalPrice.toFixed(2));
-        $('#Rest').val(rest.toFixed(2));
-    }
-
-    function createTicket() {
-        var satanSubeId = document.getElementById("SatanSubeId").value;
-        var satanElemanId = document.getElementById("SatanElemanId").value;
-        var turId = document.getElementById("TurId").value;
-
-        var musteriAd = document.getElementById("MusteriAd").value;
-        var musteriSoyad = document.getElementById("MusteriSoyad").value;
-        var musteriUyruk = document.getElementById("MusteriUyruk").value;
-
-        var musteriBolgeId = document.getElementById("MusteriBolgeId").value;
-        var musteriOtelId = document.getElementById("MusteriOtelId").value;
-        var musteriOdaNo = document.getElementById("MusteriOdaNo").value;
-
-        var musteriTelNo = document.getElementById("MusteriTelNo").value;
-        var musteriAdres = document.getElementById("MusteriAdres").value;
-
-        var fullSayi = document.getElementById("FullSayi").value;
-        var halfSayi = document.getElementById("HalfSayi").value;
-        var guestSayi = document.getElementById("GuestSayi").value;
-
-        var paraBirimi = document.getElementById("ParaBirimi").value;
-        var paid = document.getElementById("Paid").value;
-        var rest = document.getElementById("Rest").value;
-
-        var aciklama = document.getElementById("Aciklama").value;
-
-        var servisIstiyorMu = document.getElementById("ServisIstiyorMu").checked;
-        var servisSaati = document.getElementById("ServisSaati").value;
-
-        console.log(satanSubeId, satanElemanId, turId, musteriAd, musteriSoyad, musteriUyruk, musteriBolgeId, musteriOtelId, musteriOdaNo, musteriTelNo, musteriAdres, fullSayi, halfSayi, guestSayi, paraBirimi, paid, rest, aciklama, servisIstiyorMu, servisSaati)
-
-        //Check if certain values are full.
-        if (satanSubeId && turId && musteriAd && musteriUyruk && musteriBolgeId && musteriTelNo && fullSayi && halfSayi && guestSayi && paraBirimi && paid && rest) {
-            var ticketValues = [];
-
-            ticketValues.push(satanSubeId, satanElemanId, turId, musteriAd, musteriSoyad, musteriUyruk, musteriBolgeId, musteriOtelId, musteriOdaNo, musteriTelNo, musteriAdres, fullSayi, halfSayi, guestSayi, paraBirimi, paid, rest, aciklama, servisIstiyorMu.toString(), servisSaati);
-
-            console.log(ticketValues);
-            sendArrayToController(ticketValues);
-        }
-        else {
-            alert("Lütfen gerekli alanları doldurunuz.");
-        }
-    }
-    function sendArrayToController(array) {
-        $.ajax({
-            type: "POST",
-            url: "/Home/SendTicketDetails", // URL of the controller action
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(array),
-            success: function (response) {
-                console.log("Data sent successfully:", response);
-                if (response.redirectUrl) {
-                    window.location.href = response.redirectUrl;
-                }
-            },
-            error: function (error) {
-                console.error("Error sending data:", error);
+            if (biletExists){
+                selectElementOtel.value = existingBiletList[9];
             }
-        });
-    }
+        }
+
+        // Otel varsa/yoksa adres ya da oda no aç/kapa
+        function updateAdresStuff(){
+            console.log("selectedOtelId:", selectedOtelId);
+            if (selectedOtelId === 0) {
+                document.getElementById("MusteriOdaNo").disabled = true;
+                document.getElementById("MusteriAdres").disabled = false;
+            }
+            else{
+                document.getElementById("MusteriOdaNo").disabled = false;
+                document.getElementById("MusteriAdres").disabled = true;
+            }
+        }
+
+        //Total ve Rest gibi otomatik dolacak parasal kutuları doldur.
+        function updateTotalValue() {
+            let selectedTur = turList.find(t => t.id === selectedTurId);
+            console.log("Fiyatlar:", selectedTur.fiyatTRY, selectedTur.fiyatUSD, selectedTur.fiyatEUR);
+            $('#TryFiyat').text('Fiyat TRY: ' + selectedTur.fiyatTRY.toString());
+            $('#UsdFiyat').text('Fiyat USD: ' + selectedTur.fiyatUSD.toString());
+            $('#EurFiyat').text('Fiyat EUR: ' + selectedTur.fiyatEUR.toString());
+
+            let fullSayi = parseFloat($('#FullSayi').val()) || 0;
+            let halfSayi = parseFloat($('#HalfSayi').val()) / 2 || 0;
+            let paid = parseFloat($('#Paid').val()) || 0;
+            let paraBirimi = document.getElementById("ParaBirimi").value;
+            let fiyat = 0;
+
+            if (paraBirimi === "TRY") {
+                fiyat = selectedTur.fiyatTRY;
+            } else if (paraBirimi === "USD") {
+                fiyat = selectedTur.fiyatUSD;
+            } else if (paraBirimi === "EUR") {
+                fiyat = selectedTur.fiyatEUR;
+            }
+
+            let totalPrice = (fullSayi * fiyat) + (halfSayi * fiyat);
+            let rest = totalPrice - paid;
+            $('#Total').val(totalPrice.toFixed(2));
+            $('#Rest').val(rest.toFixed(2));
+        }
+
+        //Yeni Bilet bilgilerini Controller'a gönder
+        function sendArrayToController(array) {
+            $.ajax({
+                type: "POST",
+                url: "/Home/SendTicketDetails",
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify(array),
+                success: function (response) {
+                    console.log("Data sent successfully:", response);
+                    if (response.redirectUrl) {
+                        window.location.href = response.redirectUrl;
+                    }
+                },
+                error: function (error) {
+                    console.error("Error sending data:", error);
+                }
+            });
+        }
+        //Düzenlenmiş bilgilerini Controller'a gönder
+        function sendExistingToController(array) {
+            $.ajax({
+                type: "POST",
+                url: "/Home/SendTicketUpdate",
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify(array),
+                success: function (response) {
+                    console.log("Data sent successfully:", response);
+                    if (response.redirectUrl) {
+                        window.location.href = response.redirectUrl;
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error sending data:", xhr, status, error);
+                }
+            });
+        }
+        
+    });
+    //Bilet oluşturmaya başla
+            
+    
 </script>

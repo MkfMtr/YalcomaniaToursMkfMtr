@@ -28,6 +28,10 @@ namespace YalcomaniaToursMkfMtr.Controllers
             if (ModelState.IsValid)
             {
                 var user = _dbContext.Calisanlar.FirstOrDefault(c => c.CalisanMail == model.UserMail && c.CalisanSifre == model.Password);
+                if (user == null)
+                {
+                    return View(callingView);
+                }
                 var subelerCalisanlar = _dbContext.SubelerCalisanlar.FirstOrDefault(sc => sc.CalisanId == user.Id);
                 var sube = _dbContext.Subeler.FirstOrDefault(s => s.Id == subelerCalisanlar.SubeId);
 
@@ -42,7 +46,8 @@ namespace YalcomaniaToursMkfMtr.Controllers
                             // Store user information in session
                             HttpContext.Session.SetInt32("UserId", user.Id);
                             HttpContext.Session.SetString("UserName", user.CalisanAdi);
-                            HttpContext.Session.SetString("UserSurname", user.CalisanSoyadi);
+                            HttpContext.Session.SetString("UserSurname", user.CalisanSoyadi ?? "");
+                            HttpContext.Session.SetString("UserRole", gorev.GorevAdi);
                             HttpContext.Session.SetInt32("SubeId", sube.Id);
                             HttpContext.Session.SetString("SubeName", sube.SubeAd);
 
@@ -57,13 +62,8 @@ namespace YalcomaniaToursMkfMtr.Controllers
                                 case "Muhasebe":
                                     return RedirectToAction("AccountingIndex", "Home");
                                 case "Admin":
-                                    ModelState.AddModelError(string.Empty, "Invalid role.");
-                                    break;
+                                    return RedirectToAction("AdminIndex", "Home");
                             }
-                        }
-                        else if (gorev != null && gorev.GorevAdi == "Admin" && callingView == "AdminLogin")
-                        {
-                            return RedirectToAction("AdminIndex", "Admin");
                         }
                         else
                         {
@@ -82,20 +82,6 @@ namespace YalcomaniaToursMkfMtr.Controllers
             }
             ModelState.AddModelError(string.Empty, "Invalid login attempt.");
             return View(callingView, model);
-        }
-        
-        // Admin Login
-        [HttpGet]
-        public IActionResult AdminLogin()
-        {
-            return View();
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult AdminLogin(LoginViewModel model, string callingView)
-        {
-            return Login(model, callingView);
         }
     }
 }

@@ -28,8 +28,32 @@ builder.Services.AddControllersWithViews();
 //Dependency Injection
 builder.Services.AddScoped<ITurService, TurService>();
 builder.Services.AddScoped<IGenericRepository<Tur>, GenericRepository<Tur>>();
+builder.Services.AddScoped<IAracService, AracService>();
+builder.Services.AddScoped<IGenericRepository<Arac>, GenericRepository<Arac>>();
+builder.Services.AddScoped<IAracTipiService, AracTipiService>();
+builder.Services.AddScoped<IGenericRepository<AracTipi>, GenericRepository<AracTipi>>();
 builder.Services.AddScoped<IBiletService, BiletService>();
 builder.Services.AddScoped<IGenericRepository<Bilet>, GenericRepository<Bilet>>();
+builder.Services.AddScoped<IBolgeService, BolgeService>();
+builder.Services.AddScoped<IGenericRepository<Bolge>, GenericRepository<Bolge>>();
+builder.Services.AddScoped<IBolgeOtelService, BolgeOtelService>();
+builder.Services.AddScoped<IGenericRepository<BolgeOtel>, GenericRepository<BolgeOtel>>();
+builder.Services.AddScoped<ICalisanService, CalisanService>();
+builder.Services.AddScoped<IGenericRepository<Calisan>, GenericRepository<Calisan>>();
+//builder.Services.AddScoped<IGelirGiderKategoriService, GelirGiderKategoriService>();
+//builder.Services.AddScoped<IGenericRepository<GelirGiderKategori>, GenericRepository<GelirGiderKategori>>();
+builder.Services.AddScoped<IGorevService, GorevService>();
+builder.Services.AddScoped<IGenericRepository<Gorev>, GenericRepository<Gorev>>();
+builder.Services.AddScoped<IGorevCalisanService, GorevCalisanService>();
+builder.Services.AddScoped<IGenericRepository<GorevCalisan>, GenericRepository<GorevCalisan>>();
+builder.Services.AddScoped<IKurService, KurService>();
+builder.Services.AddScoped<IGenericRepository<Kur>, GenericRepository<Kur>>();
+builder.Services.AddScoped<IOtelService, OtelService>();
+builder.Services.AddScoped<IGenericRepository<Otel>, GenericRepository<Otel>>();
+builder.Services.AddScoped<IParaBirimiService, ParaBirimiService>();
+builder.Services.AddScoped<IGenericRepository<ParaBirimi>, GenericRepository<ParaBirimi>>();
+
+
 
 
 
@@ -153,6 +177,16 @@ using (var scope = app.Services.CreateScope())
     if (!dbContext.Kurlar.Any())
     {
         await dbContext.Kurlar.AddRangeAsync(KurSeed.GetSeeds());
+        await dbContext.SaveChangesAsync();
+    }
+    if (!dbContext.Turlar.Any())
+    {
+        await dbContext.Turlar.AddRangeAsync(TurSeed.GetSeeds());
+        await dbContext.SaveChangesAsync();
+    }
+    if (!dbContext.Biletler.Any())
+    {
+        await dbContext.Biletler.AddRangeAsync(BiletSeed.GetSeeds());
         await dbContext.SaveChangesAsync();
     }
     #endregion
