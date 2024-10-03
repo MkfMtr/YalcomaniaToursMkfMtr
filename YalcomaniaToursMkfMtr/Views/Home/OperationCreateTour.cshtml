@@ -1,4 +1,5 @@
-﻿@model OperationCreateTourModel
+﻿@using Newtonsoft.Json
+@model OperationCreateTourModel
 @{
     ViewData["Title"] = "Tur Oluşturma";
 
@@ -14,6 +15,24 @@
     kurEur = Math.Round(kurEur, 2);
     Console.WriteLine(kurUsd);
     Console.WriteLine(kurEur);
+
+    // Var olan tur bilgilerini al
+    var jsonString = Context.Session.GetString("turValues");
+    List<string> existingTurList = new List<string>();
+    bool existingTur = false;
+    if (jsonString != null)
+    {
+        List<string> turValues = JsonConvert.DeserializeObject<List<string>>(jsonString);
+        Console.WriteLine("Tur Values:");
+        int i = 0;
+        foreach (var item in turValues)
+        {
+            Console.WriteLine(i + ": " + item);
+            existingTurList.Add(item);
+            i++;
+        }
+        existingTur = true;
+    }
 }
 
 <div id="addtourdiv">
@@ -122,7 +141,12 @@
         </div>
     </div>
 
-    <button type="button" onclick="createTour()">Tur Oluştur</button>
+    <div style="padding-bottom:2em; display:flex; flex-direction:row; gap:1em">
+        <p>Tur İptal Mi:</p>
+        <input type="checkbox" id="IptalMi" disabled/>
+    </div>
+
+    <button type="button" id="OnayButon">Turu Onayla</button>
 </div>
 
 <script>
@@ -143,6 +167,10 @@
         let servisList = aracList.filter(a => a.aracTipiId === servisId);
         console.log("otobusList:", otobusList);
         console.log("servisList:", servisList);
+
+        let turExists = @existingTur.ToString().ToLower();
+        let existingTurList;
+        console.log("turExists:", turExists);
         //#endregion
         
         //İlk araç seçeneklerini oluştur
@@ -157,7 +185,61 @@
         let servisId2D = getValue("ServisId2");
         updateAracDisable();
         //#endregion
-        
+
+        //Tur varsa kutuları doldur
+        if (turExists) {
+            existingTurList = @Html.Raw(Json.Serialize(existingTurList));
+            document.getElementById("IptalMi").disabled = false;
+            document.getElementById("IptalMi").checked = existingTurList[15] === "true" ? true : false;
+            document.getElementById("Tarih").value = existingTurList[1];
+            document.getElementById("Saat").value = existingTurList[2];
+            document.getElementById("TurTipiId").value = existingTurList[3];
+            document.getElementById("FiyatTry").value = existingTurList[5];
+            document.getElementById("FiyatUsd").value = existingTurList[6];
+            document.getElementById("FiyatEur").value = existingTurList[7];
+            
+            document.getElementById("AracId1").value = existingTurList[8];
+            aracId1D = getValue("AracId1");
+            aracList2 = eliminateAracFromList(aracId1D, otobusList);
+            createAracOptions(aracList2, "AracId2");
+            updateAracDisable();
+
+            document.getElementById("AracId2").value = existingTurList[9];
+            aracId2D = getValue("AracId2");
+            aracList3 = eliminateAracFromList(aracId2D, aracList2);
+            createAracOptions(aracList3, "AracId3");
+            updateAracDisable();
+
+            document.getElementById("AracId3").value = existingTurList[10];
+            aracId3D = getValue("AracId3");
+            aracList4 = eliminateAracFromList(aracId3D, aracList3);
+            createAracOptions(aracList4, "AracId4");
+            updateAracDisable();
+
+            document.getElementById("AracId4").value = existingTurList[11];
+            
+            document.getElementById("ServisId1").value = existingTurList[12];
+            servisId1D = getValue("ServisId1");
+            servisList2 = eliminateAracFromList(servisId1D, servisList);
+            createAracOptions(servisList2, "ServisId2");
+            updateAracDisable();
+
+            document.getElementById("ServisId2").value = existingTurList[13];
+            servisId2D = getValue("ServisId2");
+            clearOptions("ServisId3");
+            servisList3 = eliminateAracFromList(servisId2D, servisList2);
+            createAracOptions(servisList3, "ServisId3");
+            updateAracDisable();
+
+            document.getElementById("ServisId3").value = existingTurList[14];
+        };
+        console.log("existingTurList:", existingTurList);
+
+        //Onay butonuna basınca tur oluştur
+        $("#OnayButon").click(function () {
+            createTour();
+        });
+
         //#region Araç seçince olacaklar
         $("#AracId1").change(function () {
             aracId1D = getValue("AracId1");
@@ -272,67 +354,74 @@
         function clearOptions(elementId) {
             document.getElementById(elementId).innerHTML = "";
         }
-    });
 
-    //Turu oluşturmaya başla
-    function createTour() {
-        let tarih = getValue("Tarih");
-        let saat = getValue("Saat");
-        let turTipiId = getValue("TurTipiId");
-        let fiyatTry = getValue("FiyatTry");
-        let fiyatUsd = getValue("FiyatUsd");
-        let fiyatEur = getValue("FiyatEur");
-        let aracId1 = getValue("AracId1");
-        let aracId2 = getValue("AracId2");
-        let aracId3 = getValue("AracId3");
-        let aracId4 = getValue("AracId4");
-        let servisId1 = getValue("ServisId1");
-        let servisId2 = getValue("ServisId2");
-        let servisId3 = getValue("ServisId3");
+        //Turu oluşturmaya başla
+        function createTour() {
+            let tarih = document.getElementById("Tarih").value;
+            let saat = document.getElementById("Saat").value;
+            let turTipiId = document.getElementById("TurTipiId").value;
+            let fiyatTry = document.getElementById("FiyatTry").value;
+            let fiyatUsd = document.getElementById("FiyatUsd").value;
+            let fiyatEur = document.getElementById("FiyatEur").value;
+            let aracId1 = document.getElementById("AracId1").value;
+            let aracId2 = document.getElementById("AracId2").value;
+            let aracId3 = document.getElementById("AracId3").value;
+            let aracId4 = document.getElementById("AracId4").value;
+            let servisId1 = document.getElementById("ServisId1").value;
+            let servisId2 = document.getElementById("ServisId2").value;
+            let servisId3 = document.getElementById("ServisId3").value;
+            let turIptalMi = document.getElementById("IptalMi").checked.toString();
 
-        let logTourValues = {
-            "tarih": tarih,
-            "saat": saat,
-            "turTipiId": turTipiId,
-            "fiyatTry": fiyatTry,
-            "fiyatUsd": fiyatUsd,
-            "fiyatEur": fiyatEur,
-            "aracId1": aracId1,
-            "aracId2": aracId2,
-            "aracId3": aracId3,
-            "aracId4": aracId4,
-            "servisId1": servisId1,
-            "servisId2": servisId2,
-            "servisId3": servisId3
-        };
-        console.log("logTourValues:", logTourValues);
+            let logTourValues = {
+                "tarih": tarih,
+                "saat": saat,
+                "turTipiId": turTipiId,
+                "fiyatTry": fiyatTry,
+                "fiyatUsd": fiyatUsd,
+                "fiyatEur": fiyatEur,
+                "aracId1": aracId1,
+                "aracId2": aracId2,
+                "aracId3": aracId3,
+                "aracId4": aracId4,
+                "servisId1": servisId1,
+                "servisId2": servisId2,
+                "servisId3": servisId3
+            };
+            console.log("logTourValues:", logTourValues);
 
-        // Boş varsa uyar
-        if (tarih && saat && turTipiId && fiyatTry && fiyatUsd && fiyatEur && aracId1) {
-            
-            let tourValues = [];
-            tourValues.push(tarih);
-            tourValues.push(saat);
-            tourValues.push(turTipiId);
-            tourValues.push(fiyatTry);
-            tourValues.push(fiyatUsd);
-            tourValues.push(fiyatEur);
-            tourValues.push(aracId1);
-            tourValues.push(aracId2);
-            tourValues.push(aracId3);
-            tourValues.push(aracId4);
-            tourValues.push(servisId1);
-            tourValues.push(servisId2);
-            tourValues.push(servisId3);
+            // Boş varsa uyar
+            if (tarih && saat && turTipiId && fiyatTry && fiyatUsd && fiyatEur && aracId1) {
 
-            console.log("tourValues:",tourValues);
+                let tourValues = [];
+                tourValues.push(tarih);
+                tourValues.push(saat);
+                tourValues.push(turTipiId);
+                tourValues.push(fiyatTry);
+                tourValues.push(fiyatUsd);
+                tourValues.push(fiyatEur);
+                tourValues.push(aracId1);
+                tourValues.push(aracId2);
+                tourValues.push(aracId3);
+                tourValues.push(aracId4);
+                tourValues.push(servisId1);
+                tourValues.push(servisId2);
+                tourValues.push(servisId3);
 
-            //sendArrayToController(tourValues);
-            
-        } else {
-            alert("Lütfen boş alanları doldurunuz!");
+                if (turExists) {
+                    tourValues.push(existingTurList[0])
+                    tourValues.push(turIptalMi);
+                    console.log("tourValues:", tourValues);
+                    sendUpdateToController(tourValues);
+                } else {
+                    console.log("tourValues:", tourValues);
+                    sendArrayToController(tourValues);
+                }
+
+            } else {
+                alert("Lütfen boş alanları doldurunuz!");
+            }
         }
-    }
+    });
 
     //Değeri al, int'e çevir, boş stringi null yap
     function getValue(string) {
@@ -344,6 +433,23 @@
         $.ajax({
             type: "POST",
             url: "/Home/SendTourDetails",
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(array),
+            success: function (response) {
+                console.log("Data sent successfully:", response);
+                if (response.redirectUrl) {
+                    window.location.href = response.redirectUrl;
+                }
+            },
+            error: function (error) {
+                console.error("Error sending data:", error);
+            }
+        });
+    }
+    function sendUpdateToController(array) {
+        $.ajax({
+            type: "POST",
+            url: "/Home/UpdateTourDetails",
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify(array),
             success: function (response) {

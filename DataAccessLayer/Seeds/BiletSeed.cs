@@ -14,6 +14,7 @@ namespace DataAccessLayer.Seeds
             {
                 new Bilet
                 {
+                    Tarih = new DateOnly(2024, 9, 30),
                     TurId = 2,
                     YeniTurId = null,
                     SatanSubeId = 1,
@@ -25,7 +26,7 @@ namespace DataAccessLayer.Seeds
                     MusteriOtelId = null,
                     MusteriOdaNo = null,
                     MusteriAdres = "Antalya Merkez",
-                    MusteriTelNo = "+9005125481483",
+                    MusteriTelNo = "+905125481483",
                     FullSayi = 1,
                     HalfSayi = 1,
                     GuestSayi = 0,
@@ -43,6 +44,7 @@ namespace DataAccessLayer.Seeds
                 },
                 new Bilet
                 {
+                    Tarih = new DateOnly(2024, 9, 30),
                     TurId = 2,
                     YeniTurId = null,
                     SatanSubeId = 2,
@@ -54,7 +56,7 @@ namespace DataAccessLayer.Seeds
                     MusteriOtelId = null,
                     MusteriOdaNo = null,
                     MusteriAdres = "Antalya Bölge 1",
-                    MusteriTelNo = "+9005125481483",
+                    MusteriTelNo = "+905125481483",
                     FullSayi = 1,
                     HalfSayi = 0,
                     GuestSayi = 0,
@@ -72,6 +74,7 @@ namespace DataAccessLayer.Seeds
                 },
                 new Bilet
                 {
+                    Tarih = new DateOnly(2024, 10, 2),
                     TurId = 4,
                     YeniTurId = null,
                     SatanSubeId = 1,
@@ -83,7 +86,7 @@ namespace DataAccessLayer.Seeds
                     MusteriOtelId = null,
                     MusteriOdaNo = null,
                     MusteriAdres = "Antalya Merkez",
-                    MusteriTelNo = "+9005321234567",
+                    MusteriTelNo = "+905321234567",
                     FullSayi = 2,
                     HalfSayi = 1,
                     GuestSayi = 0,
@@ -99,7 +102,9 @@ namespace DataAccessLayer.Seeds
                     GelenGidenPas = null,
                     PasSirketi = null
                 },
-                new Bilet{
+                new Bilet
+                {
+                    Tarih = new DateOnly(2024, 10, 2),
                     TurId = 4,
                     YeniTurId = null,
                     SatanSubeId = 1,
@@ -111,7 +116,7 @@ namespace DataAccessLayer.Seeds
                     MusteriOtelId = 1,
                     MusteriOdaNo = "101",
                     MusteriAdres = null,
-                    MusteriTelNo = "+9005256247314",
+                    MusteriTelNo = "+905256247314",
                     FullSayi = 1,
                     HalfSayi = 0,
                     GuestSayi = 0,
@@ -129,6 +134,37 @@ namespace DataAccessLayer.Seeds
                 },
                 new Bilet
                 {
+                    Tarih = new DateOnly(2024, 10, 3),
+                    TurId = 4,
+                    YeniTurId = null,
+                    SatanSubeId = 1,
+                    SatanElemanId = 3,
+                    MusteriAd = "Jack",
+                    MusteriSoyad = "American",
+                    MusteriUyruk = "USA",
+                    MusteriBolgeId = 1,
+                    MusteriOtelId = 2,
+                    MusteriOdaNo = "102",
+                    MusteriAdres = null,
+                    MusteriTelNo = "+905842924039",
+                    FullSayi = 2,
+                    HalfSayi = 1,
+                    GuestSayi = 0,
+                    ParaBirimi = "USD",
+                    Paid = 12,
+                    Rest = 13,
+                    OdendiMi = false,
+                    Aciklama = null,
+                    ServisIstiyorMu = true,
+                    ServisSaati = new TimeOnly(9, 30),
+                    BiletIptalMi = false,
+                    PasBiletMi = false,
+                    GelenGidenPas = null,
+                    PasSirketi = null
+                },
+                new Bilet
+                {
+                    Tarih = new DateOnly(2024, 10, 3),
                     TurId = 5,
                     YeniTurId = null,
                     SatanSubeId = 2,
@@ -140,7 +176,7 @@ namespace DataAccessLayer.Seeds
                     MusteriOtelId = 3,
                     MusteriOdaNo = "206",
                     MusteriAdres = null,
-                    MusteriTelNo = "+9005923517421",
+                    MusteriTelNo = "+905923517421",
                     FullSayi = 1,
                     HalfSayi = 3,
                     GuestSayi = 0,

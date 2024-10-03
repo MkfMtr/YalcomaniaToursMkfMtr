@@ -81,6 +81,11 @@ public partial class YalcoContext : DbContext
 
             entity.Property(e => e.PlakaVeyaIsim).HasMaxLength(50);
 
+            entity.HasOne(d => d.SirketNavigation).WithMany(p => p.Aracs)
+                .HasForeignKey(d => d.SahipSirket)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Araclar_Sirketler");
+
             entity.HasOne(d => d.AracTipi).WithMany(p => p.Aracs)
                 .HasForeignKey(d => d.AracTipiId)
                 .OnDelete(DeleteBehavior.ClientSetNull)

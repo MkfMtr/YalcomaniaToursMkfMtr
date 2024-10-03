@@ -38,6 +38,8 @@ builder.Services.AddScoped<IBolgeService, BolgeService>();
 builder.Services.AddScoped<IGenericRepository<Bolge>, GenericRepository<Bolge>>();
 builder.Services.AddScoped<IBolgeOtelService, BolgeOtelService>();
 builder.Services.AddScoped<IGenericRepository<BolgeOtel>, GenericRepository<BolgeOtel>>();
+builder.Services.AddScoped<IBolgeSubeService, BolgeSubeService>();
+builder.Services.AddScoped<IGenericRepository<BolgeSube>, GenericRepository<BolgeSube>>();
 builder.Services.AddScoped<ICalisanService, CalisanService>();
 builder.Services.AddScoped<IGenericRepository<Calisan>, GenericRepository<Calisan>>();
 builder.Services.AddScoped<IGorevService, GorevService>();

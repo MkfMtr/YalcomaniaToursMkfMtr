@@ -68,7 +68,7 @@ namespace DataAccessLayer.Seeds
                 },
                 new Tur
                 {
-                    Tarih = new DateOnly(2024, 10, 2),
+                    Tarih = new DateOnly(2024, 10, 4),
                     Saat = new TimeOnly(12, 30),
                     TurTipiId = 1,
                     BittiMi = false,
@@ -86,7 +86,7 @@ namespace DataAccessLayer.Seeds
                 },
                 new Tur
                 {
-                    Tarih = new DateOnly(2024, 10, 2),
+                    Tarih = new DateOnly(2024, 10, 4),
                     Saat = new TimeOnly(14, 30),
                     TurTipiId = 2,
                     BittiMi = false,

@@ -1,7 +1,6 @@
 ﻿@model OperationVehiclesModel
 @{
     ViewData["Title"] = "Araçları Yönet";
-    var userGorev = Context.Session.GetString("UserRole");
 }
 <style>
     #OtobusTable{
@@ -33,6 +32,7 @@
     <table id="OtobusTable">
         <thead>
             <tr>
+                <th>Sahip Şirket</th>
                 <th>Araç Plaka</th>
                 <th>Araç Tipi</th>
                 <th>Silindi Mi</th>
@@ -49,6 +49,7 @@
     <table id="ServisTable">
         <thead>
             <tr>
+                <th>Sahip Şirket</th>
                 <th>Araç Plaka</th>
                 <th>Araç Tipi</th>
                 <th>Silindi Mi</th>
@@ -63,15 +64,20 @@
 
 <div style="display:flex; flex-direction:row; gap:1em;">
     <div style="width:40%">
+        <p>Yeni Araç Sirket:</p>
+        <select id="YeniAracSirket">
+            @foreach (var item in Model.SirketList)
+            {
+                <option value="@item.Id">@item.SirketAdi</option>
+            }
+        </select>
         <p>Yeni Araç Plaka:</p>
         <input type="text" id="YeniAracPlaka" />
         <p>Yeni Araç Tipi:</p>
         <select id="YeniAracTipi">
-            @foreach (var item in Model.AracTipiList)
-            {
-                <option value="@item.Id">@item.AracTipiAdi</option>
-            }
+            <!-- Javascriptte doldur -->
         </select>
+        <input type="number" id="YeniAracKapasite" />
         <button id="YeniAracEkle">Ekle</button>
     </div>
     <div style="width:20%"></div>
@@ -85,11 +91,9 @@
 
 <script>
     $(document).ready(function () {
-        if ("@userGorev" !== "OperasyonYönetim" || "@userGorev" !== "Admin") {
-            window.location.href = "@Url.Action("Login", "Account")";
-        }
-        let aracList = @Html.Raw(Json.Serialize(Model.AracList.Select(a => new { a.Id, a.AracTipiId, a.PlakaVeyaIsim, a.SilindiMi})));
+        let aracList = @Html.Raw(Json.Serialize(Model.AracList.Select(a => new { a.Id, a.SahipSirket, a.AracTipiId, a.PlakaVeyaIsim, a.SilindiMi})));
         let aracTipiList = @Html.Raw(Json.Serialize(Model.AracTipiList.Select(a => new { a.Id, a.AracTipiAdi })));
+        let sirketList = @Html.Raw(Json.Serialize(Model.SirketList.Select(a => new { a.Id, a.SirketAdi })));
         console.log("aracList:",aracList);
         console.log("aracTipiList:",aracTipiList);
         let silindiMi = document.getElementById("SilindiMiBox").checked;
@@ -103,13 +107,34 @@
             fillTable("#ServisTable", "Servis");
         });
 
-        document.getElementById("YeniAracEkle").addEventListener("click", function () {
-            let yeniAracPlaka = document.getElementById("YeniAracPlaka").value;
-            let yeniAracTipi = document.getElementById("YeniAracTipi").value;
-            let yeniArac = [yeniAracPlaka,yeniAracTipi];
-            sendArrayToController(yeniArac);
+        fillAracTipi();
+
+        document.getElementById("YeniAracSirket").addEventListener("change", function () {
+            fillAracTipi();
         });
 
+        document.getElementById("YeniAracEkle").addEventListener("click", function () {
+            let yeniAracSirket = document.getElementById("YeniAracSirket").value;
+            let yeniAracPlaka = document.getElementById("YeniAracPlaka").value;
+            let yeniAracTipi = document.getElementById("YeniAracTipi").value;
+            let yeniAracKapasite = document.getElementById("YeniAracKapasite").value;
+            let yeniArac = [yeniAracSirket, yeniAracPlaka, yeniAracTipi, yeniAracKapasite];
+            if (parseInt(yeniAracKapasite) > 255) {
+                alert("Kapasite 255'ten büyük olamaz.");
+            }
+            else if (parseInt(yeniAracKapasite) < 1) {
+                alert("Kapasite 1'den küçük olamaz.");
+            }
+            else if (yeniAracPlaka.length > 50) {
+                alert("Plaka 50 karakterden uzun olamaz.");
+            }
+            else if (yeniAracPlaka.length < 1) {
+                alert("Plaka boş olamaz.");
+            }
+            else { sendArrayToController(yeniArac); }
+        });
+
+        //Tablo doldurma fonksiyonu
         function fillTable(id, string){
             let tableBody = document.querySelector(id + " tbody");
             tableBody.innerHTML = "";
@@ -117,7 +142,11 @@
                 let arac = aracList[i];
                 let row = document.createElement("tr");
                 let aracTipi = aracTipiList.find(a => a.id === arac.aracTipiId);
+                let sirketName = sirketList.find(a => a.id === arac.sahipSirket);
                 if (aracTipi.aracTipiAdi === string && arac.silindiMi === silindiMi) {
+                    let sirketCell = document.createElement("td");
+                    sirketCell.innerText = sirketName.sirketAdi;
+                    row.appendChild(sirketCell);
                     let plakaCell = document.createElement("td");
                     plakaCell.innerText = arac.plakaVeyaIsim;
                     row.appendChild(plakaCell);
@@ -127,20 +156,16 @@
                     let silindiMiCell = document.createElement("td");
                     silindiMiCell.innerText = arac.silindiMi ? "Evet" : "Hayır";
                     row.appendChild(silindiMiCell);
+                    //#region Silme / Geri Alma tuşu kısmını oluştur.
                     let silButtonCell = document.createElement("td");
                     let silButton = document.createElement("button");
                     silButton.id = arac.id;
-                    let silArac;
-                    let silArray;
                     if (silindiMi === false){
                         document.getElementById("AracBilgiBilgi").innerText = "Silinen Araç:";
                         silButton.innerText = "Sil";
                         silButton.addEventListener("click", function (aracObject) {
                             return function () {
-                                silArac = aracList.find(a => a.id === aracObject.id);
-                                silArac.silindiMi = true;
-                                silArray = [silArac.id, silArac.plakaVeyaIsim, silArac.aracTipiId, silArac.silindiMi];
-                                mark(silArray);
+                                deletion(aracObject, true);
                             }
                         }(arac));
                     }
@@ -149,27 +174,45 @@
                         silButton.innerText = "Geri Al";
                         silButton.addEventListener("click", function (aracObject) {
                             return function () {
-                                silArac = aracList.find(a => a.id === aracObject.id);
-                                silArac.silindiMi = false;
-                                silArray = [silArac.id, silArac.plakaVeyaIsim, silArac.aracTipiId, silArac.silindiMi];
-                                mark(silArray);
+                                deletion(aracObject, false);
                             }
                         }(arac));
                     }
-                    console.log("silArray:", silArray);
                     silButtonCell.appendChild(silButton);
                     row.appendChild(silButtonCell);
+                    //#endregion
                     tableBody.appendChild(row);
                 }
                 
             }
         }
-        function mark(array){
-            document.getElementById("AracBilgi").innerText = "Plaka: " + array[1] + ", Tip: " + array[2];
-            document.getElementById("IsaretButton").addEventListener("click", function () {
-                sendDeleteToController(array);
-            });
-            
+
+        function fillAracTipi(){
+            let selectedSirket = document.getElementById("YeniAracSirket").value;
+            document.getElementById("YeniAracTipi").innerHTML = "";
+            if (selectedSirket === "1") {
+                aracTipiList.forEach(a => {
+                    let option = document.createElement("option");
+                    option.value = a.id;
+                    console.log("option.value:", option.value);
+                    option.innerText = a.aracTipiAdi;
+                    document.getElementById("YeniAracTipi").appendChild(option);
+                })
+            }
+            else{
+                let option = document.createElement("option");
+                option.value = "1";
+                option.innerText = "Otobüs";
+                document.getElementById("YeniAracTipi").appendChild(option);
+            }
+        }
+
+        function deletion(arac,bool){
+            let silArac = aracList.find(a => a.id === arac.id);
+            silArac.silindiMi = bool;
+            silArray = [silArac.id.toString(), silArac.silindiMi.toString()];
+            console.log("silArray:", silArray);
+            sendDeleteToController(silArray);
         }
 
         

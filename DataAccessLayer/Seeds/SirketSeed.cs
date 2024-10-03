@@ -14,6 +14,15 @@ namespace DataAccessLayer.Seeds
             {
                 new Sirket
                 {
+                    SirketAdi = "Yalcomania Tours",
+                    SirketMail = "is-mail@yalcomania.com",
+                    SirketTelNo = "0216 123 45 67",
+                    SirketGirisAdi = "yalcomania",
+                    SirketSifre = "yalcomania",
+                    SilindiMi = false
+                },
+                new Sirket
+                {
                     SirketAdi = "Ainamoclay Turizm",
                     SirketMail = "temsilci@ainamoclayturizm.com",
                     SirketTelNo = "0212 123 45 67",

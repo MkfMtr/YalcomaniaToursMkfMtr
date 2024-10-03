@@ -7,6 +7,8 @@ public partial class Bilet
 {
     public int Id { get; set; }
 
+    public DateOnly Tarih { get; set; }
+
     public int TurId { get; set; }
 
     public int? YeniTurId { get; set; }

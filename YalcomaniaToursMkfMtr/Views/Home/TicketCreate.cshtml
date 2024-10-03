@@ -272,12 +272,12 @@
             
         }
 
-        // Varsayılan olarak seçilen turun fiyatlarını göster
+        //Varsayılan olarak seçilen turun fiyatlarını göster
         let selectedTurId = parseInt(document.getElementById("TurId").value);
         console.log("selectedTurId:",selectedTurId);
         updateTotalValue();
 
-        // Varsayılan olarak seçilen bölgeden otelleri göster
+        //Varsayılan olarak seçilen bölgeden otelleri göster
         let selectedBolgeId = parseInt(document.getElementById("MusteriBolgeId").value);
         updateBolgeStuff();
 
@@ -291,28 +291,30 @@
             selectedTurId = parseInt($(this).val());
             updateTotalValue();
         });
-        //Seçilen bölge değişirse:
+        //Seçilen bölge değişirse
         $('#MusteriBolgeId').change(function () {
             selectedBolgeId = parseInt($(this).val());
             updateBolgeStuff();
         });
-        //Seçilen otel değişirse:
+        //Seçilen otel değişirse
         $('#MusteriOtelId').change(function () {
             selectedOtelId = parseInt($(this).val()) || 0;
             updateAdresStuff();
         });
-        //Seçilen Para birimi değişirse:
+        //Seçilen Para birimi değişirse
         $('#ParaBirimi').change(function () {
             updateTotalValue();
-        })
-        //Full, Half ve Paid değişirse:
+        });
+        //Full, Half ve Paid değişirse
         $('#FullSayi, #HalfSayi, #Paid').on('input', function () {
             updateTotalValue();
         });
         //#endregion
 
+        //Bilet Onayla butonuna basıldıgında
         document.getElementById("Confirm").addEventListener("click", function () {
             
+            //#region Girili bilgileri al
             let satanSubeId = document.getElementById("SatanSubeId").value;
             let satanElemanId = document.getElementById("SatanElemanId").value;
             let turId = document.getElementById("TurId").value;
@@ -341,6 +343,7 @@
             if (biletExists) {
                 biletIptalMi = document.getElementById("BiletIptalMi").checked;
             }
+            //#endregion
 
             //#region Bilet bilgilerini göndermeden önce düzenle
             if (musteriOdaNo === "") {
@@ -364,7 +367,7 @@
             } else {
                 servisSaati = null;
             }
-            // #endregion
+            //#endregion
 
             //#region Bilet bilgilerini konsola yazdır.
             let logArray = {
@@ -403,7 +406,6 @@
                         sendExistingToController(ticketValues);
                     }
                     else{
-                        console.log("ticketValues:", ticketValues);
                         sendArrayToController(ticketValues);
                     }
                     
@@ -513,7 +515,7 @@
         function sendExistingToController(array) {
             $.ajax({
                 type: "POST",
-                url: "/Home/SendTicketUpdate",
+                url: "/Home/UpdateTicketDetails",
                 contentType: "application/json; charset=utf-8",
                 data: JSON.stringify(array),
                 success: function (response) {

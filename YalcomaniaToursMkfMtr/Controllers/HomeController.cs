@@ -112,10 +112,6 @@ namespace YalcomaniaToursMkfMtr.Controllers
             }
             else
             {
-                //foreach (var value in ticketValues)
-                //{
-                //    Console.WriteLine(value);
-                //}
                 var satanSubeId = int.Parse(ticketValues[0]);
                 var satanElemanId = int.Parse(ticketValues[1]);
                 var turId = int.Parse(ticketValues[2]);
@@ -136,9 +132,11 @@ namespace YalcomaniaToursMkfMtr.Controllers
                 var aciklama = ticketValues[17];
                 var servisIstiyorMu = bool.Parse(ticketValues[18]);
                 TimeOnly? servisSaati = string.IsNullOrEmpty(ticketValues[19]) ? null : TimeOnly.Parse(ticketValues[19]);
+                var biletDate = DateOnly.FromDateTime(DateTime.Now);
 
                 await _biletService.Create(new Bilet
                 {
+                    Tarih = biletDate,
                     TurId = turId,
                     YeniTurId = null,
                     SatanSubeId = satanSubeId,
@@ -170,7 +168,7 @@ namespace YalcomaniaToursMkfMtr.Controllers
             }
         }
 
-        public async Task<IActionResult> SendTicketUpdate([FromBody] List<string> ticketValues)
+        public async Task<IActionResult> UpdateTicketDetails([FromBody] List<string> ticketValues)
         {
             if (ticketValues == null || ticketValues.Count == 0)
             {
@@ -352,6 +350,62 @@ namespace YalcomaniaToursMkfMtr.Controllers
             }
         }
 
+        [HttpPost]
+        public async Task<IActionResult> UpdateTourDetails([FromBody] List<string> tourValues)
+        {
+            if (tourValues == null || tourValues.Count == 0)
+            {
+                return BadRequest("Array is null or empty");
+            }
+            else
+            {
+                foreach (var value in tourValues)
+                {
+                    Console.WriteLine(value);
+                }
+                var Tarih = DateOnly.Parse(tourValues[0]);
+                var Saat = TimeOnly.Parse(tourValues[1]);
+                var TurTipiId = int.Parse(tourValues[2]);
+                var FiyatTry = decimal.Parse(tourValues[3], CultureInfo.InvariantCulture);
+                var FiyatUsd = decimal.Parse(tourValues[4], CultureInfo.InvariantCulture);
+                var FiyatEur = decimal.Parse(tourValues[5], CultureInfo.InvariantCulture);
+                int AracId1 = int.Parse(tourValues[6]);
+                int? AracId2 = string.IsNullOrEmpty(tourValues[7]) ? null : int.Parse(tourValues[7]);
+                int? AracId3 = string.IsNullOrEmpty(tourValues[8]) ? null : int.Parse(tourValues[8]);
+                int? AracId4 = string.IsNullOrEmpty(tourValues[9]) ? null : int.Parse(tourValues[9]);
+                int? ServisId1 = string.IsNullOrEmpty(tourValues[10]) ? null : int.Parse(tourValues[10]);
+                int? ServisId2 = string.IsNullOrEmpty(tourValues[11]) ? null : int.Parse(tourValues[11]);
+                int? ServisId3 = string.IsNullOrEmpty(tourValues[12]) ? null : int.Parse(tourValues[12]);
+                int turId = int.Parse(tourValues[13]);
+                bool iptalMi = bool.Parse(tourValues[14]);
+                Tur tur = _turService.GetById(turId);
+                if (tur == null)
+                {
+                    return BadRequest("Tour not found");
+                }
+                else
+                {
+                    tur.Tarih = Tarih;
+                    tur.Saat = Saat;
+                    tur.TurTipiId = TurTipiId;
+                    tur.FiyatTRY = FiyatTry;
+                    tur.FiyatUSD = FiyatUsd;
+                    tur.FiyatEUR = FiyatEur;
+                    tur.AracId1 = AracId1;
+                    tur.AracId2 = AracId2;
+                    tur.AracId3 = AracId3;
+                    tur.AracId4 = AracId4;
+                    tur.ServisId1 = ServisId1;
+                    tur.ServisId2 = ServisId2;
+                    tur.ServisId3 = ServisId3;
+                    tur.TurIptalMi = iptalMi;
+
+                    await _turService.Update(tur);
+                    return Ok(new { redirectUrl = Url.Action("OperationSearchTour", "Home") });
+                }
+            }
+        }
+
         public IActionResult OperationIndex()
         {
             return View();
@@ -389,12 +443,14 @@ namespace YalcomaniaToursMkfMtr.Controllers
 
         public IActionResult OperationVehicles()
         {
-            var aracList = _aracService.GetAll().ToList();
-            var aracTipiList = _aracTipiService.GetAll().ToList();
+            var aracList = _aracService.GetAll();
+            var aracTipiList = _aracTipiService.GetAll();
+            var sirketList = _sirketService.GetAll();
             var model = new OperationVehiclesModel
             {
                 AracList = aracList,
-                AracTipiList = aracTipiList
+                AracTipiList = aracTipiList,
+                SirketList = sirketList
             };
             return View(model);
         }
@@ -407,18 +463,20 @@ namespace YalcomaniaToursMkfMtr.Controllers
             }
             else
             {
-                foreach (var value in vehicleValues)
+                int sirket = int.Parse(vehicleValues[0]);
+                string plaka = vehicleValues[1];
+                int aracTipiId = int.Parse(vehicleValues[2]);
+                byte aracKapasite = byte.Parse(vehicleValues[3]);
+
+                Arac newArac = new Arac
                 {
-                    Console.WriteLine(value);
-                }
-                string plaka = vehicleValues[0];
-                int aracTipiId = int.Parse(vehicleValues[1]);
-                await _aracService.Create(new Arac
-                {
+                    SahipSirket = sirket,
+                    Kapasite = aracKapasite,
                     PlakaVeyaIsim = plaka,
                     AracTipiId = aracTipiId,
                     SilindiMi = false
-                });
+                };
+                await _aracService.Create(newArac);
                 return Ok(new { redirectUrl = Url.Action("OperationVehicles", "Home") });
             }
         }
@@ -436,9 +494,7 @@ namespace YalcomaniaToursMkfMtr.Controllers
                     Console.WriteLine(value);
                 }
                 int aracId = int.Parse(vehicleValues[0]);
-                string plaka = vehicleValues[1];
-                int aracTipiId = int.Parse(vehicleValues[2]);
-                bool silindiMi = bool.Parse(vehicleValues[3]);
+                bool silindiMi = bool.Parse(vehicleValues[1]);
                 Arac arac = _aracService.GetById(aracId);
                 if (arac == null)
                 {
@@ -446,8 +502,6 @@ namespace YalcomaniaToursMkfMtr.Controllers
                 }
                 else
                 {
-                    arac.PlakaVeyaIsim = plaka;
-                    arac.AracTipiId = aracTipiId;
                     arac.SilindiMi = silindiMi;
                 }
                 await _aracService.Update(arac);
@@ -502,6 +556,21 @@ namespace YalcomaniaToursMkfMtr.Controllers
                 string jsonString = JsonConvert.SerializeObject(biletValues);
                 HttpContext.Session.SetString("biletValues", jsonString);
                 return Ok(new { redirectUrl = Url.Action("TicketCreate", "Home") });
+            }
+        }
+
+        [HttpPost]
+        public IActionResult TourToUpdate([FromBody] List<string> turValues)
+        {
+            if (turValues == null || turValues.Count == 0)
+            {
+                return BadRequest("Array is null or empty");
+            }
+            else
+            {
+                string jsonString = JsonConvert.SerializeObject(turValues);
+                HttpContext.Session.SetString("turValues", jsonString);
+                return Ok(new { redirectUrl = Url.Action("OperationCreateTour", "Home") });
             }
         }
     }

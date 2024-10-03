@@ -19,6 +19,8 @@ public partial class Sirket
 
     public bool SilindiMi { get; set; }
 
+    public virtual ICollection<Arac> Aracs { get; set; } = new List<Arac>();
+
     public virtual ICollection<AracVerecek> AracVereceks { get; set; } = new List<AracVerecek>();
 
     public virtual ICollection<PasAlacak> PasAlacaks { get; set; } = new List<PasAlacak>();

@@ -6,5 +6,7 @@ namespace YalcomaniaToursMkfMtr.Models
     {
         public List<Arac> AracList { get; set; }
         public List<AracTipi> AracTipiList { get; set; }
+
+        public List<Sirket> SirketList { get; set; }
     }
 }
