@@ -138,7 +138,6 @@ namespace YalcomaniaToursMkfMtr.Controllers
                 {
                     Tarih = biletDate,
                     TurId = turId,
-                    YeniTurId = null,
                     SatanSubeId = satanSubeId,
                     SatanElemanId = satanElemanId,
                     MusteriAd = musteriAd,
@@ -406,6 +405,58 @@ namespace YalcomaniaToursMkfMtr.Controllers
             }
         }
 
+        [HttpPost]
+        public async Task<IActionResult> EndTour([FromBody] List<string> tourValues)
+        {
+            if (tourValues == null || tourValues.Count == 0)
+            {
+                return BadRequest("Array is null or empty");
+            }
+            else
+            {
+                Tur tur = _turService.GetById(int.Parse(tourValues[0]));
+                if (tur == null)
+                {
+                    return BadRequest("Tour not found");
+                }
+                else
+                {
+                    tur.BittiMi = true;
+                    await _turService.Update(tur);
+                    return Ok(new { redirectUrl = Url.Action("OperationSearchTour", "Home") });
+
+                }
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> MergeTour([FromBody] List<string> tourValues)
+        {
+            if (tourValues == null || tourValues.Count == 0)
+            {
+                return BadRequest("Array is null or empty");
+            }
+            else
+            {
+                Tur tur1 = _turService.GetById(int.Parse(tourValues[0]));
+                Tur tur2 = _turService.GetById(int.Parse(tourValues[1]));
+                if (tur1 == null || tur2 == null)
+                {
+                    return BadRequest("Tour not found");
+                }
+                else
+                {
+                    List<Bilet> biletList = _biletService.GetAll().Where(b => b.TurId == tur1.Id).ToList();
+                    foreach (var bilet in biletList)
+                    {
+                        bilet.TurId = tur2.Id;
+                        await _biletService.Update(bilet);
+                    }
+                    return Ok(new { redirectUrl = Url.Action("OperationSearchTour", "Home") });
+                }
+            }
+        }
+
         public IActionResult OperationIndex()
         {
             return View();
@@ -454,7 +505,7 @@ namespace YalcomaniaToursMkfMtr.Controllers
             };
             return View(model);
         }
-
+        [HttpPost]
         public async Task<IActionResult> SendNewVehicleDetails([FromBody] List<string> vehicleValues)
         {
             if (vehicleValues == null || vehicleValues.Count == 0)
@@ -480,7 +531,7 @@ namespace YalcomaniaToursMkfMtr.Controllers
                 return Ok(new { redirectUrl = Url.Action("OperationVehicles", "Home") });
             }
         }
-
+        [HttpPost]
         public async Task<IActionResult> SendDeleteVehicleDetails([FromBody] List<string> vehicleValues)
         {
             if (vehicleValues == null || vehicleValues.Count == 0)
@@ -544,6 +595,7 @@ namespace YalcomaniaToursMkfMtr.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
         [HttpPost]
         public IActionResult TicketToUpdate([FromBody] List<string> biletValues)
         {

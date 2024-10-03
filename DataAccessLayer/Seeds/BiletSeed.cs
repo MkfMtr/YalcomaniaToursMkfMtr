@@ -16,7 +16,7 @@ namespace DataAccessLayer.Seeds
                 {
                     Tarih = new DateOnly(2024, 9, 30),
                     TurId = 2,
-                    YeniTurId = null,
+                    AracId = null,
                     SatanSubeId = 1,
                     SatanElemanId = 3,
                     MusteriAd = "Ali",
@@ -46,7 +46,7 @@ namespace DataAccessLayer.Seeds
                 {
                     Tarih = new DateOnly(2024, 9, 30),
                     TurId = 2,
-                    YeniTurId = null,
+                    AracId = 1,
                     SatanSubeId = 2,
                     SatanElemanId = 7,
                     MusteriAd = "Veli",
@@ -76,7 +76,7 @@ namespace DataAccessLayer.Seeds
                 {
                     Tarih = new DateOnly(2024, 10, 2),
                     TurId = 4,
-                    YeniTurId = null,
+                    AracId = 1,
                     SatanSubeId = 1,
                     SatanElemanId = 3,
                     MusteriAd = "Mehmet",
@@ -106,7 +106,7 @@ namespace DataAccessLayer.Seeds
                 {
                     Tarih = new DateOnly(2024, 10, 2),
                     TurId = 4,
-                    YeniTurId = null,
+                    AracId = 2,
                     SatanSubeId = 1,
                     SatanElemanId = 3,
                     MusteriAd = "John",
@@ -136,7 +136,7 @@ namespace DataAccessLayer.Seeds
                 {
                     Tarih = new DateOnly(2024, 10, 3),
                     TurId = 4,
-                    YeniTurId = null,
+                    AracId = null,
                     SatanSubeId = 1,
                     SatanElemanId = 3,
                     MusteriAd = "Jack",
@@ -166,7 +166,7 @@ namespace DataAccessLayer.Seeds
                 {
                     Tarih = new DateOnly(2024, 10, 3),
                     TurId = 5,
-                    YeniTurId = null,
+                    AracId = null,
                     SatanSubeId = 2,
                     SatanElemanId = 7,
                     MusteriAd = "Klaus",

@@ -194,7 +194,7 @@
         let bolgeOtelList = @Html.Raw(Json.Serialize(Model.BolgeOtelList.Select(bo => new { bo.BolgeId, bo.OtelId })));
         let paraBirimiList = @Html.Raw(Json.Serialize(Model.ParaBirimiList.Select(p => new { p.Iso4217, p.ParaBirimiAdi })));
         let kurList = @Html.Raw(Json.Serialize(Model.KurList.Select(p => new { p.Tarih, p.ParaBirimiAdi, p.DolaraOran, p.EuroyaOran })));
-        let biletList = @Html.Raw(Json.Serialize(Model.BiletList.Select(b => new { b.Id, b.TurId, b.YeniTurId, b.SatanSubeId, b.SatanElemanId, b.MusteriAd, b.MusteriSoyad, b.MusteriUyruk, b.MusteriBolgeId, b.MusteriOtelId, b.MusteriOdaNo, b.MusteriAdres, b.MusteriTelNo, b.FullSayi, b.HalfSayi, b.GuestSayi, b.ParaBirimi, b.Paid, b.Rest, b.OdendiMi, b.Aciklama, b.ServisIstiyorMu, b.ServisSaati, b.BiletIptalMi })));
+        let biletList = @Html.Raw(Json.Serialize(Model.BiletList.Select(b => new { b.Id, b.TurId, b.SatanSubeId, b.SatanElemanId, b.MusteriAd, b.MusteriSoyad, b.MusteriUyruk, b.MusteriBolgeId, b.MusteriOtelId, b.MusteriOdaNo, b.MusteriAdres, b.MusteriTelNo, b.FullSayi, b.HalfSayi, b.GuestSayi, b.ParaBirimi, b.Paid, b.Rest, b.OdendiMi, b.Aciklama, b.ServisIstiyorMu, b.ServisSaati, b.BiletIptalMi })));
         console.log("turList:", turList);
         console.log("turTipiList:", turTipiList);
         console.log("subeList:", subeList);
@@ -411,9 +411,6 @@
                             return;
                         }
                         else{
-                            if (biletObject.yeniTurId === null) {
-                                biletObject.yeniTurId = "null";
-                            }
                             if (biletObject.musteriOtelId === null) {
                                 biletObject.musteriOtelId = "null";
                             }
@@ -432,7 +429,7 @@
                             let biletToSend = [
                                 biletObject.id.toString(),
                                 biletObject.turId.toString(),
-                                biletObject.yeniTurId.toString(),
+                                biletObject.biletIptalMi.toString(),
                                 biletObject.satanSubeId.toString(),
                                 biletObject.satanElemanId.toString(),
                                 biletObject.musteriAd,
@@ -452,8 +449,7 @@
                                 biletObject.odendiMi.toString(),
                                 biletObject.aciklama,
                                 biletObject.servisIstiyorMu.toString(),
-                                biletObject.servisSaati.toString(),
-                                biletObject.biletIptalMi.toString()
+                                biletObject.servisSaati.toString()
                             ];
                             console.log("biletToSend:",biletToSend);
                             sendArrayToController(biletToSend);

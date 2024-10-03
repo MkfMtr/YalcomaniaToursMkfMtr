@@ -7,6 +7,9 @@
     var subeName = Context.Session.GetString("SubeName");
 }
 <style>
+    #SearchTableWindow{
+        display:block;
+    }
     #TourSearchTable {
         width: 100%;
         border-collapse: collapse;
@@ -119,9 +122,28 @@
         #AyriTable td {
             border: 1px solid black;
         }
+        #FillBusWindow{
+            display:none;
+            background-color:antiquewhite;
+            position:fixed;
+            width:100%;
+            height:85%;
+            top:50%;
+            left:50%;
+            transform:translate(-50%,-50%);
+        }
+        #AracTable{
+            width:100%;
+            border-collapse:collapse;
+        }
+        #BiletTable{
+            width:100%;
+            border-collapse:collapse;
+        
+        }
 </style>
 <div>
-    <div>
+    <div id="SearchTableWindow">
         <!-- Tur Adı - Tur Tarihi - Tur Bitti Mi - Tur İptal Mi -->
         <div style="padding-bottom:2em; display:flex; flex-direction:row; gap: 1em;">
             <p>Tur Adı:</p>
@@ -171,7 +193,10 @@
 
     <div id="Window">
         <div>
-            <button id="EndTour" style="float:right">Kapat</button>
+            <button id="EndTour" style="padding-right:2em; float:left; background-color:red;color:white">Turu Bitir</button>
+            <button id="MergeTour" style="padding-right:2em; float:left; background-color:green;color:white">Biletleri Başka Tura Aktar</button>
+            <button id="CancelMerge" style="padding-right:2em; float:left; background-color:orange;color:white">Aktarma İptal</button>
+            <button id="VehicleDetails" style="float:left; background-color:blue;color:white">Otobüse Yolcu Ata</button>
             <button id="CloseWindow" style="float:right">Kapat</button>
         </div>
         <div style="padding-bottom:1em">
@@ -254,12 +279,66 @@
         </div>
     </div>
 
+    <div id="FillBusWindow">
+        
+        <!--Araç Seç-->
+        <div>
+            <div style="display:flex; flex-direction:row; gap:1em">
+                <p>Araç Seç:</p>
+                <select id="AracSec">
+                    <!-- Javascriptte doldur -->
+                </select>
+            </div>
+            <button id="FillBusClose" style="float:right">Kapat</button>
+        </div>
+        <div style="padding-bottom:2em">
+            <!--AracTable-->
+            <table id="AracTable">
+                <thead>
+                    <tr>
+                        <th>Ad Soyad</th>
+                        <th>Bolge</th>
+                        <th>Otel</th>
+                        <th>Oda No</th>
+                        <th>Para Birimi</th>
+                        <th>PAID</th>
+                        <th>REST</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Javascriptte doldur -->
+                </tbody>
+            </table>
+        </div>
+        <div>
+            <!--ServisTable-->
+            <table id="BiletTable">
+                <thead>
+                    <tr>
+                        <th>Ad Soyad</th>
+                        <th>Bolge</th>
+                        <th>Otel</th>
+                        <th>Otobüs</th>
+                        <th>Servis</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Javascriptte doldur -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
 </div>
 
 
 <script>
     $(document).ready(function () {
         //#region arrayleri vs. oluştur
+        let detailKeep;
+        let mergeKeep = undefined;
+        document.getElementById("CancelMerge").disabled = true;
         let turTipiListArray = @Html.Raw(Json.Serialize(Model.TurTipiList.Select(tu => new { tu.Id, tu.TurTipiAdi })));
         let turListArray = @Html.Raw(Json.Serialize(Model.TurList.Select(t => new { t.Id, t.Tarih, t.Saat, t.TurTipiId, t.BittiMi, t.FiyatTRY, t.FiyatUSD, t.FiyatEUR, t.AracId1, t.AracId2, t.AracId3, t.AracId4, t.ServisId1, t.ServisId2, t.ServisId3, t.TurIptalMi })));
         let biletListArray = @Html.Raw(Json.Serialize(Model.BiletList.Select(b => new { b.Id, b.TurId, b.MusteriAd, b.MusteriSoyad, b.MusteriUyruk, b.MusteriBolgeId, b.MusteriOtelId, b.MusteriOdaNo, b.FullSayi, b.HalfSayi, b.GuestSayi, b.ParaBirimi, b.Paid, b.Rest, b.ServisIstiyorMu, b.ServisSaati })));
@@ -268,6 +347,8 @@
         let paraBirimiListArray = @Html.Raw(Json.Serialize(Model.ParaBirimiList.Select(p => new { p.Iso4217, p.ParaBirimiAdi })));
         let uyrukListArray = @Html.Raw(Json.Serialize(Model.UyrukList.Select(u => new { u.Alpha3Code, u.UlkeIsmi })));
         let kurListArray = @Html.Raw(Json.Serialize(Model.KurList.Select(p => new { p.Tarih, p.ParaBirimiAdi, p.DolaraOran, p.EuroyaOran })));
+        let aracListArray = @Html.Raw(Json.Serialize(Model.AracList.Select(a => new { a.Id, a.AracTipiId, a.PlakaVeyaIsim, a.Kapasite, a.SilindiMi })));
+        let aracTipiListArray = @Html.Raw(Json.Serialize(Model.AracTipiList.Select(at => new { at.Id, at.AracTipiAdi })));
         console.log("turTipiListArray:",turTipiListArray);
         console.log("turListArray:",turListArray);
         console.log("biletListArray:",biletListArray);
@@ -291,6 +372,9 @@
         let tourDetailsTableBody = document.querySelector("#TourDetailsTable tbody");
         let ayriTableBody = document.querySelector("#AyriTable tbody");
         let topTableBody = document.querySelector("#ToplamTable tbody");
+        let aracSec = document.getElementById("AracSec");
+        let aracTableBody = document.querySelector("#AracTable tbody");
+        let biletTableBody = document.querySelector("#BiletTable tbody");
 
         //#endregion
 
@@ -360,6 +444,9 @@
             document.getElementById("ThBox").textContent = "";
             document.getElementById("TgBox").textContent = "";
             document.getElementById("TtBox").textContent = "";
+            aracSec.innerHTML = "";
+            aracTableBody.innerHTML = "";
+            biletTableBody.innerHTML = "";
             bottomFTotal = 0;
             bottomHTotal = 0;
             bottomGTotal = 0;
@@ -369,7 +456,7 @@
             for (let i = 0; i < turArray.length; i++) {
                 let tur = turArray[i];
                 let turTipi = turTipiArray.find(tt => tt.id === tur.turTipiId);
-                let biletArray = biletListArray.filter(bi => bi.turId === tur.id);
+                let biletArray = biletListArray.filter(bi => (bi.turId === tur.id));
                 console.log("tur-turTipi-bilet:");
                 console.log(tur);
                 console.log(turTipi);
@@ -446,7 +533,7 @@
                 //Detay butonlarına fonksiyon ata
                 detailsButton.addEventListener("click", function(turObject) {
                     return function() {
-                        console.log(turObject);
+                        detailKeep = turObject;
                         let biletDetailArray = [];
                         for (let l = 0; l < biletListArray.length; l++){
                             let bilet = biletListArray[l];
@@ -454,7 +541,6 @@
                                 biletDetailArray.push(bilet);
                             }
                         }
-                        console.log("biletDetailArray:",biletDetailArray);
                         
                         //Detay tablolarını temizle
                         tourDetailsTableBody.innerHTML = "";
@@ -468,29 +554,9 @@
                         let ayriEurPaid = 0;
                         let ayriEurRest = 0;
 
-                        //#region Bilet detaylarını mesafeye göre sırala
-                        for (s=0; s<biletDetailArray.length; s++){
-                            let biletDetail = biletDetailArray[s];
-                            let biletBolgeId = bolgeListArray.find(bo => bo.id === biletDetail.musteriBolgeId);
-                            console.log("biletBolgeId:",biletBolgeId);
-                            let biletOtelId = otelListArray.find(o => o.id === biletDetail.musteriOtelId);
-                            console.log("biletOtelId:",biletOtelId);
-                            if (biletBolgeId !== undefined){
-                                biletDetail.bolgeMerkezeUzaklikMetre = biletBolgeId.bolgeMerkezeUzaklikMetre;
-                            }
-                            if (biletOtelId !== undefined){
-                                biletDetail.otelMerkezeUzaklikMetre = biletOtelId.otelMerkezeUzaklikMetre;
-                            }
-                        }
-                        console.log("biletDetailArray:",biletDetailArray);
-                        biletDetailArray.sort((a,b) => {
-                                if(a.bolgeMerkezeUzaklik === b.bolgeMerkezeUzaklik){
-                                    return(a.otelMerkezeUzaklikMetre - b.otelMerkezeUzaklikMetre);
-                                }
-                                return(a.bolgeMerkezeUzaklikMetre - b.bolgeMerkezeUzaklikMetre);
-                            });
-                        //#endregion
-
+                        let siraliBiletArray = biletDetailArray;
+                        biletDetailArray = mesafeSirala(siraliBiletArray);
+                        console.log("biletDetailArray:", biletDetailArray);
 
                         //Detay tablosunu doldur
                         for (let m=0; m<biletDetailArray.length; m++){
@@ -704,9 +770,131 @@
             document.getElementById("TtBox").textContent = bottomFTotal + bottomHTotal + bottomGTotal;
 
         });
+
+        //Detay penceresini kapat
         document.getElementById("CloseWindow").addEventListener("click", function () {
             document.getElementById("Window").style.display = "none";
         });
+
+        document.getElementById("FillBusClose").addEventListener("click", function () {
+            document.getElementById("FillBusWindow").style.display = "none";
+            document.getElementById("SearchTableWindow").style.display = "block";
+        });
+
+        //Otobüse yolcu ata
+        document.getElementById("VehicleDetails").addEventListener("click", function () {
+            document.getElementById("Window").style.display = "none";
+            document.getElementById("SearchTableWindow").style.display = "none";
+            document.getElementById("FillBusWindow").style.display = "block";
+
+            let biletSecenekleri = biletListArray.filter(b => b.turId === detailKeep.id);
+            let aracSecenekleri = aracListArray.filter(a => a.id === detailKeep.aracId1 || a.id === detailKeep.aracId2 || a.id === detailKeep.aracId3 || a.id === detailKeep.aracId4 || a.id === detailKeep.servisId1 || a.id === detailKeep.servisId2 || a.id === detailKeep.servisId3);
+            console.log("aracSecenekleri:",aracSecenekleri);
+            console.log("biletSecenekleri:",biletSecenekleri);
+            for (let ar = 0; ar<aracSecenekleri.length; ar++){
+                let aracSecenek = aracSecenekleri[ar];
+                let aracSTipi = aracTipiListArray.find(at => at.id === aracSecenek.aracTipiId);
+                let aracOption = document.createElement("option");
+                aracOption.value = aracSecenek.id;
+                aracOption.textContent = aracSecenek.plakaVeyaIsim+" - "+aracSTipi.aracTipiAdi;
+                aracSec.appendChild(aracOption);
+            }
+
+            fillAracTable(biletSecenekleri);
+
+        });
+
+        //Biletleri başka tura aktar
+        document.getElementById("MergeTour").addEventListener("click", function () {
+            if (mergeKeep === undefined) {
+                mergeKeep = detailKeep;
+                document.getElementById("CancelMerge").disabled = false;
+                document.getElementById("Window").style.display = "none";
+                document.getElementById("MergeTour").innerText = "Bilet Aktarımını Onayla";
+            }
+            else if (mergeKeep.id === detailKeep.id) {
+                alert("Aynı turu seçtiniz. Lütfen farklı bir tur seçin.");
+                document.getElementById("Window").style.display = "none";
+            }
+            else {
+                let mergeOnay = confirm("Biletleri başka tura aktarmak istediğinize emin misiniz?");
+                if (mergeOnay) {
+                    let mergeTourArray = [mergeKeep.id.toString(), detailKeep.id.toString()];
+                    sendMergeTourToController(mergeTourArray);
+                }
+            }
+            
+        });
+
+        //Başka tura aktarımı iptal et.
+        document.getElementById("CancelMerge").addEventListener("click", function () {
+            mergeKeep = undefined;
+            console.log("cancel merge clicked")
+            document.getElementById("CancelMerge").disabled = true;
+            document.getElementById("MergeTour").innerText = "Biletleri Başka Tura Aktar";
+        });
+
+        //Turu bitir
+        document.getElementById("EndTour").addEventListener("click", function () {
+            let endOnay = confirm("Bu turu bitirmek istediğinize emin misiniz?");
+            if (endOnay) {
+                let endTourArray = [detailKeep.id.toString()];
+                sendEndTourToController(endTourArray);
+            }
+        });
+
+        function fillAracTable(array){
+            let aracTableRow = document.createElement("tr");
+            let aracAdSoyadCell = document.createElement("td");
+            aracAdSoyadCell.textContent = array.musteriAd + " " + array.musteriSoyad;
+            aracTableRow.appendChild(aracAdSoyadCell);
+            let aracBolgeCell = document.createElement("td");
+            let aracBolge = bolgeListArray.find(bo => bo.id === array.musteriBolgeId);
+            aracBolgeCell.textContent = aracBolge.bolgeIsim;
+            aracTableRow.appendChild(aracBolgeCell);
+            let aracOtelCell = document.createElement("td");
+            let aracOtel = otelListArray.find(o => o.id === array.musteriOtelId);
+            aracOtelCell.textContent = aracOtel.otelIsim;
+            aracTableRow.appendChild(aracOtelCell);
+            let aracOdaCell = document.createElement("td");
+            aracOdaCell.textContent = array.musteriOdaNo;
+            aracTableRow.appendChild(aracOdaCell);
+            let aracParaCell = document.createElement("td");
+            aracParaCell.textContent = array.paraBirimi;
+            aracTableRow.appendChild(aracParaCell);
+            let aracPaidCell = document.createElement("td");
+            aracPaidCell.textContent = array.paid;
+            aracTableRow.appendChild(aracPaidCell);
+            let aracRestCell = document.createElement("td");
+            aracRestCell.textContent = array.rest;
+            aracTableRow.appendChild(aracRestCell);
+            let aracTotalCell = document.createElement("td");
+            aracTotalCell.textContent = array.paid + array.rest;
+            aracTableRow.appendChild(aracTotalCell);
+            aracTableBody.appendChild(aracTableRow);
+        }
+
+        //Bilet detaylarını mesafeye gör sırala
+        function mesafeSirala(array) {
+            for (s = 0; s < array.length; s++) {
+                let biletOrder = array[s];
+                let biletOrderBolge = bolgeListArray.find(bo => bo.id === biletOrder.musteriBolgeId);
+                let biletOrderOtel = otelListArray.find(o => o.id === biletOrder.musteriOtelId);
+                if (biletOrderBolge !== undefined) {
+                    biletOrder.bolgeMerkezeUzaklikMetre = biletOrderBolge.bolgeMerkezeUzaklikMetre;
+                }
+                if (biletOrderOtel !== undefined) {
+                    biletOrder.otelMerkezeUzaklikMetre = biletOrderOtel.otelMerkezeUzaklikMetre;
+                }
+            }
+            array.sort((a, b) => {
+                if (a.bolgeMerkezeUzaklik === b.bolgeMerkezeUzaklik) {
+                    return (a.otelMerkezeUzaklikMetre - b.otelMerkezeUzaklikMetre);
+                }
+                return (a.bolgeMerkezeUzaklikMetre - b.bolgeMerkezeUzaklikMetre);
+            });
+            return array;
+        }
 
         //Ayrı Tablosunu doldurma fonksiyonu
         function fillAyriTable(money, paid, rest) {
@@ -747,6 +935,40 @@
         $.ajax({
             type: "POST",
             url: "/Home/TourToUpdate",
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(array),
+            success: function (response) {
+                console.log("Data sent successfully:", response);
+                if (response.redirectUrl) {
+                    window.location.href = response.redirectUrl;
+                }
+            },
+            error: function (error) {
+                console.error("Error sending data:", error);
+            }
+        });
+    }
+    function sendEndTourToController(array) {
+        $.ajax({
+            type: "POST",
+            url: "/Home/EndTour",
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(array),
+            success: function (response) {
+                console.log("Data sent successfully:", response);
+                if (response.redirectUrl) {
+                    window.location.href = response.redirectUrl;
+                }
+            },
+            error: function (error) {
+                console.error("Error sending data:", error);
+            }
+        });
+    }
+    function sendMergeTourToController(array) {
+        $.ajax({
+            type: "POST",
+            url: "/Home/MergeTour",
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify(array),
             success: function (response) {

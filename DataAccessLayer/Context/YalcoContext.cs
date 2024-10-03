@@ -170,6 +170,11 @@ public partial class YalcoContext : DbContext
                 .HasForeignKey(d => d.MusteriOtelId)
                 .HasConstraintName("FK_Biletler_Oteller");
 
+            entity.HasOne(d => d.AracNavigation).WithMany(p => p.Bilets)
+                .HasForeignKey(d => d.AracId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Biletler_Araclar");
+
             entity.HasOne(d => d.MusteriUyrukNavigation).WithMany(p => p.Bilets)
                 .HasForeignKey(d => d.MusteriUyruk)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -193,10 +198,6 @@ public partial class YalcoContext : DbContext
                 .HasForeignKey(d => d.TurId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Biletler_Turlar");
-
-            entity.HasOne(d => d.YeniTur).WithMany(p => p.BiletYeniTurs)
-                .HasForeignKey(d => d.YeniTurId)
-                .HasConstraintName("FK_Biletler_Turlar1");
         });
 
         modelBuilder.Entity<Bolge>(entity =>

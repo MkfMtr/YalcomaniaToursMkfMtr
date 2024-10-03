@@ -39,8 +39,6 @@ public partial class Tur
 
     public virtual ICollection<Bilet> BiletTurs { get; set; } = new List<Bilet>();
 
-    public virtual ICollection<Bilet> BiletYeniTurs { get; set; } = new List<Bilet>();
-
     public virtual ICollection<Gelir> Gelirs { get; set; } = new List<Gelir>();
 
     public virtual ICollection<Gider> Giders { get; set; } = new List<Gider>();

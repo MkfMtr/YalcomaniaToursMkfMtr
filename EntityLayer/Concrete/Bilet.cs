@@ -11,7 +11,7 @@ public partial class Bilet
 
     public int TurId { get; set; }
 
-    public int? YeniTurId { get; set; }
+    public int? AracId { get; set; }
 
     public int SatanSubeId { get; set; }
 
@@ -64,6 +64,8 @@ public partial class Bilet
     public virtual Bolge MusteriBolge { get; set; } = null!;
 
     public virtual Otel? MusteriOtel { get; set; }
+
+    public virtual Arac? AracNavigation { get; set; }
 
     public virtual Uyruk MusteriUyrukNavigation { get; set; } = null!;
 
