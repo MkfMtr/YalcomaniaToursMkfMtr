@@ -341,7 +341,7 @@
         document.getElementById("CancelMerge").disabled = true;
         let turTipiListArray = @Html.Raw(Json.Serialize(Model.TurTipiList.Select(tu => new { tu.Id, tu.TurTipiAdi })));
         let turListArray = @Html.Raw(Json.Serialize(Model.TurList.Select(t => new { t.Id, t.Tarih, t.Saat, t.TurTipiId, t.BittiMi, t.FiyatTRY, t.FiyatUSD, t.FiyatEUR, t.AracId1, t.AracId2, t.AracId3, t.AracId4, t.ServisId1, t.ServisId2, t.ServisId3, t.TurIptalMi })));
-        let biletListArray = @Html.Raw(Json.Serialize(Model.BiletList.Select(b => new { b.Id, b.TurId, b.MusteriAd, b.MusteriSoyad, b.MusteriUyruk, b.MusteriBolgeId, b.MusteriOtelId, b.MusteriOdaNo, b.FullSayi, b.HalfSayi, b.GuestSayi, b.ParaBirimi, b.Paid, b.Rest, b.ServisIstiyorMu, b.ServisSaati })));
+        let biletListArray = @Html.Raw(Json.Serialize(Model.BiletList.Select(b => new { b.Id, b.TurId, b.AracId, b.MusteriAd, b.MusteriSoyad, b.MusteriUyruk, b.MusteriBolgeId, b.MusteriOtelId, b.MusteriOdaNo, b.FullSayi, b.HalfSayi, b.GuestSayi, b.ParaBirimi, b.Paid, b.Rest, b.ServisIstiyorMu, b.ServisSaati })));
         let bolgeListArray = @Html.Raw(Json.Serialize(Model.BolgeList.Select(bo => new { bo.Id, bo.BolgeIsim, bo.BolgeMerkezeUzaklikMetre })));
         let otelListArray = @Html.Raw(Json.Serialize(Model.OtelList.Select(o => new { o.Id, o.OtelIsim, o.OtelMerkezeUzaklikMetre })));
         let paraBirimiListArray = @Html.Raw(Json.Serialize(Model.ParaBirimiList.Select(p => new { p.Iso4217, p.ParaBirimiAdi })));
@@ -368,6 +368,9 @@
         let bottomFTotal;
         let bottomHTotal;
         let bottomGTotal;
+
+        let aracSecValue;
+        let aracTablePool;
 
         let tourDetailsTableBody = document.querySelector("#TourDetailsTable tbody");
         let ayriTableBody = document.querySelector("#AyriTable tbody");
@@ -787,10 +790,12 @@
             document.getElementById("SearchTableWindow").style.display = "none";
             document.getElementById("FillBusWindow").style.display = "block";
 
-            let biletSecenekleri = biletListArray.filter(b => b.turId === detailKeep.id);
+            aracSec.innerHTML = "";
+
+            aracTablePool = biletListArray.filter(b => b.turId === detailKeep.id);
             let aracSecenekleri = aracListArray.filter(a => a.id === detailKeep.aracId1 || a.id === detailKeep.aracId2 || a.id === detailKeep.aracId3 || a.id === detailKeep.aracId4 || a.id === detailKeep.servisId1 || a.id === detailKeep.servisId2 || a.id === detailKeep.servisId3);
             console.log("aracSecenekleri:",aracSecenekleri);
-            console.log("biletSecenekleri:",biletSecenekleri);
+            console.log("aracTablePool:", aracTablePool);
             for (let ar = 0; ar<aracSecenekleri.length; ar++){
                 let aracSecenek = aracSecenekleri[ar];
                 let aracSTipi = aracTipiListArray.find(at => at.id === aracSecenek.aracTipiId);
@@ -799,9 +804,13 @@
                 aracOption.textContent = aracSecenek.plakaVeyaIsim+" - "+aracSTipi.aracTipiAdi;
                 aracSec.appendChild(aracOption);
             }
+            getAracSecValue();
+            fillAracTable(aracTablePool);
 
-            fillAracTable(biletSecenekleri);
-
+        });
+        document.getElementById("AracSec").addEventListener("change", function () {
+            getAracSecValue();
+            fillAracTable(aracTablePool);
         });
 
         //Biletleri başka tura aktar
@@ -844,34 +853,53 @@
         });
 
         function fillAracTable(array){
-            let aracTableRow = document.createElement("tr");
-            let aracAdSoyadCell = document.createElement("td");
-            aracAdSoyadCell.textContent = array.musteriAd + " " + array.musteriSoyad;
-            aracTableRow.appendChild(aracAdSoyadCell);
-            let aracBolgeCell = document.createElement("td");
-            let aracBolge = bolgeListArray.find(bo => bo.id === array.musteriBolgeId);
-            aracBolgeCell.textContent = aracBolge.bolgeIsim;
-            aracTableRow.appendChild(aracBolgeCell);
-            let aracOtelCell = document.createElement("td");
-            let aracOtel = otelListArray.find(o => o.id === array.musteriOtelId);
-            aracOtelCell.textContent = aracOtel.otelIsim;
-            aracTableRow.appendChild(aracOtelCell);
-            let aracOdaCell = document.createElement("td");
-            aracOdaCell.textContent = array.musteriOdaNo;
-            aracTableRow.appendChild(aracOdaCell);
-            let aracParaCell = document.createElement("td");
-            aracParaCell.textContent = array.paraBirimi;
-            aracTableRow.appendChild(aracParaCell);
-            let aracPaidCell = document.createElement("td");
-            aracPaidCell.textContent = array.paid;
-            aracTableRow.appendChild(aracPaidCell);
-            let aracRestCell = document.createElement("td");
-            aracRestCell.textContent = array.rest;
-            aracTableRow.appendChild(aracRestCell);
-            let aracTotalCell = document.createElement("td");
-            aracTotalCell.textContent = array.paid + array.rest;
-            aracTableRow.appendChild(aracTotalCell);
-            aracTableBody.appendChild(aracTableRow);
+            aracTableBody.innerHTML = "";
+            for (let at = 0; at < array.length; at++) {
+                let arr = array[at];
+                if (arr.aracId === parseInt(aracSecValue)) {
+                    let aracTableRow = document.createElement("tr");
+                    let aracAdSoyadCell = document.createElement("td");
+                    aracAdSoyadCell.textContent = arr.musteriAd + " " + arr.musteriSoyad;
+                    aracTableRow.appendChild(aracAdSoyadCell);
+                    let aracBolgeCell = document.createElement("td");
+                    let aracBolge = bolgeListArray.find(bo => bo.id === arr.musteriBolgeId);
+                    aracBolgeCell.textContent = aracBolge.bolgeIsim;
+                    aracTableRow.appendChild(aracBolgeCell);
+                    let aracOtelCell = document.createElement("td");
+                    if (arr.musteriOtelId === null) {
+                        aracOtelCell.textContent = "Otel Yok";
+                    }
+                    else {
+                        let aracOtel = otelListArray.find(o => o.id === arr.musteriOtelId);
+                        aracOtelCell.textContent = aracOtel.otelIsim;
+                    }
+                    aracTableRow.appendChild(aracOtelCell);
+                    let aracOdaCell = document.createElement("td");
+                    if (arr.musteriOdaNo === null) {
+                        aracOdaCell.textContent = "Oda Yok";
+                    }
+                    else {
+                        aracOdaCell.textContent = arr.musteriOdaNo;
+                    }
+                    aracTableRow.appendChild(aracOdaCell);
+                    let aracParaCell = document.createElement("td");
+                    aracParaCell.textContent = arr.paraBirimi;
+                    aracTableRow.appendChild(aracParaCell);
+                    let aracPaidCell = document.createElement("td");
+                    aracPaidCell.textContent = arr.paid;
+                    aracTableRow.appendChild(aracPaidCell);
+                    let aracRestCell = document.createElement("td");
+                    aracRestCell.textContent = arr.rest;
+                    aracTableRow.appendChild(aracRestCell);
+                    let aracTotalCell = document.createElement("td");
+                    aracTotalCell.textContent = arr.paid + arr.rest;
+                    aracTableRow.appendChild(aracTotalCell);
+                    aracTableBody.appendChild(aracTableRow);
+                }
+                else {
+                    continue;
+                }
+            }
         }
 
         //Bilet detaylarını mesafeye gör sırala
@@ -929,6 +957,10 @@
             topRestCell.textContent = (rest).toFixed(2);
             topRow.appendChild(topRestCell);
             topTableBody.appendChild(topRow);
+        }
+        function getAracSecValue(){
+            aracSecValue = aracSec.value;
+            console.log("aracSecValue:",aracSecValue);
         }
     });
     function sendArrayToController(array) {
