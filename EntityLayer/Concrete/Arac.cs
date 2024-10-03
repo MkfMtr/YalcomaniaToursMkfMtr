@@ -21,5 +21,7 @@ public partial class Arac
 
     public virtual AracTipi AracTipi { get; set; } = null!;
 
-    public virtual ICollection<Bilet> Bilets { get; set; } = new List<Bilet>();
+    public virtual ICollection<Bilet> BiletAracs { get; set; } = new List<Bilet>();
+
+    public virtual ICollection<Bilet> BiletServises { get; set; } = new List<Bilet>();
 }

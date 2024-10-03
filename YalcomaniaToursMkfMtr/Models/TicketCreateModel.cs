@@ -16,5 +16,6 @@ namespace YalcomaniaToursMkfMtr.Models
         public List<BolgeOtel> BolgeOtelList { get; set; }
         public List<ParaBirimi> ParaBirimiList { get; set; }
         public List<Kur> KurList { get; set; }
+        public List<Bilet> BiletList { get; set; }
     }
 }

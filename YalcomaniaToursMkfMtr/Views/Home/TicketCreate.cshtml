@@ -2,8 +2,6 @@
 @model TicketCreateModel
 @{
     ViewData["Title"] = "Bilet Oluştur";
-    var userGorev = Context.Session.GetString("UserRole");
-    Console.WriteLine("User Gorev:", userGorev);
     var userId = Context.Session.GetInt32("UserId");
     var userName = Context.Session.GetString("UserName") +" "+ Context.Session.GetString("UserSurname");
     var subeId = Context.Session.GetInt32("SubeId");
@@ -33,13 +31,19 @@
             <div style="padding-bottom: 1em; padding-right: 2em; display: flex; flex-direction:column; width: 50%">
                 <p>Satan Şube</p>
                 <select id="SatanSubeId" name="SatanSubeId" disabled>
-                    <option value="@subeId">@subeName</option>
+                    @foreach(var sube in Model.SubeList)
+                    {
+                        <option value="@sube.Id">@sube.SubeAd</option>
+                    }
                 </select>
             </div>
             <div style="display: flex; flex-direction:column; width: 50%">
                 <p>Satan Eleman</p>
                 <select id="SatanElemanId" name="SatanElemanId" disabled>
-                    <option value="@userId">@userName</option>
+                    @foreach(var eleman in Model.CalisanList)
+                    {
+                        <option value="@eleman.Id">@eleman.CalisanAdi @eleman.CalisanSoyadi</option>
+                    }
                 </select>
             </div>
         </div>
@@ -270,6 +274,10 @@
             }
             document.getElementById("BiletIptalMi").checked = existingBiletList[2] === "true" ? true : false;
             
+        }
+        else{
+            document.getElementById("SatanSubeId").value = @subeId;
+            document.getElementById("SatanElemanId").value = @userId;
         }
 
         //Varsayılan olarak seçilen turun fiyatlarını göster

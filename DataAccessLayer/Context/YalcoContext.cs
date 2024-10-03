@@ -170,10 +170,15 @@ public partial class YalcoContext : DbContext
                 .HasForeignKey(d => d.MusteriOtelId)
                 .HasConstraintName("FK_Biletler_Oteller");
 
-            entity.HasOne(d => d.AracNavigation).WithMany(p => p.Bilets)
+            entity.HasOne(d => d.AracNavigation).WithMany(p => p.BiletAracs)
                 .HasForeignKey(d => d.AracId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Biletler_Araclar");
+
+            entity.HasOne(d => d.ServisNavigation).WithMany(p => p.BiletServises)
+                .HasForeignKey(d => d.ServisId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Biletler_Araclar1");
 
             entity.HasOne(d => d.MusteriUyrukNavigation).WithMany(p => p.Bilets)
                 .HasForeignKey(d => d.MusteriUyruk)

@@ -12,8 +12,12 @@ namespace DataAccessLayer.Seeds
         {
             return new List<GelirGiderKategori>()
             {
-                new GelirGiderKategori { KategoriAdi = "Gelir Tipi 1", GelirGider = false, SilindiMi = false },
-                new GelirGiderKategori { KategoriAdi = "Gidr Tipi 1", GelirGider = true, SilindiMi = false  }
+                new GelirGiderKategori { KategoriAdi = "Bilet Satış Komisyon", GelirGider = false, SilindiMi = false },
+                new GelirGiderKategori { KategoriAdi = "PAID", GelirGider = false, SilindiMi = false },
+                new GelirGiderKategori { KategoriAdi = "REST", GelirGider = false, SilindiMi = false },
+                new GelirGiderKategori { KategoriAdi = "Pas Alacak", GelirGider = false, SilindiMi = false },
+                new GelirGiderKategori { KategoriAdi = "Pas Verecek", GelirGider = false, SilindiMi = false },
+                new GelirGiderKategori { KategoriAdi = "Gezi Maliyeti", GelirGider = true, SilindiMi = false  }
             };
         }
     }

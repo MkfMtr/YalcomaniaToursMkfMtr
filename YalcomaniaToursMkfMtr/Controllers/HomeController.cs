@@ -84,6 +84,7 @@ namespace YalcomaniaToursMkfMtr.Controllers
             var bolgeOtelList = _bolgeOtelService.GetAll().ToList();
             var parabirimiList = _paraBirimiService.GetAll().ToList();
             var kurList = _kurService.GetAll().ToList();
+            var biletList = _biletService.GetAll().ToList();
             var model = new TicketCreateModel
             {
                 TurList = turList,
@@ -97,7 +98,8 @@ namespace YalcomaniaToursMkfMtr.Controllers
                 BolgeList = bolgeList,
                 BolgeOtelList = bolgeOtelList,
                 ParaBirimiList = parabirimiList,
-                KurList = kurList
+                KurList = kurList,
+                BiletList= biletList
             };
 
             return View(model);
@@ -449,10 +451,37 @@ namespace YalcomaniaToursMkfMtr.Controllers
                     List<Bilet> biletList = _biletService.GetAll().Where(b => b.TurId == tur1.Id).ToList();
                     foreach (var bilet in biletList)
                     {
-                        bilet.TurId = tur2.Id;
-                        await _biletService.Update(bilet);
+                        if (bilet.BiletIptalMi == false)
+                        {
+                            bilet.TurId = tur2.Id;
+                            await _biletService.Update(bilet);
+                        }
                     }
                     return Ok(new { redirectUrl = Url.Action("OperationSearchTour", "Home") });
+                }
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateBiletArac([FromBody] List<string> biletValues)
+        {
+            if (biletValues == null || biletValues.Count == 0)
+            {
+                return BadRequest("Array is null or empty");
+            }
+            else
+            {
+                Bilet bilet = _biletService.GetById(int.Parse(biletValues[0]));
+                if (bilet == null)
+                {
+                    return BadRequest("Bilet not found");
+                }
+                else
+                {
+                    bilet.AracId = string.IsNullOrEmpty(biletValues[1]) ? null : int.Parse(biletValues[1]);
+                    bilet.ServisId = string.IsNullOrEmpty(biletValues[2]) ? null : int.Parse(biletValues[2]);
+                    await _biletService.Update(bilet);
+                    return Ok();
                 }
             }
         }
