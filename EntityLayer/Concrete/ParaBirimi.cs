@@ -24,4 +24,8 @@ public partial class ParaBirimi
     public virtual ICollection<PasAnlasma> PasAnlasmaVerecekParaBirimiNavigations { get; set; } = new List<PasAnlasma>();
 
     public virtual ICollection<PasVerecek> PasVereceks { get; set; } = new List<PasVerecek>();
+
+    public virtual ICollection<Gelir> Gelirs { get; set; } = new List<Gelir>();
+
+    public virtual ICollection<Gider> Giders { get; set; } = new List<Gider>();
 }

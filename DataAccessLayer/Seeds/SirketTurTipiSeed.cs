@@ -14,6 +14,8 @@ namespace DataAccessLayer.Seeds
             {
                 new SirketTurTipi { SirketId = 1, TurTipiId = 1 },
                 new SirketTurTipi { SirketId = 1, TurTipiId = 2 },
+                new SirketTurTipi { SirketId = 2, TurTipiId = 1 },
+                new SirketTurTipi { SirketId = 2, TurTipiId = 2 },
             };
         }
     }

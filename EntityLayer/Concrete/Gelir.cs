@@ -13,9 +13,13 @@ public partial class Gelir
 
     public decimal Miktar { get; set; }
 
+    public string ParaBirimi { get; set; }
+
     public string? Aciklama { get; set; }
 
     public virtual GelirGiderKategori Kategori { get; set; } = null!;
+
+    public virtual ParaBirimi ParaBirimiNavigation { get; set; } = null!;
 
     public virtual Tur Tur { get; set; } = null!;
 }

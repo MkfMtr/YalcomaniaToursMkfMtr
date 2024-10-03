@@ -64,6 +64,20 @@ builder.Services.AddScoped<ITurTipiService, TurTipiService>();
 builder.Services.AddScoped<IGenericRepository<TurTipi>, GenericRepository<TurTipi>>();
 builder.Services.AddScoped<IUyrukService, UyrukService>();
 builder.Services.AddScoped<IGenericRepository<Uyruk>, GenericRepository<Uyruk>>();
+builder.Services.AddScoped<IGelirGiderKategoriService, GelirGiderKategoriService>();
+builder.Services.AddScoped<IGenericRepository<GelirGiderKategori>, GenericRepository<GelirGiderKategori>>();
+builder.Services.AddScoped<IPasAnlasmaService, PasAnlasmaService>();
+builder.Services.AddScoped<IGenericRepository<PasAnlasma>, GenericRepository<PasAnlasma>>();
+builder.Services.AddScoped<IAracVerecekService, AracVerecekService>();
+builder.Services.AddScoped<IGenericRepository<AracVerecek>, GenericRepository<AracVerecek>>();
+builder.Services.AddScoped<IGelirService, GelirService>();
+builder.Services.AddScoped<IGenericRepository<Gelir>, GenericRepository<Gelir>>();
+builder.Services.AddScoped<IGiderService, GiderService>();
+builder.Services.AddScoped<IGenericRepository<Gider>, GenericRepository<Gider>>();
+builder.Services.AddScoped<IPasAlacakService, PasAlacakService>();
+builder.Services.AddScoped<IGenericRepository<PasAlacak>, GenericRepository<PasAlacak>>();
+builder.Services.AddScoped<IPasVerecekService, PasVerecekService>();
+builder.Services.AddScoped<IGenericRepository<PasVerecek>, GenericRepository<PasVerecek>>();
 
 var app = builder.Build();
 

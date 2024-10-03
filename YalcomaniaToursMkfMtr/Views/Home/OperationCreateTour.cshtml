@@ -372,6 +372,11 @@
             let servisId3 = document.getElementById("ServisId3").value;
             let turIptalMi = document.getElementById("IptalMi").checked.toString();
 
+            if (validateMoneyInput(fiyatTry) === false || validateMoneyInput(fiyatUsd) === false || validateMoneyInput(fiyatEur) === false) {
+                alert("Lütfen para miktarını doğru formatta giriniz! (Noktadan önce 18, sonra 2 hane olmalı. Örn: 123456789012345678.12)");
+                return;
+            }
+
             let logTourValues = {
                 "tarih": tarih,
                 "saat": saat,
@@ -422,6 +427,11 @@
             }
         }
     });
+
+    function validateMoneyInput(input) {
+        let regex = /^\d{1,18}(\.\d{1,2})?$/;
+        return regex.test(input);
+    }
 
     //Değeri al, int'e çevir, boş stringi null yap
     function getValue(string) {

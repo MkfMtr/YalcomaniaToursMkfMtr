@@ -34,6 +34,13 @@ namespace YalcomaniaToursMkfMtr.Controllers
         private readonly ITurService _turService;
         private readonly ITurTipiService _turTipiService;
         private readonly IUyrukService _uyrukService; 
+        private readonly IGelirService _gelirService;
+        private readonly IGiderService _giderService;
+        private readonly IPasAlacakService _pasAlacakService;
+        private readonly IPasVerecekService _pasVerecekService;
+        private readonly IPasAnlasmaService _pasAnlasmaService;
+        private readonly IAracVerecekService _aracVerecekService;
+        private readonly IGelirGiderKategoriService _gelirGiderKategoriService;
         #endregion
 
         public HomeController(ILogger<HomeController> logger, YalcoContext context, 
@@ -41,7 +48,9 @@ namespace YalcomaniaToursMkfMtr.Controllers
             IBolgeOtelService bolgeOtelService, IBolgeSubeService bolgeSubeService, ICalisanService calisanService, IGorevService gorevService, IGorevCalisanService gorevCalisanService,
             IKurService kurService, IOtelService otelService, IParaBirimiService paraBirimiService, ISirketService sirketService,
             ISirketTurTipiService sirketTurTipiService, ISubeCalisanService subeCalisanService, ISubeService subeService, ITurService turService,
-            ITurTipiService turTipiService, IUyrukService uyrukService)
+            ITurTipiService turTipiService, IUyrukService uyrukService, IGelirService gelirService, IGiderService giderService, 
+            IPasAlacakService pasAlacakService, IPasVerecekService pasVerecekService, IPasAnlasmaService pasAnlasmaService, 
+            IAracVerecekService aracVerecekService, IGelirGiderKategoriService gelirGiderKategoriService)
         {
             _logger = logger;
             _context = context;
@@ -64,8 +73,37 @@ namespace YalcomaniaToursMkfMtr.Controllers
             _turService = turService;
             _turTipiService = turTipiService;
             _uyrukService = uyrukService;
+            _gelirService = gelirService;
+            _giderService = giderService;
+            _pasAlacakService = pasAlacakService;
+            _pasVerecekService = pasVerecekService;
+            _pasAnlasmaService = pasAnlasmaService;
+            _aracVerecekService = aracVerecekService;
+            _gelirGiderKategoriService = gelirGiderKategoriService;
         }
-
+        private string GetUserRoleFromSession()
+        {
+            var userRoleJson = HttpContext.Session.GetString("UserRole");
+            string userRole;
+            if (!string.IsNullOrEmpty(userRoleJson))
+            {
+                userRole = JsonConvert.DeserializeObject<string>(userRoleJson);
+                switch (userRole)
+                {
+                    case "BiletSatis":
+                        return "TicketIndex";
+                    case "OperasyonYonetim":
+                        return "OperationIndex";
+                    case "VeriGiris":
+                        return "DataInputIndex";
+                    case "Muhasebe":
+                        return "AccountingIndex";
+                    case "Admin":
+                        return "AdminIndex";
+                }
+            }
+            return null;
+        }
         public IActionResult AdminIndex()
         {
             return View();
@@ -85,6 +123,7 @@ namespace YalcomaniaToursMkfMtr.Controllers
             var parabirimiList = _paraBirimiService.GetAll().ToList();
             var kurList = _kurService.GetAll().ToList();
             var biletList = _biletService.GetAll().ToList();
+            var sirketList = _sirketService.GetAll().ToList();
             var model = new TicketCreateModel
             {
                 TurList = turList,
@@ -99,7 +138,8 @@ namespace YalcomaniaToursMkfMtr.Controllers
                 BolgeOtelList = bolgeOtelList,
                 ParaBirimiList = parabirimiList,
                 KurList = kurList,
-                BiletList= biletList
+                BiletList= biletList,
+                SirketList = sirketList
             };
 
             return View(model);
@@ -122,16 +162,16 @@ namespace YalcomaniaToursMkfMtr.Controllers
                 var musteriUyruk = ticketValues[5];
                 var musteriBolgeId = int.Parse(ticketValues[6]);
                 int? musteriOtelId = string.IsNullOrEmpty(ticketValues[7]) ? null : int.Parse(ticketValues[7]);
-                var musteriOdaNo = ticketValues[8];
+                var musteriOdaNo = ticketValues[8] == "" ? null : ticketValues[8];
                 var musteriTelNo = ticketValues[9];
-                var musteriAdres = ticketValues[10];
+                var musteriAdres = ticketValues[10] == "" ? null : ticketValues[10];
                 var fullSayi = byte.Parse(ticketValues[11]);
                 var halfSayi = byte.Parse(ticketValues[12]);
                 var guestSayi = byte.Parse(ticketValues[13]);
                 var paraBirimi = ticketValues[14];
                 var paid = decimal.Parse(ticketValues[15], CultureInfo.InvariantCulture);
                 var rest = decimal.Parse(ticketValues[16], CultureInfo.InvariantCulture);
-                var aciklama = ticketValues[17];
+                var aciklama = ticketValues[17] == "" ? null : ticketValues[17];
                 var servisIstiyorMu = bool.Parse(ticketValues[18]);
                 TimeOnly? servisSaati = string.IsNullOrEmpty(ticketValues[19]) ? null : TimeOnly.Parse(ticketValues[19]);
                 var biletDate = DateOnly.FromDateTime(DateTime.Now);
@@ -139,6 +179,7 @@ namespace YalcomaniaToursMkfMtr.Controllers
                 await _biletService.Create(new Bilet
                 {
                     Tarih = biletDate,
+                    AracId = null,
                     TurId = turId,
                     SatanSubeId = satanSubeId,
                     SatanElemanId = satanElemanId,
@@ -165,10 +206,10 @@ namespace YalcomaniaToursMkfMtr.Controllers
                     GelenGidenPas = null,
                     PasSirketi = null
                 });
-                return Ok(new { redirectUrl = Url.Action("TicketIndex", "Home") });
+                return Ok(new { redirectUrl = Url.Action(GetUserRoleFromSession(), "Home") });
             }
         }
-
+        [HttpPost]
         public async Task<IActionResult> UpdateTicketDetails([FromBody] List<string> ticketValues)
         {
             if (ticketValues == null || ticketValues.Count == 0)
@@ -189,20 +230,23 @@ namespace YalcomaniaToursMkfMtr.Controllers
                 var musteriUyruk = ticketValues[5];
                 var musteriBolgeId = int.Parse(ticketValues[6]);
                 int? musteriOtelId = string.IsNullOrEmpty(ticketValues[7]) ? null : int.Parse(ticketValues[7]);
-                var musteriOdaNo = ticketValues[8];
+                var musteriOdaNo = ticketValues[8] == "" ? null : ticketValues[8];
                 var musteriTelNo = ticketValues[9];
-                var musteriAdres = ticketValues[10];
+                var musteriAdres = ticketValues[10] == "" ? null : ticketValues[10];
                 var fullSayi = byte.Parse(ticketValues[11]);
                 var halfSayi = byte.Parse(ticketValues[12]);
                 var guestSayi = byte.Parse(ticketValues[13]);
                 var paraBirimi = ticketValues[14];
                 var paid = decimal.Parse(ticketValues[15], CultureInfo.InvariantCulture);
                 var rest = decimal.Parse(ticketValues[16], CultureInfo.InvariantCulture);
-                var aciklama = ticketValues[17];
+                var aciklama = ticketValues[17] == "" ? null : ticketValues[17];
                 var servisIstiyorMu = bool.Parse(ticketValues[18]);
                 TimeOnly? servisSaati = string.IsNullOrEmpty(ticketValues[19]) ? null : TimeOnly.Parse(ticketValues[19]);
-                var biletId = int.Parse(ticketValues[20]);
-                var biletIptalMi = bool.Parse(ticketValues[21]);
+                var pasBiletMi = bool.Parse(ticketValues[20]);
+                bool? gelenGidenPas = string.IsNullOrEmpty(ticketValues[21]) ? null : bool.Parse(ticketValues[21]);
+                var pasSirketi = ticketValues[22] == "" ? null : ticketValues[22];
+                var biletId = int.Parse(ticketValues[23]);
+                var biletIptalMi = bool.Parse(ticketValues[24]);
 
                 Bilet eskiBilet = _biletService.GetById(biletId);
                 if (eskiBilet == null)
@@ -229,10 +273,14 @@ namespace YalcomaniaToursMkfMtr.Controllers
                     eskiBilet.Aciklama = aciklama;
                     eskiBilet.ServisIstiyorMu = servisIstiyorMu;
                     eskiBilet.BiletIptalMi = biletIptalMi;
+                    eskiBilet.ServisSaati = servisSaati;
+                    eskiBilet.PasBiletMi = pasBiletMi;
+                    eskiBilet.GelenGidenPas = gelenGidenPas;
+                    eskiBilet.PasSirketi = pasSirketi;
                 }
 
                 await _biletService.Update(eskiBilet);
-                return Ok(new { redirectUrl = Url.Action("TicketSearch", "Home") });
+                return Ok(new { redirectUrl = Url.Action(GetUserRoleFromSession(), "Home") });
             }
         }
 
@@ -347,7 +395,7 @@ namespace YalcomaniaToursMkfMtr.Controllers
                     BittiMi = false,
                     TurIptalMi = false
                 });
-                return Ok(new { redirectUrl = Url.Action("OperationIndex", "Home") });
+                return Ok(new { redirectUrl = Url.Action(GetUserRoleFromSession(), "Home") });
             }
         }
 
@@ -402,7 +450,7 @@ namespace YalcomaniaToursMkfMtr.Controllers
                     tur.TurIptalMi = iptalMi;
 
                     await _turService.Update(tur);
-                    return Ok(new { redirectUrl = Url.Action("OperationSearchTour", "Home") });
+                    return Ok(new { redirectUrl = Url.Action(GetUserRoleFromSession(), "Home") });
                 }
             }
         }
@@ -425,7 +473,7 @@ namespace YalcomaniaToursMkfMtr.Controllers
                 {
                     tur.BittiMi = true;
                     await _turService.Update(tur);
-                    return Ok(new { redirectUrl = Url.Action("OperationSearchTour", "Home") });
+                    return Ok(new { redirectUrl = Url.Action(GetUserRoleFromSession(), "Home") });
 
                 }
             }
@@ -457,7 +505,7 @@ namespace YalcomaniaToursMkfMtr.Controllers
                             await _biletService.Update(bilet);
                         }
                     }
-                    return Ok(new { redirectUrl = Url.Action("OperationSearchTour", "Home") });
+                    return Ok(new { redirectUrl = Url.Action(GetUserRoleFromSession(), "Home") });
                 }
             }
         }
@@ -586,6 +634,92 @@ namespace YalcomaniaToursMkfMtr.Controllers
                 }
                 await _aracService.Update(arac);
                 return Ok(new { redirectUrl = Url.Action("OperationVehicles", "Home") });
+            }
+        }
+
+        public IActionResult GelirGider()
+        {
+            var sirketList = _sirketService.GetAll().ToList();
+            var gelirList = _gelirService.GetAll().ToList();
+            var giderList = _giderService.GetAll().ToList();
+            var gelirGiderKategoriList = _gelirGiderKategoriService.GetAll().ToList();
+            var pasAlacakList = _pasAlacakService.GetAll().ToList();
+            var pasVerecekList = _pasVerecekService.GetAll().ToList();
+            var pasAnlasmaList = _pasAnlasmaService.GetAll().ToList();
+            var aracVerecekList = _aracVerecekService.GetAll().ToList();
+            var paraBirimiList = _paraBirimiService.GetAll().ToList();
+            var kurList = _kurService.GetAll().ToList();
+            var model = new GelirGiderModel
+            {
+                SirketList = sirketList,
+                GelirList = gelirList,
+                GiderList = giderList,
+                GelirGiderKategoriList = gelirGiderKategoriList,
+                PasAlacakList = pasAlacakList,
+                PasVerecekList = pasVerecekList,
+                PasAnlasmaList = pasAnlasmaList,
+                AracVerecekList = aracVerecekList,
+                ParaBirimiList = paraBirimiList,
+                KurList = kurList
+            };
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GelirGiderPost([FromBody] List<string> ggVal)
+        {
+            if (ggVal == null)
+            {
+                return BadRequest("String is null");
+            }
+            else
+            {
+                string ggValJson = JsonConvert.SerializeObject(ggVal);
+                HttpContext.Session.SetString("ggVal", ggValJson);
+                return Ok(new { redirectUrl = Url.Action("GelirGider", "Home") });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddGelirGider([FromBody] List<string> ggVal)
+        {
+            if (ggVal == null)
+            {
+                return BadRequest("String is null");
+            }
+            else
+            {
+                int turId = int.Parse(ggVal[0]);
+                string isGelir = ggVal[1];
+                int kategoriId = int.Parse(ggVal[2]);
+                string aciklama = ggVal[3];
+                decimal miktar = decimal.Parse(ggVal[4], CultureInfo.InvariantCulture);
+                string paraBirimi = ggVal[5];
+                
+                if(isGelir == "0")
+                {
+                    await _gelirService.Create(new Gelir
+                    {
+                        TurId = turId,
+                        KategoriId = kategoriId,
+                        Aciklama = aciklama,
+                        Miktar = miktar,
+                        ParaBirimi = paraBirimi
+                    });
+                }
+                else
+                {
+                    await _giderService.Create(new Gider
+                    {
+                        TurId = turId,
+                        KategoriId = kategoriId,
+                        Aciklama = aciklama,
+                        Miktar = miktar,
+                        ParaBirimi = paraBirimi
+                    });
+                    
+                }
+                return Ok(new { redirectUrl = Url.Action("GelirGider", "Home") });
             }
         }
 

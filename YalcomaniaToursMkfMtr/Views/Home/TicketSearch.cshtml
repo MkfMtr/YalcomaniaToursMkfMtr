@@ -1,13 +1,11 @@
 ﻿@using DataAccessLayer
+@using Newtonsoft.Json
 @model YalcomaniaToursMkfMtr.Models.TicketSearchModel
 @{
     ViewData["Title"] = "Biletleri Ara";
-    var userGorev = Context.Session.GetString("UserRole");
-    Console.WriteLine("userGorev:", userGorev);
-    if (userGorev == "Admin")
-    {
-        userGorev = "Admin";
-    }
+    var userRoleJson = Context.Session.GetString("UserRole");
+    var userRole = JsonConvert.DeserializeObject<string>(userRoleJson);
+    Console.WriteLine("User Role: " + userRole);
     var userId = Context.Session.GetInt32("UserId");
     if (userId == null)
     {
@@ -100,7 +98,7 @@
         <p>Satan Şube:</p>
         <select id="SatanSubFiltre">
             @{
-                if (userGorev == "Admin" || userGorev == "VeriGiris")
+                if (userRole != "BiletSatis")
                 {
                     <option value="">Filtre Yok</option>
                     foreach (var sube in Model.SubeList)
@@ -118,7 +116,7 @@
         </select>
         <p>Satan Eleman:</p>
         <select id="SatanElFiltre">
-            @if (userGorev == "BiletSatis")
+            @if (userRole == "BiletSatis")
             {
                 <option value="@userId">@userName</option>
             }
@@ -476,7 +474,7 @@
         });
 
         function updateSubeStuff() {
-            if ("@userGorev" === "Admin") {
+            if ("@userRole" === "Admin" || "@userRole" === "VeriGiris") {
                 //Seçilen şubeyi güncelle ve int yap.
                 let selectedSubeIdStr = $('#SatanSubFiltre').val();
                 let selectedSubeId = parseInt(selectedSubeIdStr) || 0;

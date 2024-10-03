@@ -271,6 +271,11 @@ public partial class YalcoContext : DbContext
             entity.Property(e => e.Aciklama).HasMaxLength(1000);
             entity.Property(e => e.Miktar).HasColumnType("decimal(18, 2)");
 
+            entity.HasOne(d => d.ParaBirimiNavigation).WithMany(p => p.Gelirs)
+                .HasForeignKey(d => d.ParaBirimi)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Gelirler_ParaBirimleri");
+
             entity.HasOne(d => d.Kategori).WithMany(p => p.Gelirs)
                 .HasForeignKey(d => d.KategoriId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -297,6 +302,11 @@ public partial class YalcoContext : DbContext
 
             entity.Property(e => e.Aciklama).HasMaxLength(1000);
             entity.Property(e => e.Miktar).HasColumnType("decimal(18, 2)");
+
+            entity.HasOne(d => d.ParaBirimiNavigation).WithMany(p => p.Giders)
+                .HasForeignKey(d => d.ParaBirimi)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Giderler_ParaBirimleri");
 
             entity.HasOne(d => d.Kategori).WithMany(p => p.Giders)
                 .HasForeignKey(d => d.KategoriId)

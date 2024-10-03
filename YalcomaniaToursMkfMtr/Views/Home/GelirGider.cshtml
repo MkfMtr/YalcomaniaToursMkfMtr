@@ -1,0 +1,230 @@
+﻿@using Newtonsoft.Json
+@model GelirGiderModel
+@{
+    ViewData["Title"] = "Bilet Oluştur";
+    var ggValJson = Context.Session.GetString("ggVal");
+    var ggVal = JsonConvert.DeserializeObject<List<string>>(ggValJson);
+    Console.WriteLine("gelir gider tur id: " + ggVal[0]);
+
+    // Bugüne en yakın Kur verisini al
+    var closestKur = Model.KurList.OrderBy(k => Math.Abs((k.Tarih.ToDateTime(TimeOnly.MinValue) - DateTime.Today).TotalDays)).FirstOrDefault();
+
+    // Kur değerlerini al
+    decimal dolaraOran = closestKur?.DolaraOran ?? 0;
+    decimal euroyaOran = closestKur?.EuroyaOran ?? 0;
+    decimal kurUsd = 1 / dolaraOran;
+    decimal kurEur = 1 / euroyaOran;
+    kurUsd = Math.Round(kurUsd, 2);
+    kurEur = Math.Round(kurEur, 2);
+    Console.WriteLine(kurUsd);
+    Console.WriteLine(kurEur);
+}
+<style>
+    #GiderTable th, td {
+        border: 1px solid black
+    }
+
+    #GelirTable th, td {
+        border: 1px solid black
+    }
+</style>
+<div style="display:flex; flex-direction:row; gap:2em">
+    <p>Gelir Tablosu</p>
+    <table id="GelirTable">
+        <thead>
+            <tr>
+                <th>Kategori</th>
+                <th>Açıklama</th>
+                <th>Miktar</th>
+                <th>ParaBirimi</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- JS ile doldur -->
+        </tbody>
+    </table>
+
+    <p>Gider Tablosu</p>
+    <table id="GiderTable">
+        <thead>
+            <tr>
+                <th>Kategori</th>
+                <th>Açıklama</th>
+                <th>Miktar</th>
+                <th>ParaBirimi</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- JS ile doldur -->
+        </tbody>
+    </table>
+</div>
+
+<div>
+    <p>Gelir/Gider:</p>
+    <select id="GelirGider">
+        <option value="0">Gelir</option>
+        <option value="1">Gider</option>
+    </select>
+    <p>Kategori:</p>
+    <select id="Kategori">
+        <!-- JS ile doldur -->
+    </select>
+    <p>Açıklama:</p>
+    <input type="text" id="Aciklama" />
+    <p>Miktar:</p>
+    <input type="number" id="Miktar" />
+    <p>Para Birimi:</p>
+    <select id="ParaBirimi">
+        <option value="TRY">TRY</option>
+        <option value="USD">USD</option>
+        <option value="EUR">EUR</option>
+    </select>
+    <button id="Onay">Onay</button>
+</div>
+
+<script>
+    $(document).ready(function () {
+        let ggVal = @Html.Raw(Json.Serialize(ggVal));
+        let turId = ggVal[0];
+        console.log("turId: " + turId);
+        let sirketList = @Html.Raw(Json.Serialize(Model.SirketList.Select(s => new {s.Id, s.SirketAdi})));
+        let kategoriList = @Html.Raw(Json.Serialize(Model.GelirGiderKategoriList.Select(k => new {k.Id, k.KategoriAdi, k.GelirGider, k.SilindiMi})));
+        let paraBirimiList = @Html.Raw(Json.Serialize(Model.ParaBirimiList.Select(p => new {p.Iso4217, p.ParaBirimiAdi})));
+        let gelirList = @Html.Raw(Json.Serialize(Model.GelirList.Select(p => new { p.Id, p.TurId, p.KategoriId, p.Aciklama, p.ParaBirimi, p.Miktar })));
+        let giderList = @Html.Raw(Json.Serialize(Model.GiderList.Select(p => new { p.Id, p.TurId, p.KategoriId, p.Aciklama, p.ParaBirimi, p.Miktar })));
+        console.log("gelirList", gelirList)
+        console.log("giderList", giderList)
+
+        let gelirTableBody = document.querySelector("#GelirTable tbody");
+        let giderTableBody = document.querySelector("#GiderTable tbody");
+
+        // İstenilen turId ve itemList ile fonksiyonu çağır
+        createTableRows(turId, gelirList, gelirTableBody);
+        createTableRows(turId, giderList, giderTableBody);
+
+        filterAndPopulateKategori();
+
+        // Call the filterAndPopulateKategori function when the GelirGider select value changes
+        document.getElementById("GelirGider").addEventListener("change", filterAndPopulateKategori);
+
+        document.getElementById("Onay").addEventListener("click", createNewGelirGider);
+
+        function createNewGelirGider() {
+            let gelirGiderSelect = document.getElementById("GelirGider");
+            let kategoriSelect = document.getElementById("Kategori");
+            let aciklamaInput = document.getElementById("Aciklama");
+            let miktarInput = document.getElementById("Miktar");
+            let paraBirimiSelect = document.getElementById("ParaBirimi");
+
+            if (aciklamaInput.value === "" || miktarInput.value === "") {
+                alert("Lütfen tüm alanları doldurun.");
+                return;
+            }
+            if (aciklamaInput.value.length > 1000) {
+                alert("Açıklama alanı en fazla 1000 karakter olabilir.");
+                return;
+            }
+            if (miktarInput.value <= 0) {
+                alert("Miktar alanı 0'dan büyük olmalıdır.");
+                return;
+            }
+            if (!validateMoneyInput(miktarInput.value)) {
+                alert("Lütfen para miktarını doğru formatta giriniz! (Noktadan önce 18, sonra 2 hane olmalı. Örn: 123456789012345678.12)");
+                return;
+            }
+
+            let newArray = [];
+            newArray.push(turId);
+            newArray.push(gelirGiderSelect.value);
+            newArray.push(kategoriSelect.value);
+            newArray.push(aciklamaInput.value);
+            newArray.push(miktarInput.value);
+            newArray.push(paraBirimiSelect.value);
+
+            console.log("newArray:", newArray);
+
+            sendNewGelirGiderToController(newArray);
+        }
+
+        function validateMoneyInput(input) {
+            let regex = /^\d{1,18}(\.\d{1,2})?$/;
+            return regex.test(input);
+        }
+
+        function createTableRows(turId, itemList, tableBody) {
+            
+            tableBody.innerHTML = "";
+
+            let filteredList = itemList.filter(item => item.turId.toString() === turId);
+
+            // Tablo için satırlar oluştur
+            filteredList.forEach(item => {
+                let row = createTableRow(item);
+                tableBody.appendChild(row);
+            });
+        }
+
+        function createTableRow(item) {
+            let row = document.createElement("tr");
+
+            let kategoriCell = document.createElement("td");
+            kategoriCell.textContent = item.kategoriId; // item'dan gerçek özelliğe değiştir
+            row.appendChild(kategoriCell);
+
+            let aciklamaCell = document.createElement("td");
+            aciklamaCell.textContent = item.aciklama; // item'dan gerçek özelliğe değiştir
+            row.appendChild(aciklamaCell);
+
+            let miktarCell = document.createElement("td");
+            miktarCell.textContent = item.miktar; // item'dan gerçek özelliğe değiştir
+            row.appendChild(miktarCell);
+
+            let paraBirimiCell = document.createElement("td");
+            paraBirimiCell.textContent = item.paraBirimi; // item'dan gerçek özelliğe değiştir
+            row.appendChild(paraBirimiCell);
+
+            return row;
+        }
+
+        // Function to filter and populate Kategori select based on the selected option in GelirGider select
+        function filterAndPopulateKategori() {
+            let gelirGiderSelect = document.getElementById("GelirGider");
+            let selectedOption = gelirGiderSelect.value;
+            let filteredKategoriList;
+
+            if (selectedOption === "0") {
+                filteredKategoriList = kategoriList.filter(k => k.gelirGider === false);
+            } else {
+                filteredKategoriList = kategoriList.filter(k => k.gelirGider === true);
+            }
+
+            let kategoriSelect = document.getElementById("Kategori");
+            kategoriSelect.innerHTML = "";
+
+            filteredKategoriList.forEach(kategori => {
+                let option = document.createElement("option");
+                option.value = kategori.id;
+                option.textContent = kategori.kategoriAdi;
+                kategoriSelect.appendChild(option);
+            });
+        }
+    });
+    function sendNewGelirGiderToController(array) {
+        $.ajax({
+            type: "POST",
+            url: "/Home/AddGelirGider",
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(array),
+            success: function (response) {
+                console.log("Data sent successfully:", response);
+                if (response.redirectUrl) {
+                    window.location.href = response.redirectUrl;
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error("Error sending data:", xhr, status, error);
+            }
+        });
+    }
+</script>

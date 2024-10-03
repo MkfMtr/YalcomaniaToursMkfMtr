@@ -207,8 +207,9 @@
         <div>
             <button id="EndTour" style="padding-right:2em; float:left; background-color:red;color:white">Turu Bitir</button>
             <button id="MergeTour" style="padding-right:2em; float:left; background-color:green;color:white">Biletleri Başka Tura Aktar</button>
-            <button id="CancelMerge" style="padding-right:2em; float:left; background-color:orange;color:white">Aktarma İptal</button>
-            <button id="VehicleDetails" style="float:left; background-color:blue;color:white">Otobüse Yolcu Ata</button>
+            <button id="CancelMerge" style="padding-right:2em; float:left; background-color:blue;color:white">Aktarma İptal</button>
+            <button id="VehicleDetails" style="float:left; background-color:orange;color:black">Otobüse Yolcu Ata</button>
+            <button id="GelirGider" style="float:left; background-color:purple;color:white">Gelir Gider</button>
             <button id="CloseWindow" style="float:right">Kapat</button>
         </div>
         <div style="padding-bottom:1em">
@@ -909,6 +910,7 @@
                 fillBiletTable(aracTablePool);
             }
         });
+        
         document.getElementById("AracSec").addEventListener("change", function () {
             getAracSecValue();
             fillAracTable(aracTablePool);
@@ -965,6 +967,20 @@
             if (endOnay) {
                 let endTourArray = [detailKeep.id.toString()];
                 sendEndTourToController(endTourArray);
+            }
+        });
+
+        //Gelir Gidere git
+        document.getElementById("GelirGider").addEventListener("click", function () {
+            if (detailKeep.bittiMi === true) {
+                alert("Bu tur bitmiş. Düzenleme yapılamaz.");
+            }
+            else if (detailKeep.turIptalMi === true) {
+                alert("Bu tur iptal edilmiş. Düzenleme yapılamaz.");
+            }
+            else {
+                let gelirGiderArray = [detailKeep.id.toString()];
+                sendGelirGiderToController(gelirGiderArray);
             }
         });
 
@@ -1234,6 +1250,23 @@
         $.ajax({
             type: "POST",
             url: "/Home/TourToUpdate",
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(array),
+            success: function (response) {
+                console.log("Data sent successfully:", response);
+                if (response.redirectUrl) {
+                    window.location.href = response.redirectUrl;
+                }
+            },
+            error: function (error) {
+                console.error("Error sending data:", error);
+            }
+        });
+    }
+    function sendGelirGiderToController(array) {
+        $.ajax({
+            type: "POST",
+            url: "/Home/GelirGiderPost",
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify(array),
             success: function (response) {

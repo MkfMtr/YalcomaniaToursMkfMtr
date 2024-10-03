@@ -17,5 +17,6 @@ namespace YalcomaniaToursMkfMtr.Models
         public List<ParaBirimi> ParaBirimiList { get; set; }
         public List<Kur> KurList { get; set; }
         public List<Bilet> BiletList { get; set; }
+        public List<Sirket> SirketList { get; set; }
     }
 }

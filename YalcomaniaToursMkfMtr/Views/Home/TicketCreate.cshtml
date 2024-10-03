@@ -2,9 +2,24 @@
 @model TicketCreateModel
 @{
     ViewData["Title"] = "Bilet Oluştur";
+    var userRoleJson = Context.Session.GetString("UserRole");
     var userId = Context.Session.GetInt32("UserId");
-    var userName = Context.Session.GetString("UserName") +" "+ Context.Session.GetString("UserSurname");
     var subeId = Context.Session.GetInt32("SubeId");
+    string userRole = null;
+    if (userRoleJson == null||userId == null||subeId==null)
+    {
+        userRole = "Admin"; //Geçici test amaçlı
+        userId = 1; //Geçici test amaçlı
+        subeId = 1; //Geçici test amaçlı
+    }
+    else
+    {
+        userRole = JsonConvert.DeserializeObject<string>(userRoleJson);
+    }
+    Console.WriteLine("User Role: " + userRole);
+    
+    var userName = Context.Session.GetString("UserName") +" "+ Context.Session.GetString("UserSurname");
+    
     var subeName = Context.Session.GetString("SubeName");
     var jsonString = Context.Session.GetString("biletValues");
     List<string> existingBiletList = new List<string>();
@@ -181,7 +196,7 @@
         <input type="text" id="Aciklama" name="Aciklama" placeholder="Açıklama" />
     </div>
 
-    <!-- Servis İstiyor Mu - Servis Saati -->
+    <!-- Servis İstiyor Mu - Servis Saati - BiletIptalMi -->
     <div style="padding-bottom: 3em; display: flex; flex-direction:row">
         <div style="padding-right: 2em; display: flex; flex-direction:column">
             <p>Servis İstiyor Mu</p>
@@ -190,12 +205,6 @@
         <div style="padding-right: 2em; display: flex; flex-direction:column">
             <p>Servis Saati</p>
             <input type="time" id="ServisSaati" name="ServisSaati" readonly />
-            @* <select id="ServisSaati" name="ServisSaati" disabled>
-                @foreach (var tur in Model.TurList)
-                {
-                    <option value="@tur.Saat">@tur.Saat</option>
-                }
-            </select> *@
         </div>
         <div style="display: flex; flex-direction:column">
             <p>Bilet İptal Mi:</p>
@@ -203,12 +212,40 @@
         </div>
     </div>
 
+    <!--Pas Bileti Elementleri -->
+    <div id="PasDiv" style="padding-bottom: 3em; display:none; flex-direction:row">
+      <p>Pas Bileti Mi:</p>
+      <input type="checkbox" id="PasBiletiMi"/>
+      <p>Gelen/Giden Pas:</p>
+      <select id="GelenGiden">
+          <option value="">Seçim Yapın</option>
+          <option value="false">Gelen</option>
+          <option value="true">Giden</option>
+      </select>
+      <p>Pas Şirketi:</p>
+      <select id="PasSirketi">
+            <option value="">Seçim Yapın</option>
+          @foreach (var pasSirketi in Model.SirketList)
+            {
+                <option value="@pasSirketi.Id">@pasSirketi.SirketAdi</option>
+            }
+      </select>
+    </div>
+
     <button id="Confirm" type="button">Bileti Onayla</button>
 </div>
 
 <script>
     $(document).ready(function () {
-
+        if ("@userRole" === "VeriGiris" || "@userRole" === "Admin") {
+            document.getElementById("PasDiv").style.display = "flex";
+        }
+        else{
+            document.getElementById("PasDiv").style.display = "none";
+            document.getElementById("PasBiletiMi").checked = false;
+            document.getElementById("GelenGiden").value = "";
+            document.getElementById("PasSirketi").value = "";
+        }
         // #region Arrayleri oluştur
         let turList = @Html.Raw(Json.Serialize(Model.TurList.Select(t => new { t.Id, t.Tarih, t.Saat, t.TurTipiId, t.BittiMi, t.FiyatTRY, t.FiyatUSD, t.FiyatEUR, t.AracId1, t.AracId2, t.AracId3, t.AracId4, t.ServisId1, t.ServisId2, t.ServisId3, t.TurIptalMi })));
         let bolgeServisSaatiList = @Html.Raw(Json.Serialize(Model.BolgeList.Select(bs => new { bs.Id, bs.ServisSaati })));
@@ -342,38 +379,63 @@
             let rest = document.getElementById("Rest").value;
             let aciklama = document.getElementById("Aciklama").value;
             let servisIstiyorMu = document.getElementById("ServisIstiyorMu").checked;
+            let pasBiletiMi = document.getElementById("PasBiletiMi").checked;
+            let gelenGiden = document.getElementById("GelenGiden").value;
+            let pasSirketi = document.getElementById("PasSirketi").value;
+
             let servisSaati;
             let biletId;
             if (biletExists) {
                 biletId = existingBiletList[0];
             }
-            let biletIptalMi;
             if (biletExists) {
                 biletIptalMi = document.getElementById("BiletIptalMi").checked;
             }
             //#endregion
 
             //#region Bilet bilgilerini göndermeden önce düzenle
-            if (musteriOdaNo === "") {
-                musteriOdaNo = null;
+            if (musteriAd.length < 1 || musteriAd.length > 100) {
+                alert("Müşteri adı 1-100 karakter arasında olmalıdır.");
+                return;
             }
-            if (musteriAdres === "") {
-                musteriAdres = null;
+            if (musteriTelNo.length > 16 || musteriTelNo.length < 1) {
+                alert("Telefon numarası 1-16 haneli olmalıdır.");
+                return;
             }
-            if (aciklama === "") {
-                aciklama = null;
+            if (musteriAdres.length > 1000) {
+                alert("Adres 1000 karakterden fazla olamaz.");
+                return;
             }
-            if (musteriOtelId === "") {
-                musteriOtelId = null;
-                musteriOdaNo = null;
+            if (musteriOdaNo.length > 10) {
+                alert("Oda numarası 10 karakterden fazla olamaz.");
+                return;
             }
-            else {
-                musteriAdres = null;
+            if (aciklama.length > 1000) {
+                alert("Açıklama 1000 karakterden fazla olamaz.");
+                return;
+            }
+            if (parseFloat(paid) > parseFloat(paid) + parseFloat(rest)) {
+                alert("Paid değeri toplam fiyattan büyük olamaz.");
+                return;
             }
             if (servisIstiyorMu) {
                 servisSaati = document.getElementById("ServisSaati").value;
             } else {
-                servisSaati = null;
+                servisSaati = "";
+            }
+            if (pasBiletiMi){
+                if (gelenGiden === "" || pasSirketi === ""){
+                    alert("Lütfen Pas Bileti Bilgilerini Tam Doldurunuz.");
+                    return;
+                }
+            }
+            else{
+                gelenGiden = "";
+                pasSirketi = "";
+            }
+            if(validateMoneyInput(paid) === false || validateMoneyInput(rest) === false){
+                alert("Lütfen para miktarlarını doğru formatta giriniz! (Noktadan önce 18, sonra 2 hane olmalı. Örn: 123456789012345678.12)");
+                return;
             }
             //#endregion
 
@@ -398,16 +460,23 @@
                 "rest": rest,
                 "aciklama": aciklama,
                 "servisIstiyorMu": servisIstiyorMu,
-                "servisSaati": servisSaati
+                "servisSaati": servisSaati,
+                "pasBiletiMi": pasBiletiMi,
+                "gelenGiden": gelenGiden,
+                "pasSirketi": pasSirketi
             };
-            console.log("Controller'a Giden Bilet Bilgileri:", logArray);
+            //console.log("Controller'a Giden Bilet Bilgileri:", logArray);
             //#endregion
 
             //#region Doldurulması lazım alanlar boş mu kontrol et.
             if (satanSubeId && turId && musteriAd && musteriUyruk && musteriBolgeId && musteriTelNo && fullSayi && halfSayi && guestSayi && paraBirimi && paid && rest) {
                 if ((musteriOtelId === null && musteriAdres !== null) || (musteriOtelId !== null && musteriOdaNo !== null)) {
                     let ticketValues = [];
-                    ticketValues.push(satanSubeId, satanElemanId, turId, musteriAd, musteriSoyad, musteriUyruk, musteriBolgeId, musteriOtelId, musteriOdaNo, musteriTelNo, musteriAdres, fullSayi, halfSayi, guestSayi, paraBirimi, paid, rest, aciklama, servisIstiyorMu.toString(), servisSaati);
+                    ticketValues.push(satanSubeId, satanElemanId, turId, musteriAd.trim(), 
+                        musteriSoyad.trim(), musteriUyruk, musteriBolgeId, musteriOtelId, musteriOdaNo.trim(), 
+                        musteriTelNo, musteriAdres.trim(), fullSayi, halfSayi, guestSayi, paraBirimi, paid,
+                        rest, aciklama.trim(), servisIstiyorMu.toString(), servisSaati, pasBiletiMi.toString(), gelenGiden, pasSirketi);
+                    console.log("Controller'a Giden Array Bilgileri:", ticketValues);
                     if (biletExists) {
                         ticketValues.push(biletId);
                         ticketValues.push(biletIptalMi.toString());
@@ -427,6 +496,11 @@
             }
             //#endregion
         });
+        
+        function validateMoneyInput(input) {
+            let regex = /^\d{1,18}(\.\d{1,2})?$/;
+            return regex.test(input);
+        }
 
         //Bölgeyle alakalı kısımları doldur
         function updateBolgeStuff() {
@@ -463,13 +537,17 @@
         // Otel varsa/yoksa adres ya da oda no aç/kapa
         function updateAdresStuff(){
             console.log("selectedOtelId:", selectedOtelId);
+            let odaNo = document.getElementById("MusteriOdaNo");
+            let adres = document.getElementById("MusteriAdres");
             if (selectedOtelId === 0) {
-                document.getElementById("MusteriOdaNo").disabled = true;
-                document.getElementById("MusteriAdres").disabled = false;
+                odaNo.disabled = true;
+                odaNo.value = "";
+                adres.disabled = false;
             }
             else{
-                document.getElementById("MusteriOdaNo").disabled = false;
-                document.getElementById("MusteriAdres").disabled = true;
+                odaNo.disabled = false;
+                adres.disabled = true;
+                adres.value = "";
             }
         }
 

@@ -47,7 +47,7 @@ namespace YalcomaniaToursMkfMtr.Controllers
                             HttpContext.Session.SetInt32("UserId", user.Id);
                             HttpContext.Session.SetString("UserName", user.CalisanAdi);
                             HttpContext.Session.SetString("UserSurname", user.CalisanSoyadi ?? "");
-                            HttpContext.Session.SetString("UserRole", gorev.GorevAdi);
+                            HttpContext.Session.SetString("UserRole", JsonConvert.SerializeObject(gorev.GorevAdi));
                             HttpContext.Session.SetInt32("SubeId", sube.Id);
                             HttpContext.Session.SetString("SubeName", sube.SubeAd);
 
